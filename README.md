@@ -1,83 +1,167 @@
-# Prehistoric Tribes · Web
+<p align="center">
+  <img src="web/public/hd/menu/logo.png" alt="Prehistoric Tribes Web Logo" width="360">
+</p>
 
-把 2000 年代的 J2ME 手机游戏 **Prehistoric Tribes**（史前部落）移植到网页上，浏览器打开即可游玩。
+<h1 align="center">Prehistoric Tribes · Web</h1>
 
-移植的目标是**和原版完全一致**：游戏逻辑按原版程序逐条移植，并在模拟器上和原版逐帧对照验证（从开场一直到通关）。在此基础上加了简体中文、为手机重新设计的触屏界面，以及保持原作风格的高清重绘美术。
+<p align="center">
+  <strong>An enhanced web port of the classic 2000s J2ME real-time strategy game <em>Prehistoric Tribes</em>.</strong><br>
+  Playable directly in your browser with HD graphics, touch controls, and complete multi-language support.
+</p>
 
-> 本项目是非官方的爱好者移植，仅供学习与交流。游戏原作及其美术、音乐、文字等素材的版权归原权利人所有。
+<p align="center">
+  <a href="README.md">English</a> •
+  <a href="README.id.md">Bahasa Indonesia</a>
+</p>
 
-## 在线试玩
+<p align="center">
+  <img src="https://img.shields.io/badge/Language-TypeScript_5-blue.svg" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Bundler-Vite_6-646CFF.svg" alt="Vite">
+  <img src="https://img.shields.io/badge/Platform-Web_Canvas_%2F_Mobile-success.svg" alt="Platform">
+  <img src="https://img.shields.io/badge/License-Non--Commercial_Fan_Project-orange.svg" alt="License">
+</p>
 
-GitHub Pages：<https://bombwcc.github.io/Prehistoric_Tribes_Web/>
+---
 
-电脑（键盘或鼠标）和手机（触屏）都能玩。手机上建议竖屏，并从浏览器"添加到主屏幕"后打开（全屏）。
+## 🌟 Acknowledgements & Base Project Credits
 
-## 操作（触屏 / 鼠标）
+> ### 📢 Important Attribution & Asset Ownership
+> **1. Original Game & Intellectual Property Rights:**
+> * *Prehistoric Tribes* was originally developed by **Gear Games, Ltd.** and published by **THQ Wireless Inc. / THQ Inc.** (© 2008 THQ Wireless Inc. All rights reserved).
+> * **All original game assets, visual artwork, character sprites, sound effects, music tracks, scenario narratives, trademarks, and intellectual property remain 100% the property of the original game developers and copyright holders (Gear Games, Ltd. and THQ Inc.).**
+>
+> **2. Base Web Port & Reverse Engineering:**
+> * The web port, reverse engineering of the original J2ME bytecode, state simulation loop, and HD art integration were **100% researched and developed by [BOMBWCC](https://github.com/BOMBWCC)** in the upstream repository:
+> * 👉 **Original Upstream Repository:** [https://github.com/BOMBWCC/Prehistoric_Tribes_Web](https://github.com/BOMBWCC/Prehistoric_Tribes_Web)
+> * Full credit for creating the faithful browser-based port goes to **BOMBWCC**.
+>
+> **3. This Community Mod / Fork:**
+> * This repository is an enhanced community fork dedicated to introducing Indonesian localization, mobile touch UX ergonomics, haptic feedback, and modern audio performance optimizations.
+---
 
-界面按单手（右手）操作设计，尽量用图标代替文字。
+## 🎮 About the Game
 
-- **开始菜单**：战役 / 自定义 / 关于；右上角的国旗切换语言（English / 中文），旁边是声音开关，右下角返回。
-- **拖动画面**：移动视野。
-- **点村民**：选中；再点地图上的目标下命令（走过去、砍树、采石、打猎、攻击、去工地、进建筑……）。
-- **长按地图再拖**：框选多个村民。
-- **点建筑**：选中，屏幕下方弹出建筑面板：拆除、修理、升级，建筑自己的功能（武器、法术等，带数量的左右滑动增减），以及里面村民的头像（点头像 = 选中这个村民）。
-- **右下角的建造按钮**：列表里是建筑图标和价格，左右滑动翻页；点一个后在地图上摆位置，✓ 放下、✗ 取消。材料不够也能放，备齐了建筑工才开工。
-- **建造按钮上方的按钮**：命令菜单——全员备战、集合、小地图。
-- **右侧编队**：点"+"把当前选中的人存成一队，点队伍图标调出，长按可以替换或解散。
-- **右上角菜单**：继续、读档、存档、设置、帮助、退出。
-- **剧情和对话**：点右下角的 ✓（或屏幕任意处）看下一段。
+*Prehistoric Tribes* (史前部落) was one of the most sophisticated real-time strategy (RTS) games released for mobile phones during the J2ME (Java ME) era in the mid-2000s. Players manage a Stone Age tribe: harvesting berries, hunting mammoths and saber-toothed cats, chopping wood, mining stone, crafting weapons, constructing specialized buildings, raising children, and defending the village against hostile enemy raids.
 
-## 操作（键盘）
+This web port faithfully reproduces the original game logic frame-for-frame via TypeScript and the HTML5 Canvas API, running natively without requiring any Java emulators.
 
-| 功能 | 按键 |
-|---|---|
-| 移动光标 / 菜单上下左右 | W A S D 或方向键 |
-| 确认 / 选择 | 回车、空格 |
-| 左软键（游戏中：建造菜单） | Q |
-| 右软键（返回、取消、暂停） | Esc、Backspace |
-| 小地图 | M |
-| 跳到最近一条警告的位置 | 1 |
-| 快捷帮助 | 0 |
-| 编组：按住存当前选择，短按调出 | 7、9 |
+---
 
-一些原版技巧：在同一个单位上连按两次确认，选中屏幕内所有我方单位；按住确认并移动光标，可以拉框多选。
+## ✨ Features Added in this Fork
 
-语言在开始菜单右上角切换（国旗）；键盘玩时，原版的菜单也照常可用。
+Building upon BOMBWCC's faithful foundation, this enhanced version introduces several modern improvements:
 
-## 帮忙找 bug
+### 🇮🇩 1. Comprehensive Indonesian Localization (Bahasa Indonesia)
+* **100% In-Game Translation**: Start Menu, Campaign chapters, Difficulty selection, Settings, Trophies, In-Game HUD, Building menus, Villager information sheets, and Pause Menu.
+* **Prehistoric Encyclopedia**: Complete lore and descriptions for all **12 buildings**, **12 villager skills**, and **13 weapons, traps, and shamanic spells** (clubs, spears, throwing axes, pit traps, love potions, healing rituals, etc.).
+* **Match Recap Screen**: Detailed post-match analytics featuring population growth timelines, combat statistics, economic metrics, and dynamic rank titles (*Panglima Mitos Prasejarah*, *Kepala Suku Agung*, *Tetua Tangguh*, *Suku yang Tumbang*).
+* **Chief Succession**: Fully translated emergency election banner when a tribal chief falls in battle.
+* **Asset Integration**: High-definition Indonesian flag icon in the main menu language selector.
 
-欢迎提 Issue。为了方便复现，请尽量写上：
+### 📱 2. Mobile Ergonomics & Touch Controls
+* **Smart 1-Tap Dispatch**: Instant single-tap dispatch with clear feedback indicators.
+* **Fat-Finger Hitboxes**: Expanded touch targets for buttons, villager selection, and building tabs.
+* **Gesture Lock**: Prevents accidental double-tap and pinch-to-zoom gestures on iOS Safari and Android Chrome.
+* **Haptic Feedback**: Integrated Web Vibration API for tactical alerts (enemy raid sirens, building completion, and subtle UI taps).
 
-- 浏览器和系统（例如 Chrome 129 / macOS）
-- 语言（中文 / English / …）
-- 在第几关、做了什么操作、看到了什么、本来应该是什么
-- 截图（有的话最好）
+### ⚡ 3. Unified Audio Performance
+* Re-architected SFX, BGM, and ambient audio subsystems to share a single lazy-initialized `AudioContext` singleton.
+* Eliminates browser autoplay restriction warnings and reduces audio memory usage on mobile devices.
 
-## 本地运行
+### 🛠️ 4. Bug Fixes & Refinements
+* Fixed hardcoded untranslated Chinese text in the building demolition confirmation modal.
+* Refined dialog boxes with localized `[Batal]` and `[Konfirmasi]` actions.
+* Resolved responsive HUD layout clipping on narrow mobile screens.
 
-需要 Node.js 20+。
+---
 
+## 🕹️ Controls
+
+### Touch / Mouse
+The interface is designed for convenient one-handed operation:
+* **Drag Screen**: Pan the camera view across the map.
+* **Tap Villager**: Select unit. Tap a target (tree, quarry, wild beast, enemy, construction site, or building) to assign a task.
+* **Hold & Drag**: Box-select multiple villagers at once.
+* **Tap Building**: Open the building action sheet (Demolish, Repair, Upgrade, craft items, or view resident villagers).
+* **Build Button (Bottom-Right)**: Browse available structures and blueprint costs; tap to place on the map (✓ Confirm, ✗ Cancel).
+* **Command Bar (Above Build)**: Quick orders — Alert / Battle Stations, Gather at Chief's Hut, and Minimap.
+* **Squad Formations (Right Edge)**: Tap `+` to bind selected units to a squad number; tap to recall, long-press to disband.
+* **Top-Right Menu**: In-game pause menu (Save, Load, Stats, Trophies, Settings, Guide, Quit).
+
+### Keyboard Shortcuts
+| Action | Keybinding |
+| :--- | :--- |
+| Move Cursor / Menu Navigation | `W`, `A`, `S`, `D` or Arrow Keys |
+| Confirm / Select | `Enter` or `Space` |
+| Left Softkey (Open Build Menu) | `Q` |
+| Right Softkey (Back / Cancel / Pause) | `Esc` or `Backspace` |
+| Toggle Minimap | `M` |
+| Jump to Latest Danger Alert | `1` |
+| Quick In-Game Help | `0` |
+| Squad Groups | Hold `7` or `9` to save squad; press to select |
+
+*Pro-tip:* Double-tap confirm on an ally to select all visible allied units on screen!
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+* [Node.js](https://nodejs.org/) (version 20.0 or higher recommended)
+* `npm` (bundled with Node.js)
+
+### Installation & Local Run
 ```bash
-cd web
+# Clone the repository
+git clone https://github.com/latifangren/prehistoric_tribes_web.git
+cd prehistoric_tribes_web
+
+# Install dependencies
 npm install
+
+# Start local development server (Vite)
 npm run dev
 ```
 
-然后打开终端里提示的地址（默认 <http://localhost:5173>）。构建静态网页：`npm run build`，产物在 `web/dist/`。
+Once running, navigate to `http://localhost:3000` (or `http://localhost:5173`) in your web browser.
 
-## 目录
+### Building for Production
+```bash
+npm run build
+```
+The compiled, production-ready static assets will be output to the `web/dist/` directory, ready to be hosted on GitHub Pages, Cloudflare Pages, Vercel, or any static web host.
 
-- `web/` —— 游戏本体（TypeScript + Canvas，没有使用游戏引擎）
-  - `src/` —— 原版各个方法的逐条移植，按功能分目录：
-    - `platform/` J2ME 兼容层（画图、图片、按键、存储、声音、资源）；`save/` 存档格式；`core/` 运行时与游戏状态
-    - `sim/units`、`sim/tribe`、`sim/world` 单位、部落与敌方 AI、地图与寻路；`render/` 绘制；`ui/` 菜单与流程；`text/` 文字排版
-  - `public/assets/` —— 从原版提取的素材（图片、地图、文字、音乐）
-  - `public/hd/` —— 高清重绘的美术（地图、单位、界面、菜单、剧情图、头像）
-  - `scripts/verify-*.mjs` —— 各个移植方法的行为测试（`npm test` 全部运行）
-- `docs/translation-zh-CN.json` —— 简体中文译文，游戏直接读取这个文件
+---
 
-## 之后的计划
+## 📁 Repository Structure
 
-1. ~~把网页版做到完全可玩~~（已完成）
-2. 手机界面与高清美术（进行中：地图、界面、开始菜单、剧情图已完成；对话场景的地图动画、村民属性面板、胜负画面等还在做）
-3. 双人对战模式（初步考虑 WebRTC）
+```text
+├── docs/                   # Documentation and translation tables
+├── web/
+│   ├── public/             # Static game assets
+│   │   ├── assets/         # Extracted original J2ME binary sprites, maps, and audio
+│   │   └── hd/             # High-definition redrawn sprites, UI, and portrait art
+│   ├── scripts/            # Behavioral verification test suites
+│   └── src/
+│       ├── audio/          # Atmosphere audio & soundscape system
+│       ├── combat/         # Combat tactics, formations, and battle formulas
+│       ├── core/           # Runtime state, memory arrays, and legacy data structures
+│       ├── platform/       # J2ME compatibility layer (Canvas, Audio, Input, Storage, Haptic)
+│       ├── render/         # HD art renderer, camera, danger indicators, and match recap
+│       ├── sim/            # AI simulation (units, tribe economics, world generation, pathfinding)
+│       ├── ui/             # Game states, flow controller, and menu screens
+│       ├── Alerts.ts       # Danger notification banner feed and tactical haptics
+│       ├── Bestiary.ts     # Prehistoric fauna & enemy stats registry
+│       ├── Hud.ts          # Touch control HUD, action sheets, and building controls
+│       ├── Settings.ts     # Multi-tab responsive settings modal
+│       ├── StartMenu.ts    # Main menu, campaign browser, and language selector
+│       └── main.ts         # Application entry point and loop bootstrap
+```
+
+---
+
+## 📜 Disclaimer & Asset Licensing
+
+* **Asset Ownership Notice:** All original in-game assets—including but not limited to textures, sprites, animations, sound effects, MIDI tracks, dialogues, and game design concepts—are the exclusive intellectual property of the original game developer, **Gear Games, Ltd.**, and publisher, **THQ Wireless Inc. / THQ Inc.** (© 2008 THQ Wireless Inc.). Neither BOMBWCC nor the maintainers of this repository claim any ownership over these original assets.
+* **Non-Commercial Fan Preservation:** This project is an unofficial, non-profit, educational open-source fan recreation developed strictly for historical preservation, research, and learning purposes. No commercial monetization or proprietary licensing applies to the original game contents.
+* **Web Port Credit:** All credit for the web port reverse-engineering and implementation goes to **[BOMBWCC](https://github.com/BOMBWCC/Prehistoric_Tribes_Web)**.
