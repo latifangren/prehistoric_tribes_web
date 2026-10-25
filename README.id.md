@@ -17,7 +17,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Bahasa-TypeScript_5-blue.svg" alt="TypeScript">
   <img src="https://img.shields.io/badge/Bundler-Vite_6-646CFF.svg" alt="Vite">
-  <img src="https://img.shields.io/badge/Platform-Web_Canvas_%2F_HP-success.svg" alt="Platform">
+  <a href="https://github.com/latifangren/prehistoric_tribes_web/actions/workflows/ci.yml"><img src="https://github.com/latifangren/prehistoric_tribes_web/actions/workflows/ci.yml/badge.svg" alt="Status CI"></a>
+  <a href="https://latifangren.github.io/prehistoric_tribes_web/"><img src="https://img.shields.io/badge/Mainkan_Online-GitHub_Pages-2ea44f.svg" alt="Mainkan Online"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/Lisensi-MIT_(Khusus_Kode)-green.svg" alt="Lisensi"></a>
 </p>
 

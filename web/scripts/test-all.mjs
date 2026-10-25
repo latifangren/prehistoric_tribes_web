@@ -3,8 +3,9 @@ import { execFile } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const dir = path.dirname(new URL(import.meta.url).pathname);
+const dir = path.dirname(fileURLToPath(import.meta.url));
 const files = fs.readdirSync(dir).filter((f) => /^verify-.*\.mjs$/.test(f)).sort();
 const queue = [...files];
 const failed = [];

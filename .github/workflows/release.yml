@@ -1,0 +1,66 @@
+name: Release Offline Package
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package-release:
+    name: Build & Package Offline ZIP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web application
+        run: npm run build
+
+      - name: Create Offline ZIP Package
+        run: |
+          cd web/dist
+          zip -r ../../prehistoric-tribes-web-offline.zip .
+          cd ../..
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: prehistoric-tribes-web-offline.zip
+          name: Prehistoric Tribes Web ${{ github.ref_name }}
+          body: |
+            ### 🎮 Prehistoric Tribes Web — Offline Playable Release
+
+            This package contains the fully compiled, self-contained web build of **Prehistoric Tribes Web**.
+
+            #### How to play offline:
+            1. Download and extract `prehistoric-tribes-web-offline.zip`.
+            2. Double-click `index.html` (or serve locally with any static web server).
+            3. Enjoy the game on PC or mobile browser with HD art and touch controls!
+
+            ---
+            *Base game port by [BOMBWCC](https://github.com/BOMBWCC/Prehistoric_Tribes_Web). Original game © 2008 THQ Wireless Inc. / Gear Games, Ltd.*
+          draft: false
+          prerelease: false
+
+      - name: Upload Build Artifact (for manual workflow dispatch)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prehistoric-tribes-web-offline
+          path: prehistoric-tribes-web-offline.zip
+          retention-days: 30
