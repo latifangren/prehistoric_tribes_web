@@ -3517,14 +3517,42 @@ button.notice {
   background: linear-gradient(90deg, rgba(183, 28, 28, 0.95), rgba(127, 0, 0, 0.95));
   border: 2px solid #ffd54f;
   border-radius: 20px;
-  padding: 6px 14px;
+  padding: 5px 12px;
   color: #fff;
   font: 700 12px/1.2 system-ui, sans-serif;
   box-shadow: 0 0 16px rgba(229, 57, 53, 0.8), 0 4px 12px rgba(0, 0, 0, 0.6);
   z-index: 10;
-  pointer-events: none;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   animation: danger-pulse 1s infinite alternate ease-in-out;
   white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.a-move-cancel-btn {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  touch-action: manipulation;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.a-move-cancel-btn:active {
+  transform: scale(0.88);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .hud-rally-btn {

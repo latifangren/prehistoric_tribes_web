@@ -1,5 +1,6 @@
 import { OriginalKey, type KeyState, type OriginalKeyName } from "./platform/Input";
 import { sfx } from "./platform/SoundEffects";
+import { haptic } from "./platform/Haptic";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { T_BUILDING } from "./core/DataTables";
 import { UNIT_OFFSET_X, UNIT_OFFSET_Y } from "./core/DenseLayout";
@@ -236,6 +237,7 @@ export function attachTouchControls(
     if (villager && !(game.barMode === 1 && villager.id === game.selectedId)) {
       // From a building's bar, the villager's panel straight away (BUG-018).
       sfx.select();
+      haptic.tap();
       run(selectAt(villager.tx, villager.ty, 0));
       return;
     }
@@ -245,12 +247,31 @@ export function attachTouchControls(
     // With villagers selected (w 1) the same tap is the original's order: they go to the building
     // (work, build, repair) -- one tap too (user, 2026-10-23: keep the original, BUG-018).
     if (cell < 0 && cell >= -60 && (game.barMode === 0 || game.barMode === 1 || barOpen)) {
-      if (game.barMode === 1) sfx.order(); else sfx.select();
+      if (game.barMode === 1) {
+        sfx.order();
+        haptic.order();
+      } else {
+        sfx.select();
+        haptic.tap();
+      }
       run(selectAt(tx, ty, -cell));
       return;
     }
-    // First tap: the cursor jumps to the tile.
+    // Smart One-Tap Dispatch (mobile RTS UX): with a villager or squad selected (w 1),
+    // a tap on ground, trees, rocks, or prey immediately moves cursor & confirms FIRE!
+    if (game.barMode === 1 && !barOpen && !script) {
+      sfx.order();
+      haptic.order();
+      run((function* () {
+        moveCursorTo(tx, ty);
+        yield;
+        yield* tapKey(OriginalKey.FIRE);
+      })());
+      return;
+    }
+    // First tap when nothing selected: cursor jumps to the tile.
     sfx.click();
+    haptic.tap();
     moveCursorTo(tx, ty);
   };
 
@@ -280,7 +301,7 @@ export function attachTouchControls(
         if (id < 1 || id > 50) continue;
         const cx = (tx + dx) * TILE_W + TILE_W / 2 + (runtime.denseState[UNIT_OFFSET_X + id] ?? 0);
         const cy = (ty + dy) * TILE_H + TILE_H / 2 + (runtime.denseState[UNIT_OFFSET_Y + id] ?? 0);
-        if (Math.abs(px - cx) > 16 || Math.abs(py - cy) > 18) continue;
+        if (Math.abs(px - cx) > 26 || Math.abs(py - cy) > 28) continue;
         const distance = (px - cx) ** 2 + (py - cy) ** 2;
         if (distance < bestDistance) { bestDistance = distance; best = { id, tx: tx + dx, ty: ty + dy }; }
       }

@@ -34,6 +34,7 @@ export class TribeTacticsManager {
   private settingRallyForBuilding = -1;
   private processedNewborns = new Set<number>();
   private markerOverlay: HTMLElement | null = null;
+  private flagElements = new Map<number, HTMLElement>();
 
   isAttackMoveActive(): boolean {
     return this.attackMoveActive;
@@ -78,6 +79,8 @@ export class TribeTacticsManager {
 
   clearRallyPoints(): void {
     this.rallyPoints.clear();
+    this.flagElements.forEach((el) => el.remove());
+    this.flagElements.clear();
   }
 
   /**
@@ -215,23 +218,43 @@ export class TribeTacticsManager {
     }
 
     if (this.rallyPoints.size === 0) {
-      this.markerOverlay.replaceChildren();
+      if (this.flagElements.size > 0) {
+        this.flagElements.forEach((el) => el.remove());
+        this.flagElements.clear();
+      }
       return;
     }
 
-    const markersHtml: string[] = [];
-    for (const [bId, r] of this.rallyPoints.entries()) {
-      const pos = screen.tileToCss(r.x, r.y);
-      if (pos.x >= -30 && pos.x <= window.innerWidth + 30 && pos.y >= -30 && pos.y <= window.innerHeight + 30) {
-        markersHtml.push(`
-          <div class="rally-flag" style="left: ${pos.x}px; top: ${pos.y}px;">
-            <span class="flag-icon">🚩</span>
-            <span class="flag-label">Rally</span>
-          </div>
-        `);
+    // Remove stale flags
+    for (const [bId, el] of this.flagElements.entries()) {
+      if (!this.rallyPoints.has(bId)) {
+        el.remove();
+        this.flagElements.delete(bId);
       }
     }
-    this.markerOverlay.innerHTML = markersHtml.join("");
+
+    const viewW = window.innerWidth;
+    const viewH = window.innerHeight;
+
+    for (const [bId, r] of this.rallyPoints.entries()) {
+      let el = this.flagElements.get(bId);
+      if (!el) {
+        el = document.createElement("div");
+        el.className = "rally-flag";
+        el.innerHTML = '<span class="flag-icon">🚩</span><span class="flag-label">Rally</span>';
+        this.markerOverlay.append(el);
+        this.flagElements.set(bId, el);
+      }
+
+      const pos = screen.tileToCss(r.x, r.y);
+      if (pos.x >= -30 && pos.x <= viewW + 30 && pos.y >= -30 && pos.y <= viewH + 30) {
+        el.style.display = "flex";
+        el.style.left = `${pos.x}px`;
+        el.style.top = `${pos.y}px`;
+      } else {
+        el.style.display = "none";
+      }
+    }
   }
 }
 

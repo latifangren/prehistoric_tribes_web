@@ -1,6 +1,7 @@
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { OriginalKey } from "./platform/Input";
 import { sfx } from "./platform/SoundEffects";
+import { haptic } from "./platform/Haptic";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import { oldArt } from "./platform/OldArt";
 import { capitalise, originalText } from "./OriginalText";
@@ -197,12 +198,26 @@ export function attachHud(
     const active = tribeTactics.isAttackMoveActive();
     aMoveBanner.hidden = !active;
     if (active) {
-      aMoveBanner.innerHTML = isZh()
-        ? `⚔️ <b>进攻移动模式</b>：点击地图任意目标，部队将挺进并迎击沿途遇敌 (T / Esc 取消)`
-        : `⚔️ <b>Attack-Move Mode</b>: Tap map tile to march & engage any enemies encountered (T / Esc cancels)`;
+      const l = lang();
+      const text = l === "zh"
+        ? `⚔️ <b>进攻移动模式</b>：点击地图目标迎敌挺进`
+        : l === "id"
+        ? `⚔️ <b>Mode Gerak Tempur</b>: Ketuk peta untuk maju & serang musuh`
+        : `⚔️ <b>Attack-Move Mode</b>: Tap map to march & engage enemies`;
+      aMoveBanner.innerHTML = `
+        <span class="a-move-text">${text}</span>
+        <button type="button" class="a-move-cancel-btn" aria-label="Cancel">✕</button>
+      `;
+      aMoveBanner.querySelector(".a-move-cancel-btn")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        sfx.click();
+        haptic.tap();
+        tribeTactics.cancelAttackMove();
+        updateAttackMoveBanner();
+        notify(l === "zh" ? "已取消进攻移动" : l === "id" ? "Gerak tempur dibatalkan" : "Attack-Move cancelled");
+      });
     }
   };
-
   touch.setTileTapHandler((tx, ty) => {
     if (tribeTactics.isSettingRally()) {
       const bId = tribeTactics.getRallyBuilding();
@@ -590,18 +605,30 @@ export function attachHud(
     { glyph: "cmd-rally", name: () => (game.formUpActive ? (isZh() ? "解散" : "Dismiss") : (isZh() ? "集结" : "Form Up")), active: () => game.formUpActive, act: () => touch.command([11, 14]) },
     {
       glyph: "spear",
-      name: () => (tribeTactics.isAttackMoveActive() ? (isZh() ? "取消进攻移动" : "Cancel A-Move") : (isZh() ? "进攻移动 (A)" : "Attack-Move (A)")),
+      name: () => {
+        const l = lang();
+        if (tribeTactics.isAttackMoveActive()) {
+          return l === "zh" ? "取消进攻移动" : l === "id" ? "Batal Serang" : "Cancel A-Move";
+        }
+        return l === "zh" ? "进攻移动 (T)" : l === "id" ? "Gerak Tempur (T)" : "Attack-Move (T)";
+      },
       active: () => tribeTactics.isAttackMoveActive(),
       act: () => {
         const on = tribeTactics.toggleAttackMove();
         updateAttackMoveBanner();
+        haptic.tap();
+        const l = lang();
         notify(
           on
-            ? isZh()
-              ? "⚔️ 进攻移动已激活：点击地图目标挺进"
-              : "⚔️ Attack-Move Active: Tap map tile to march"
-            : isZh()
+            ? l === "zh"
+              ? "⚔️ 进攻移动已激活 [T]：点击地图目标挺进"
+              : l === "id"
+              ? "⚔️ Gerak Tempur Aktif [T]: Ketuk peta untuk maju"
+              : "⚔️ Attack-Move Active [T]: Tap map tile to march"
+            : l === "zh"
             ? "已取消进攻移动"
+            : l === "id"
+            ? "Gerak tempur dibatalkan"
             : "Attack-Move cancelled",
         );
       },
