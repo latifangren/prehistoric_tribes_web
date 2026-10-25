@@ -1,7 +1,7 @@
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { OriginalKey } from "./platform/Input";
 import { sfx } from "./platform/SoundEffects";
-import { ZH_LANGUAGE } from "./text/LegacyZhText";
+import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import { oldArt } from "./platform/OldArt";
 import { capitalise, originalText } from "./OriginalText";
 import { T_BUILDING } from "./core/DataTables";
@@ -76,14 +76,15 @@ export function attachHud(
   bar.className = "hud-bar";
   bar.hidden = true;
   bar.innerHTML = `<img class="hud-bar-bg" src="${UI}bar-bg.png" alt=""><img class="hud-bar-deco left" src="${UI}deco-top-left.png" alt=""><img class="hud-bar-deco right" src="${UI}deco-top-right.png" alt="">`;
+  const lang = () => (runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en"));
   const isZh = () => runtime.language === ZH_LANGUAGE;
   const counters = ([
-    ["people", "人口（点击查看村民名册）", "Population (Tap for Villager Roster)"],
-    ["food", "食物", "Food"],
-    ["wood", "木材", "Wood"],
-    ["stone", "石头", "Stone"],
-    ["bones", "骨头", "Bones"],
-  ] as const).map(([icon, nameZh, nameEn], idx) => {
+    ["people", "人口（点击查看村民名册）", "Populasi (Daftar Penduduk)", "Population (Tap for Villager Roster)"],
+    ["food", "食物", "Makanan", "Food"],
+    ["wood", "木材", "Kayu", "Wood"],
+    ["stone", "石头", "Batu", "Stone"],
+    ["bones", "骨头", "Tulang", "Bones"],
+  ] as const).map(([icon, nameZh, nameId, nameEn], idx) => {
     const group = document.createElement("div");
     group.className = `hud-count ${icon}${idx === 0 ? " interactive" : ""}`;
     group.setAttribute("role", idx === 0 ? "button" : "img");
@@ -94,7 +95,7 @@ export function attachHud(
       group.addEventListener("click", () => modals.openRoster());
     }
     bar.append(group);
-    return { group, digits, nameZh, nameEn, text: "" };
+    return { group, digits, nameZh, nameId, nameEn, text: "" };
   });
   const drawCounts = () => {
     const row = runtime.mainArrays.aShort[0];
@@ -108,7 +109,9 @@ export function attachHud(
       const text = texts[i]!;
       if (text === counter.text) return;
       counter.text = text;
-      counter.group.setAttribute("aria-label", `${isZh() ? counter.nameZh : counter.nameEn} ${text}`);
+      const l = lang();
+      const name = l === "zh" ? counter.nameZh : l === "id" ? counter.nameId : counter.nameEn;
+      counter.group.setAttribute("aria-label", `${name} ${text}`);
       counter.digits.innerHTML = Array.from(text, (c) => `<img src="${UI}digit-${c === "/" ? "slash" : c}.png" alt="">`).join("");
     });
   };
@@ -340,15 +343,16 @@ export function attachHud(
     "防御哨塔，提供广阔视野并自动攻击靠近的敌军或猛兽。",
   ];
   const renderHelpDialog = () => {
-    const zh = runtime.language === ZH_LANGUAGE;
+    const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
+    const zh = lang === "zh";
     const tabs: { id: typeof activeHelpTab; label: string }[] = [
-      { id: "controls", label: zh ? "操作缩放" : "Controls" },
-      { id: "buildings", label: zh ? "建筑图鉴" : "Buildings" },
-      { id: "arsenal", label: zh ? "武器巫术" : "Arsenal" },
-      { id: "bestiary", label: zh ? "远古图鉴" : "Bestiary" },
-      { id: "tribe", label: zh ? "资源生存" : "Survival" },
-      { id: "skills", label: zh ? "属性技能" : "Skills" },
-      { id: "keys", label: zh ? "快捷键" : "Keys" },
+      { id: "controls", label: lang === "zh" ? "操作缩放" : lang === "id" ? "Kontrol & Zoom" : "Controls" },
+      { id: "buildings", label: lang === "zh" ? "建筑图鉴" : lang === "id" ? "Bangunan" : "Buildings" },
+      { id: "arsenal", label: lang === "zh" ? "武器巫术" : lang === "id" ? "Senjata & Sihir" : "Arsenal" },
+      { id: "bestiary", label: lang === "zh" ? "远古图鉴" : lang === "id" ? "Fauna Purba" : "Bestiary" },
+      { id: "tribe", label: lang === "zh" ? "资源生存" : lang === "id" ? "Kelangsungan" : "Survival" },
+      { id: "skills", label: lang === "zh" ? "属性技能" : lang === "id" ? "Keahlian" : "Skills" },
+      { id: "keys", label: lang === "zh" ? "快捷键" : lang === "id" ? "Pintas Keyboard" : "Keys" },
     ];
     let bodyHtml = "";
     if (activeHelpTab === "controls") {
@@ -453,7 +457,7 @@ export function attachHud(
         </div>
       `;
     } else if (activeHelpTab === "bestiary") {
-      bodyHtml = renderBestiaryHtml(zh);
+      bodyHtml = renderBestiaryHtml(lang);
     } else {
       bodyHtml = `
         <div class="help-keys">
@@ -473,13 +477,13 @@ export function attachHud(
     helpDialog.innerHTML = `
       <form method="dialog">
         <div class="help-head">
-          <h2>${zh ? "部落百科与帮助" : "Tribe Guide & Encyclopedia"}</h2>
+          <h2>${lang === "zh" ? "部落百科与帮助" : lang === "id" ? "Ensiklopedia & Panduan Suku" : "Tribe Guide & Encyclopedia"}</h2>
           <div class="help-tabs">
             ${tabs.map((t) => `<button type="button" data-tab="${t.id}" class="help-tab${t.id === activeHelpTab ? " active" : ""}">${t.label}</button>`).join("")}
           </div>
         </div>
         <div class="help-body">${bodyHtml}</div>
-        <div class="confirm-buttons"><button type="submit">${zh ? "关闭" : "Close"}</button></div>
+        <div class="confirm-buttons"><button type="submit">${lang === "zh" ? "关闭" : lang === "id" ? "Tutup" : "Close"}</button></div>
       </form>
     `;
     for (const tabBtn of Array.from(helpDialog.querySelectorAll<HTMLButtonElement>(".help-tab"))) {

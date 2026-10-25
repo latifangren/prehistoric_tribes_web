@@ -12,7 +12,7 @@ import {
   stageSlotForLoad,
   type SaveSlotIndex,
 } from "./save/SaveSlotManager";
-import { ZH_LANGUAGE } from "./text/LegacyZhText";
+import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import type { TouchControls } from "./TouchControls";
 import { stepAs } from "./ui/UiRuntime";
 import type { WideScreen } from "./WideScreen";
@@ -227,31 +227,31 @@ export function attachSettings(
         deleteSaveSlot(slotIdx);
         sfx.click();
         renderSlots();
-        setStatus(zh ? `已清空槽位 ${slotIdx}` : `Cleared Slot ${slotIdx}`);
+        const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
+        setStatus(lang === "zh" ? `已清空槽位 ${slotIdx}` : lang === "id" ? `Slot ${slotIdx} dikosongkan` : `Cleared Slot ${slotIdx}`);
       });
     }
   };
 
   const show = () => {
-    const zh = runtime.language === ZH_LANGUAGE;
-    setText("title", zh ? "设置与存档" : "Settings & Saves");
-    setText("music", zh ? "背景音乐" : "Music");
-    setText("sfx", zh ? "游戏音效" : "Sound Effects");
-    setText("ambience", zh ? "自然风声与战鼓" : "Nature Ambience & Drums");
-    setText("weather", zh ? "动态天气与四季" : "Dynamic Weather & Seasons");
-    setText("hints", zh ? "新手提示" : "Hints");
-    setText("volume", zh ? "音量大小" : "Audio Volume");
-    setText("overhead", zh ? "头顶信息" : "Overhead Info");
-    setText("infoAll", zh ? "全部村民" : "All Villagers");
-    setText("infoSelected", zh ? "选中的村民" : "Selected Villager");
-    setText("infoNone", zh ? "不显示（受伤时显示）" : "Hidden (Show When Hurt)");
-    setText("zoom", zh ? "视野大小（支持双指/滚轮缩放）" : "Camera Zoom (Pinch / Scroll Wheel)");
-    setText("slotsTitle", zh ? "多槽位存档管理（槽位 1–3）" : "Save Slots (Slots 1–3)");
-    setText("unlockAll", zh ? "解锁全章节" : "Unlock All");
-    setText("exportSave", zh ? "导出备份" : "Export JSON");
-    setText("importSave", zh ? "导入备份" : "Import JSON");
-    setText("done", zh ? "完成" : "Done");
-
+    const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
+    setText("title", lang === "zh" ? "设置与存档" : lang === "id" ? "Pengaturan & Penyimpanan" : "Settings & Saves");
+    setText("music", lang === "zh" ? "背景音乐" : lang === "id" ? "Musik Latar" : "Music");
+    setText("sfx", lang === "zh" ? "游戏音效" : lang === "id" ? "Efek Suara (SFX)" : "Sound Effects");
+    setText("ambience", lang === "zh" ? "自然风声与战鼓" : lang === "id" ? "Suara Alam & Drum Perang" : "Nature Ambience & Drums");
+    setText("weather", lang === "zh" ? "动态天气与四季" : lang === "id" ? "Cuaca Dinamis & Musim" : "Dynamic Weather & Seasons");
+    setText("hints", lang === "zh" ? "新手提示" : lang === "id" ? "Petunjuk & Bantuan" : "Hints");
+    setText("volume", lang === "zh" ? "音量大小" : lang === "id" ? "Volume Suara" : "Audio Volume");
+    setText("overhead", lang === "zh" ? "头顶信息" : lang === "id" ? "Status Kepala Unit" : "Overhead Info");
+    setText("infoAll", lang === "zh" ? "全部村民" : lang === "id" ? "Semua Penduduk" : "All Villagers");
+    setText("infoSelected", lang === "zh" ? "选中的村民" : lang === "id" ? "Penduduk Terpilih" : "Selected Villager");
+    setText("infoNone", lang === "zh" ? "不显示（受伤时显示）" : lang === "id" ? "Sembunyikan (Tampil Saat Terluka)" : "Hidden (Show When Hurt)");
+    setText("zoom", lang === "zh" ? "视野大小（支持双指/滚轮缩放）" : lang === "id" ? "Zoom Kamera (Cubit / Roda Mouse)" : "Camera Zoom (Pinch / Scroll Wheel)");
+    setText("slotsTitle", lang === "zh" ? "多槽位存档管理（槽位 1–3）" : lang === "id" ? "Manajer Slot Simpanan (Slot 1–3)" : "Save Slots (Slots 1–3)");
+    setText("unlockAll", lang === "zh" ? "解锁全章节" : lang === "id" ? "Buka Semua Bab" : "Unlock All");
+    setText("exportSave", lang === "zh" ? "导出备份" : lang === "id" ? "Ekspor JSON" : "Export JSON");
+    setText("importSave", lang === "zh" ? "导入备份" : lang === "id" ? "Impor JSON" : "Import JSON");
+    setText("done", lang === "zh" ? "完成" : lang === "id" ? "Selesai" : "Done");
     music.checked = game.eByte !== 0;
     sfxToggle.checked = isSfxEnabled();
     ambienceToggle.checked = isAmbienceEnabled();
@@ -267,8 +267,10 @@ export function attachSettings(
     slider.max = String(levels.length - 1);
     slider.value = String(Math.min(screen.zoomOut, levels.length - 1));
     const view = screen.viewTiles(levels[Number(slider.value)]!);
-    text.value = zh
+    text.value = lang === "zh"
       ? `可见约 ${view.columns} × ${view.rows} 格（${levels.length} 档）`
+      : lang === "id"
+      ? `Terlihat ~${view.columns} × ${view.rows} petak (${levels.length} tingkat)`
       : `Visible: ~${view.columns} × ${view.rows} tiles (${levels.length} levels)`;
 
     renderSlots();
@@ -292,7 +294,8 @@ export function attachSettings(
     game.progressV = 8;
     game.numericAf = true;
     runtime.saveOriginalResourceAction(0);
-    setStatus(runtime.language === ZH_LANGUAGE ? "✓ 已解锁全部 5 个战役章节与自定义模式" : "✓ Unlocked all 5 Campaign chapters & Custom Mode");
+    const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
+    setStatus(lang === "zh" ? "✓ 已解锁全部 5 个战役章节与自定义模式" : lang === "id" ? "✓ Berhasil membuka semua 5 bab kampanye & mode kustom" : "✓ Unlocked all 5 Campaign chapters & Custom Mode");
   });
 
   dialog.querySelector('[data-act="export"]')?.addEventListener("click", () => {

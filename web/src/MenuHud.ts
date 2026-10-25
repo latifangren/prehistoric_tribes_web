@@ -1,7 +1,7 @@
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { OriginalKey } from "./platform/Input";
 import { sfx } from "./platform/SoundEffects";
-import { ZH_LANGUAGE } from "./text/LegacyZhText";
+import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import type { TouchControls } from "./TouchControls";
 import type { WideScreen } from "./WideScreen";
 
@@ -50,8 +50,9 @@ export function attachMenuHud(
 
   function update(): void {
     const zh = runtime.language === ZH_LANGUAGE;
-    yes.setAttribute("aria-label", zh ? "确定" : "Confirm");
-    back.setAttribute("aria-label", zh ? "返回" : "Back");
+    const isId = typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id";
+    yes.setAttribute("aria-label", zh ? "确定" : isId ? "Konfirmasi" : "Confirm");
+    back.setAttribute("aria-label", zh ? "返回" : isId ? "Kembali" : "Back");
     const offMap = game.loopMode !== 1 && !screen.frozen;
     const menu = runtime.touchMenuQ === game.screen && runtime.touchMenuRows.length > 0;
     const isStats = game.screen === 15 && game.mByte === 2;

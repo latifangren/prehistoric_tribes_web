@@ -2006,7 +2006,7 @@ export class LegacyRuntimeState {
   selectLanguage(language: number): void {
     this.language = language;
     const zh = language === ZH_LANGUAGE && this.zhStrings ? this.zhStrings : null;
-    const tables = this.languageTables?.[zh ? 0 : language];
+    const tables = this.languageTables?.[language >= 5 ? 0 : language];
     if (tables) this.languageResources = tables;
     const translate = (code: number) => this.packedBytes[this.packedOffsets[280] + code] ?? 0;
     if (this.geometry.zh) {

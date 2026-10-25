@@ -165,14 +165,19 @@ export const BESTIARY_ENTRIES: readonly BestiaryEntry[] = [
   },
 ];
 
-export function renderBestiaryHtml(isZh: boolean): string {
+export function renderBestiaryHtml(lang: "zh" | "id" | "en" | boolean = "en"): string {
+  const code: "zh" | "id" | "en" = typeof lang === "boolean" ? (lang ? "zh" : "en") : lang;
   const cards = BESTIARY_ENTRIES.map((entry) => {
-    const name = isZh ? entry.name.zh : entry.name.en;
-    const cat = isZh ? entry.category.zh : entry.category.en;
-    const speed = isZh ? entry.speed.zh : entry.speed.en;
-    const drops = isZh ? entry.drops.zh : entry.drops.en;
-    const traits = isZh ? entry.traits.zh : entry.traits.en;
-    const tactics = isZh ? entry.tactics.zh : entry.tactics.en;
+    const name = entry.name[code] ?? entry.name.en;
+    const cat = entry.category[code] ?? entry.category.en;
+    const speed = entry.speed[code] ?? entry.speed.en;
+    const drops = entry.drops[code] ?? entry.drops.en;
+    const traits = entry.traits[code] ?? entry.traits.en;
+    const tactics = entry.tactics[code] ?? entry.tactics.en;
+
+    const speedLabel = code === "zh" ? "机动" : code === "id" ? "Kecepatan" : "Speed";
+    const lootLabel = code === "zh" ? "掉落" : code === "id" ? "Hasil Buruan" : "Loot";
+    const tacticsTitle = code === "zh" ? "🎯 捕猎与对抗策略" : code === "id" ? "🎯 Taktik & Strategi Buruan" : "🎯 Tactics & Strategy";
 
     return `
       <div class="bestiary-card">
@@ -191,24 +196,26 @@ export function renderBestiaryHtml(isZh: boolean): string {
 
         <div class="bestiary-stats-row">
           <div class="bestiary-stat"><span>HP</span><b>${entry.hp}</b></div>
-          <div class="bestiary-stat"><span>${isZh ? "机动" : "Speed"}</span><b>${speed}</b></div>
-          <div class="bestiary-stat"><span>${isZh ? "掉落" : "Loot"}</span><b>${drops}</b></div>
+          <div class="bestiary-stat"><span>${speedLabel}</span><b>${speed}</b></div>
+          <div class="bestiary-stat"><span>${lootLabel}</span><b>${drops}</b></div>
         </div>
 
         <p class="bestiary-traits">${traits}</p>
         <div class="bestiary-tactics">
-          <b>🎯 ${isZh ? "捕猎与对抗策略" : "Tactics & Strategy"}:</b> ${tactics}
+          <b>${tacticsTitle}:</b> ${tactics}
         </div>
       </div>
     `;
   }).join("");
 
+  const leadText = code === "zh"
+    ? "远古蛮荒大地的珍禽猛兽与敌对氏族全景记录："
+    : code === "id"
+    ? "Catatan lapangan satwa purba raksasa dan klan musuh yang berkeliaran di belantara:"
+    : "Complete field records of prehistoric megafauna and rival clans roaming the wilderness:";
+
   return `
-    <div class="bestiary-lead">
-      ${isZh ? "远古蛮荒大地的珍禽猛兽与敌对氏族全景记录：" : "Complete field records of prehistoric megafauna and rival clans roaming the wilderness:"}
-    </div>
-    <div class="bestiary-grid">
-      ${cards}
-    </div>
+    <div class="bestiary-lead">${leadText}</div>
+    <div class="bestiary-grid">${cards}</div>
   `;
 }

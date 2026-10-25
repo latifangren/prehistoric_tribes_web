@@ -21,7 +21,7 @@ import {
 import { capitalise, originalText } from "./OriginalText";
 import { sfx } from "./platform/SoundEffects";
 import { legacyMapOverviewColor } from "./render/LegacyMapOverview";
-import { ZH_LANGUAGE } from "./text/LegacyZhText";
+import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import type { TouchControls } from "./TouchControls";
 import type { WideScreen } from "./WideScreen";
 
@@ -48,8 +48,9 @@ export function attachTribeModals(
   touch: TouchControls,
 ): { openMinimap(): void; openRoster(): void; update(): void } {
   const game = runtime.game;
+  const lang = (): "zh" | "id" | "en" =>
+    runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
   const isZh = () => runtime.language === ZH_LANGUAGE;
-
   // ============================================================================
   // 1. INTERACTIVE HD MINIMAP MODAL
   // ============================================================================
@@ -148,23 +149,23 @@ export function attachTribeModals(
   }
 
   function renderMinimapDialog(): void {
-    const zh = isZh();
+    const l = lang();
     minimapDialog.innerHTML = `
       <form method="dialog">
         <div class="help-head">
-          <h2>${zh ? "部落全景地图" : "Tribe Minimap"}</h2>
-          <button type="button" class="minimap-home-btn" data-home>${zh ? "⌖ 定位族长/营地" : "⌖ Find Chief / Camp"}</button>
+          <h2>${l === "zh" ? "部落全景地图" : l === "id" ? "Peta Area Suku" : "Tribe Minimap"}</h2>
+          <button type="button" class="minimap-home-btn" data-home>${l === "zh" ? "⌖ 定位族长/营地" : l === "id" ? "⌖ Cari Kepala Suku / Kamp" : "⌖ Find Chief / Camp"}</button>
         </div>
-        <p class="minimap-hint">${zh ? "点击或拖动地图任意位置即可快速移动镜头" : "Tap or drag anywhere on the map to move the camera"}</p>
+        <p class="minimap-hint">${l === "zh" ? "点击或拖动地图任意位置即可快速移动镜头" : l === "id" ? "Ketuk atau geser peta untuk menggerakkan kamera" : "Tap or drag anywhere on the map to move the camera"}</p>
         <div class="minimap-wrap"></div>
         <div class="minimap-legend">
-          <span><i style="background:#00f5d4"></i>${zh ? "族长" : "Chief"}</span>
-          <span><i style="background:#ffe66d"></i>${zh ? "我方村民" : "Villagers"}</span>
-          <span><i style="background:#4ecdc4"></i>${zh ? "我方建筑" : "Buildings"}</span>
-          <span><i style="background:#ff595e"></i>${zh ? "敌方" : "Enemies"}</span>
-          <span><i style="background:#5c4d6d"></i>${zh ? "未探索" : "Unexplored"}</span>
+          <span><i style="background:#00f5d4"></i>${l === "zh" ? "族长" : l === "id" ? "Kepala Suku" : "Chief"}</span>
+          <span><i style="background:#ffe66d"></i>${l === "zh" ? "我方村民" : l === "id" ? "Penduduk" : "Villagers"}</span>
+          <span><i style="background:#4ecdc4"></i>${l === "zh" ? "我方建筑" : l === "id" ? "Bangunan" : "Buildings"}</span>
+          <span><i style="background:#ff595e"></i>${l === "zh" ? "敌方" : l === "id" ? "Musuh" : "Enemies"}</span>
+          <span><i style="background:#5c4d6d"></i>${l === "zh" ? "未探索" : l === "id" ? "Belum Terlihat" : "Unexplored"}</span>
         </div>
-        <div class="confirm-buttons"><button type="submit">${zh ? "关闭" : "Close"}</button></div>
+        <div class="confirm-buttons"><button type="submit">${l === "zh" ? "关闭" : l === "id" ? "Tutup" : "Close"}</button></div>
       </form>
     `;
     minimapDialog.querySelector(".minimap-wrap")?.append(minimapCanvas);
@@ -262,24 +263,25 @@ export function attachTribeModals(
         else if (bKind >= 12) portrait = "pt-builder";
       }
 
-      let statusText = zh ? "工作中" : "Working";
+      const l = lang();
+      let statusText = l === "zh" ? "工作中" : l === "id" ? "Bekerja" : "Working";
       let statusClass = "working";
       if (isChief) {
-        statusText = zh ? "部落族长" : "Tribe Chief";
+        statusText = l === "zh" ? "部落族长" : l === "id" ? "Kepala Suku" : "Tribe Chief";
         statusClass = "chief";
       } else if (isChild) {
-        statusText = zh ? "幼年孩童" : "Child";
+        statusText = l === "zh" ? "幼年孩童" : l === "id" ? "Anak-anak" : "Child";
         statusClass = "child";
       } else if (!tile && rec > 0) {
         const bKind = e[BLD_KIND + rec] ?? 2;
         const bName = capitalise(originalText(runtime, "s", bKind >= 12 ? bKind - 12 : bKind));
-        statusText = zh ? `驻守: ${bName}` : `In ${bName}`;
+        statusText = l === "zh" ? `驻守: ${bName}` : l === "id" ? `Di ${bName}` : `In ${bName}`;
         statusClass = "inside";
       } else if (isIdle) {
-        statusText = zh ? "空闲待命" : "Idle";
+        statusText = l === "zh" ? "空闲待命" : l === "id" ? "Menganggur" : "Idle";
         statusClass = "idle";
       } else if (isArmed && (type < 10 || type > 80)) {
-        statusText = zh ? "警戒/战斗" : "Guard / Combat";
+        statusText = l === "zh" ? "警戒/战斗" : l === "id" ? "Siaga / Tempur" : "Guard / Combat";
         statusClass = "armed";
       }
 
@@ -309,7 +311,7 @@ export function attachTribeModals(
   };
 
   function renderRosterDialog(): void {
-    const zh = isZh();
+    const l = lang();
     const all = getVillagers();
     const idleCount = all.filter((v) => v.isIdle).length;
     const workingCount = all.filter((v) => !v.isIdle && !v.isChild).length;
@@ -325,15 +327,15 @@ export function attachTribeModals(
     });
 
     const tabs: { id: RosterFilter; label: string }[] = [
-      { id: "all", label: `${zh ? "全部" : "All"} (${all.length})` },
-      { id: "idle", label: `${zh ? "空闲" : "Idle"} (${idleCount})` },
-      { id: "working", label: `${zh ? "工作" : "Working"} (${workingCount})` },
-      { id: "armed", label: `${zh ? "武装" : "Armed"} (${armedCount})` },
-      { id: "care", label: `${zh ? "需照顾" : "Low Stats"} (${careCount})` },
+      { id: "all", label: `${l === "zh" ? "全部" : l === "id" ? "Semua" : "All"} (${all.length})` },
+      { id: "idle", label: `${l === "zh" ? "空闲" : l === "id" ? "Menganggur" : "Idle"} (${idleCount})` },
+      { id: "working", label: `${l === "zh" ? "工作" : l === "id" ? "Bekerja" : "Working"} (${workingCount})` },
+      { id: "armed", label: `${l === "zh" ? "武装" : l === "id" ? "Bersenjata" : "Armed"} (${armedCount})` },
+      { id: "care", label: `${l === "zh" ? "需照顾" : l === "id" ? "Perlu Rawat" : "Low Stats"} (${careCount})` },
     ];
 
     const cardsHtml = filtered.length === 0
-      ? `<p class="roster-empty">${zh ? "当前分类下没有村民" : "No villagers in this category."}</p>`
+      ? `<p class="roster-empty">${l === "zh" ? "当前分类下没有村民" : l === "id" ? "Tidak ada penduduk dalam kategori ini." : "No villagers in this category."}</p>`
       : filtered.map((v) => {
           const weaponIcon = WEAPON_ICONS[v.held] ?? "empty-hand";
           const hpPct = Math.round(Math.max(0, Math.min(1, v.hp / v.maxHp)) * 100);
@@ -362,13 +364,13 @@ export function attachTribeModals(
     rosterDialog.innerHTML = `
       <form method="dialog">
         <div class="help-head">
-          <h2>${zh ? "部落村民名册" : "Tribe Villager Roster"}</h2>
+          <h2>${l === "zh" ? "部落村民名册" : l === "id" ? "Daftar Penduduk Suku" : "Tribe Villager Roster"}</h2>
           <div class="help-tabs">
             ${tabs.map((t) => `<button type="button" data-filter="${t.id}" class="help-tab${t.id === activeFilter ? " active" : ""}">${t.label}</button>`).join("")}
           </div>
         </div>
         <div class="roster-list">${cardsHtml}</div>
-        <div class="confirm-buttons"><button type="submit">${zh ? "关闭" : "Close"}</button></div>
+        <div class="confirm-buttons"><button type="submit">${l === "zh" ? "关闭" : l === "id" ? "Tutup" : "Close"}</button></div>
       </form>
     `;
 

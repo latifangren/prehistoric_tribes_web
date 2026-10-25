@@ -1,8 +1,8 @@
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { OriginalKey } from "./platform/Input";
 import { sfx } from "./platform/SoundEffects";
+import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import { capitalise, originalText } from "./OriginalText";
-import { ZH_LANGUAGE } from "./text/LegacyZhText";
 import type { TouchControls } from "./TouchControls";
 import type { WideScreen } from "./WideScreen";
 
@@ -84,10 +84,11 @@ export function attachStoryHud(
     const won = game.vInt === 57;
     sfx.outcome(won);
     const zh = runtime.language === ZH_LANGUAGE;
+    const isId = typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id";
     const title = capitalise(originalText(runtime, "s", game.vInt || (won ? 57 : 56)));
     const subtitle = won
-      ? (zh ? "你的部落取得了辉煌胜利！" : "Your tribe has triumphed!")
-      : (zh ? "你的部落没能挺过这一关……" : "Your tribe has fallen...");
+      ? (zh ? "你的部落取得了辉煌胜利！" : isId ? "Sukumu meraih kemenangan gemilang!" : "Your tribe has triumphed!")
+      : (zh ? "你的部落没能挺过这一关……" : isId ? "Sukumu tumbang di babak ini..." : "Your tribe has fallen...");
     layer.innerHTML = `<img class="story-picture" src="hd/menu/bg-menu.jpg" alt="">`;
     const card = document.createElement("div");
     card.className = `story-outcome-card ${won ? "win" : "lose"}`;
@@ -106,7 +107,7 @@ export function attachStoryHud(
     const zh = runtime.language === ZH_LANGUAGE;
     const rawLabels = originalText(runtime, "t", 71 + 234)
       .split("&")
-      .map((s) => s.replace(/[\u0000-\u001f]/g, "").trim())
+      .map((s: string) => s.replace(/[\u0000-\u001f]/g, "").trim())
       .filter(Boolean);
     const statIndices = [19, 20, 21, 22, 23, 24];
     const p0 = runtime.mainArrays.aShort[0];

@@ -16,7 +16,7 @@ import {
 } from "./core/DenseLayout";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { sfx } from "./platform/SoundEffects";
-import { ZH_LANGUAGE } from "./text/LegacyZhText";
+import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 
 const ACHIEVEMENTS_STORAGE_KEY = "pt.achievements";
 const STATS_STORAGE_KEY = "pt.achievement_stats";
@@ -509,7 +509,7 @@ class AchievementManager {
     }
   }
 
-  unlock(id: AchievementId, isZh = false): boolean {
+  unlock(id: AchievementId, langCode: "zh" | "id" | "en" | boolean = false): boolean {
     if (this.records[id]) return false;
     const def = ACHIEVEMENTS.find((a) => a.id === id);
     if (!def) return false;
@@ -518,7 +518,7 @@ class AchievementManager {
     this.save();
     sfx.achievement();
 
-    this.showToast(def, isZh);
+    this.showToast(def, langCode);
     this.listeners.forEach((cb) => cb(id));
     return true;
   }
@@ -535,15 +535,15 @@ class AchievementManager {
     return container;
   }
 
-  private showToast(def: AchievementDef, isZh: boolean): void {
+  private showToast(def: AchievementDef, langCode: "zh" | "id" | "en" | boolean): void {
     const container = this.ensureToastContainer();
     const toast = document.createElement("div");
     toast.className = "achievement-toast";
 
-    const title = isZh ? def.title.zh : def.title.en;
-    const desc = isZh ? def.desc.zh : def.desc.en;
-    const badgeText = isZh ? "🏆 达成史前成就！" : "🏆 ACHIEVEMENT UNLOCKED!";
-
+    const lang: "zh" | "id" | "en" = typeof langCode === "boolean" ? (langCode ? "zh" : "en") : langCode;
+    const title = def.title[lang] ?? def.title.en;
+    const desc = def.desc[lang] ?? def.desc.en;
+    const badgeText = lang === "zh" ? "🏆 达成史前成就！" : lang === "id" ? "🏆 PRESTASI TERBUKA!" : "🏆 ACHIEVEMENT UNLOCKED!";
     const iconHtml = def.assetIcon
       ? `<img src="${UI_ART}${def.assetIcon}.png" alt="" class="toast-asset-icon">`
       : `<span class="toast-glyph">${def.glyph}</span>`;
@@ -577,18 +577,18 @@ class AchievementManager {
   /** Run during gameplay frame ticks to inspect state and trigger progressive unlocks. */
   tickGame(runtime: LegacyRuntimeState): void {
     const game = runtime.game;
+    const lang: "zh" | "id" | "en" = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
     const isZh = runtime.language === ZH_LANGUAGE;
     const dense = runtime.denseState;
-
     if (game.loopMode !== 1) {
       if (this.wasInGame && (game.screen === 22 || game.screen === 24 || game.vInt === 57)) {
         // Victory screen after actual match!
         if (!this.stats.chiefFellThisGame) {
-          this.unlock("long_live_chief", isZh);
+          this.unlock("long_live_chief", lang);
         }
         if (game.difficulty === 2) {
           this.stats.hardWon = true;
-          this.unlock("palaeolithic_conqueror", isZh);
+          this.unlock("palaeolithic_conqueror", lang);
         }
         this.wasInGame = false;
       }
@@ -776,6 +776,7 @@ export function attachAchievements(app: HTMLElement, runtime: LegacyRuntimeState
   let activeFilter: "all" | "unlocked" | "locked" = "all";
 
   const render = () => {
+    const lang: "zh" | "id" | "en" = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
     const isZh = runtime.language === ZH_LANGUAGE;
     const records = achievementManager.getRecords();
     const stats = achievementManager.getStats();
@@ -794,12 +795,12 @@ export function attachAchievements(app: HTMLElement, runtime: LegacyRuntimeState
       .map((def) => {
         const rec = records[def.id];
         const isDone = Boolean(rec);
-        const title = isZh ? def.title.zh : def.title.en;
-        const desc = isZh ? def.desc.zh : def.desc.en;
-        const hint = isZh ? def.hint.zh : def.hint.en;
+        const title = def.title[lang] ?? def.title.en;
+        const desc = def.desc[lang] ?? def.desc.en;
+        const hint = def.hint[lang] ?? def.hint.en;
 
         const dateStr = rec
-          ? new Date(rec.unlockedAt).toLocaleDateString(isZh ? "zh-CN" : "en-US", {
+          ? new Date(rec.unlockedAt).toLocaleDateString(lang === "zh" ? "zh-CN" : lang === "id" ? "id-ID" : "en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -836,7 +837,7 @@ export function attachAchievements(app: HTMLElement, runtime: LegacyRuntimeState
               <div class="trophy-card-header">
                 <h3 class="trophy-card-title">${title}</h3>
                 <span class="trophy-card-tag ${isDone ? "tag-done" : "tag-pending"}">
-                  ${isDone ? (isZh ? `已达成 · ${dateStr}` : `UNLOCKED · ${dateStr}`) : (isZh ? "未达成" : "LOCKED")}
+                  ${isDone ? (lang === "zh" ? `已达成 · ${dateStr}` : lang === "id" ? `TERBUKA · ${dateStr}` : `UNLOCKED · ${dateStr}`) : (lang === "zh" ? "未达成" : lang === "id" ? "TERKUNCI" : "LOCKED")}
                 </span>
               </div>
               <p class="trophy-card-desc">${isDone ? desc : hint}</p>
@@ -852,11 +853,11 @@ export function attachAchievements(app: HTMLElement, runtime: LegacyRuntimeState
         <div class="trophy-head">
           <div class="trophy-head-title">
             <span class="trophy-head-icon">🏆</span>
-            <h2>${isZh ? "部落荣誉与成就勋章" : "Tribe Achievements & Trophies"}</h2>
+            <h2>${lang === "zh" ? "部落荣誉与成就勋章" : lang === "id" ? "Prestasi & Trofi Suku Purba" : "Tribe Achievements & Trophies"}</h2>
           </div>
           <div class="trophy-summary">
             <div class="trophy-progress-label">
-              <span>${isZh ? "成就收集进度" : "Trophy Completion"}</span>
+              <span>${lang === "zh" ? "成就收集进度" : lang === "id" ? "Kemajuan Pengumpulan Trofi" : "Trophy Completion"}</span>
               <b>${unlocked} / ${total} (${pct}%)</b>
             </div>
             <div class="trophy-overall-bar">
@@ -865,23 +866,23 @@ export function attachAchievements(app: HTMLElement, runtime: LegacyRuntimeState
           </div>
           <div class="trophy-tabs">
             <button type="button" class="trophy-tab ${activeFilter === "all" ? "active" : ""}" data-filter="all">
-              ${isZh ? `全部 (${total})` : `All (${total})`}
+              ${lang === "zh" ? `全部 (${total})` : lang === "id" ? `Semua (${total})` : `All (${total})`}
             </button>
             <button type="button" class="trophy-tab ${activeFilter === "unlocked" ? "active" : ""}" data-filter="unlocked">
-              ${isZh ? `已达成 (${unlocked})` : `Unlocked (${unlocked})`}
+              ${lang === "zh" ? `已达成 (${unlocked})` : lang === "id" ? `Terbuka (${unlocked})` : `Unlocked (${unlocked})`}
             </button>
             <button type="button" class="trophy-tab ${activeFilter === "locked" ? "active" : ""}" data-filter="locked">
-              ${isZh ? `未达成 (${total - unlocked})` : `Locked (${total - unlocked})`}
+              ${lang === "zh" ? `未达成 (${total - unlocked})` : lang === "id" ? `Terkunci (${total - unlocked})` : `Locked (${total - unlocked})`}
             </button>
           </div>
         </div>
 
         <div class="trophy-grid">
-          ${cardsHtml.length > 0 ? cardsHtml : `<div class="trophy-empty">${isZh ? "没有匹配的成就项目" : "No achievements in this category"}</div>`}
+          ${cardsHtml.length > 0 ? cardsHtml : `<div class="trophy-empty">${lang === "zh" ? "没有匹配的成就项目" : lang === "id" ? "Tidak ada prestasi dalam kategori ini" : "No achievements in this category"}</div>`}
         </div>
 
         <div class="confirm-buttons trophy-actions">
-          <button type="submit" class="trophy-close-btn">${isZh ? "关闭陈列室" : "Close Cabinet"}</button>
+          <button type="submit" class="trophy-close-btn">${lang === "zh" ? "关闭陈列室" : lang === "id" ? "Tutup Lemari Trofi" : "Close Cabinet"}</button>
         </div>
       </form>
     `;

@@ -16,6 +16,9 @@ import type { ImagePack } from "../platform/ImagePack";
 export const ZH_LANGUAGE = 5;
 /** The Q14 row added for it. */
 export const ZH_LANGUAGE_NAME = "中文";
+/** f.a:B for Indonesian (row 6, runs on Latin engine tables). */
+export const ID_LANGUAGE = 6;
+export const ID_LANGUAGE_NAME = "Indonesia";
 
 type TranslationRecord = { readonly i: number; readonly en: string; readonly zh: string };
 /** The shape of docs/translation-zh-CN.json (main.ts imports it and hands it to the runtime). */
