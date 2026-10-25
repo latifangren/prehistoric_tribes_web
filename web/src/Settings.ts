@@ -38,44 +38,81 @@ export function attachSettings(
   const game = runtime.game;
 
   const dialog = document.createElement("dialog");
-  dialog.className = "settings";
+  dialog.className = "settings settings-dialog";
   dialog.innerHTML = `
-    <form method="dialog">
-      <h2 data-i18n="title">Settings</h2>
-      <div class="settings-switches">
-        <label class="switch"><input type="checkbox" name="music"> <span data-i18n="music">Music</span></label>
-        <label class="switch"><input type="checkbox" name="sfx"> <span data-i18n="sfx">Sound Effects</span></label>
-        <label class="switch"><input type="checkbox" name="ambience"> <span data-i18n="ambience">Ambience & Drums</span></label>
-        <label class="switch"><input type="checkbox" name="weather"> <span data-i18n="weather">Weather & Seasons</span></label>
-        <label class="switch"><input type="checkbox" name="hints"> <span data-i18n="hints">Hints</span></label>
-      </div>
-      <label><span data-i18n="volume">Audio Volume</span>
-        <input type="range" name="volume" min="0" max="100" step="5">
-      </label>
-      <output name="volumeText"></output>
-      <label><span data-i18n="overhead">Overhead Info</span>
-        <select name="info">
-          <option value="0" data-i18n="infoAll">All Villagers</option>
-          <option value="1" data-i18n="infoSelected">Selected Villager</option>
-          <option value="2" data-i18n="infoNone">Hidden (Show When Hurt)</option>
-        </select>
-      </label>
-      <label><span data-i18n="zoom">Camera Zoom</span>
-        <input type="range" name="zoom" min="0" step="1">
-      </label>
-      <output name="zoomText"></output>
-      <div class="settings-save-box">
-        <span class="settings-save-title" data-i18n="slotsTitle">Save Slots (Multi-Slot Manager)</span>
-        <div class="settings-slots-list" data-slots></div>
-        <div class="settings-save-actions">
-          <button type="button" class="settings-sub-btn" data-act="unlock" data-i18n="unlockAll">Unlock All</button>
-          <button type="button" class="settings-sub-btn" data-act="export" data-i18n="exportSave">Export JSON</button>
-          <button type="button" class="settings-sub-btn" data-act="import" data-i18n="importSave">Import JSON</button>
+    <form method="dialog" class="settings-form">
+      <div class="settings-head">
+        <div class="settings-head-title">
+          <span class="settings-head-icon">⚙️</span>
+          <h2 data-i18n="title">Settings & Saves</h2>
         </div>
-        <input type="file" name="importFile" accept="application/json,.json" hidden>
-        <small class="settings-save-status" data-status></small>
+        <button type="button" class="settings-close-x" aria-label="Close">✕</button>
       </div>
-      <button type="submit" data-i18n="done">Done</button>
+
+      <div class="settings-tabs">
+        <button type="button" class="settings-tab active" data-tab="general" data-i18n="tabGeneral">🔊 Audio & Tampilan</button>
+        <button type="button" class="settings-tab" data-tab="saves" data-i18n="tabSaves">💾 Slot Simpanan</button>
+      </div>
+
+      <div class="settings-body">
+        <div class="settings-pane active" data-pane="general">
+          <div class="settings-card">
+            <h3 class="settings-section-title" data-i18n="switchesTitle">Audio & Visual Toggles</h3>
+            <div class="settings-switches">
+              <label class="switch"><input type="checkbox" name="music"> <span data-i18n="music">Music</span></label>
+              <label class="switch"><input type="checkbox" name="sfx"> <span data-i18n="sfx">Sound Effects</span></label>
+              <label class="switch"><input type="checkbox" name="ambience"> <span data-i18n="ambience">Ambience & Drums</span></label>
+              <label class="switch"><input type="checkbox" name="weather"> <span data-i18n="weather">Weather & Seasons</span></label>
+              <label class="switch"><input type="checkbox" name="hints"> <span data-i18n="hints">Hints</span></label>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-slider-row">
+              <div class="settings-slider-header">
+                <span data-i18n="volume">Audio Volume</span>
+                <output name="volumeText" class="settings-badge">75%</output>
+              </div>
+              <input type="range" name="volume" min="0" max="100" step="5">
+            </div>
+
+            <div class="settings-slider-row">
+              <div class="settings-slider-header">
+                <span data-i18n="zoom">Camera Zoom</span>
+                <output name="zoomText" class="settings-badge">Level 1</output>
+              </div>
+              <input type="range" name="zoom" min="0" step="1">
+            </div>
+
+            <div class="settings-select-row">
+              <span data-i18n="overhead">Overhead Info</span>
+              <select name="info" class="settings-select">
+                <option value="0" data-i18n="infoAll">All Villagers</option>
+                <option value="1" data-i18n="infoSelected">Selected Villager</option>
+                <option value="2" data-i18n="infoNone">Hidden (Show When Hurt)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-pane" data-pane="saves">
+          <div class="settings-card">
+            <h3 class="settings-section-title" data-i18n="slotsTitle">Save Slots (Slots 1–3)</h3>
+            <div class="settings-slots-list" data-slots></div>
+            <div class="settings-save-actions">
+              <button type="button" class="settings-sub-btn" data-act="unlock" data-i18n="unlockAll">Unlock All</button>
+              <button type="button" class="settings-sub-btn" data-act="export" data-i18n="exportSave">Export JSON</button>
+              <button type="button" class="settings-sub-btn" data-act="import" data-i18n="importSave">Import JSON</button>
+            </div>
+            <input type="file" name="importFile" accept="application/json,.json" hidden>
+            <small class="settings-save-status" data-status></small>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-footer">
+        <button type="submit" class="settings-done-btn" data-i18n="done">Done</button>
+      </div>
     </form>`;
   const form = dialog.querySelector("form")!;
   const slider = form.elements.namedItem("zoom") as HTMLInputElement;
@@ -91,6 +128,22 @@ export function attachSettings(
   const fileInput = form.elements.namedItem("importFile") as HTMLInputElement;
   const statusEl = dialog.querySelector<HTMLElement>("[data-status]")!;
   const slotsBox = dialog.querySelector<HTMLElement>("[data-slots]")!;
+  dialog.querySelector(".settings-close-x")?.addEventListener("click", () => {
+    sfx.click();
+    dialog.close();
+  });
+
+  const tabBtns = Array.from(dialog.querySelectorAll<HTMLButtonElement>(".settings-tab"));
+  const panes = Array.from(dialog.querySelectorAll<HTMLElement>(".settings-pane"));
+  tabBtns.forEach((tabBtn) => {
+    tabBtn.addEventListener("click", () => {
+      sfx.click();
+      const target = tabBtn.dataset.tab;
+      tabBtns.forEach((b) => b.classList.toggle("active", b.dataset.tab === target));
+      panes.forEach((p) => p.classList.toggle("active", p.dataset.pane === target));
+    });
+  });
+
 
   const toggle = (row: number) => {
     const cursor = game.Z;
@@ -236,6 +289,9 @@ export function attachSettings(
   const show = () => {
     const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
     setText("title", lang === "zh" ? "设置与存档" : lang === "id" ? "Pengaturan & Penyimpanan" : "Settings & Saves");
+    setText("tabGeneral", lang === "zh" ? "🔊 音频与画面" : lang === "id" ? "🔊 Audio & Tampilan" : "🔊 Audio & Display");
+    setText("tabSaves", lang === "zh" ? "💾 存档管理" : lang === "id" ? "💾 Slot Simpanan" : "💾 Save Slots");
+    setText("switchesTitle", lang === "zh" ? "系统开关" : lang === "id" ? "Saklar Audio & Visual" : "Audio & Visual Toggles");
     setText("music", lang === "zh" ? "背景音乐" : lang === "id" ? "Musik Latar" : "Music");
     setText("sfx", lang === "zh" ? "游戏音效" : lang === "id" ? "Efek Suara (SFX)" : "Sound Effects");
     setText("ambience", lang === "zh" ? "自然风声与战鼓" : lang === "id" ? "Suara Alam & Drum Perang" : "Nature Ambience & Drums");
