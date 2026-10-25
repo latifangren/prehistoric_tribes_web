@@ -1,0 +1,238 @@
+import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
+import {
+  ANIMAL_HP,
+  ANIMAL_KIND,
+  ANIMAL_X,
+  ANIMAL_Y,
+  BLD_HP,
+  BLD_KIND,
+  BLD_X,
+  BLD_Y,
+  UNIT_HP,
+  UNIT_ORDER,
+  UNIT_SELECTION,
+  UNIT_TARGET_X,
+  UNIT_TARGET_Y,
+  UNIT_WORK_TARGET,
+  UNIT_X,
+  UNIT_Y,
+} from "../core/DenseLayout";
+import { sfx } from "../platform/SoundEffects";
+import type { TouchControls } from "../TouchControls";
+import type { WideScreen } from "../WideScreen";
+
+export type RallyPoint = {
+  buildingId: number;
+  tileX: number;
+  tileY: number;
+};
+
+export class TribeTacticsManager {
+  private attackMoveActive = false;
+  private attackMoveSquad: number[] = [];
+  private rallyPoints = new Map<number, { x: number; y: number }>();
+  private settingRallyForBuilding = -1;
+  private processedNewborns = new Set<number>();
+  private markerOverlay: HTMLElement | null = null;
+
+  isAttackMoveActive(): boolean {
+    return this.attackMoveActive;
+  }
+
+  toggleAttackMove(): boolean {
+    this.attackMoveActive = !this.attackMoveActive;
+    sfx.click();
+    return this.attackMoveActive;
+  }
+
+  cancelAttackMove(): void {
+    this.attackMoveActive = false;
+  }
+
+  isSettingRally(): boolean {
+    return this.settingRallyForBuilding > 0;
+  }
+
+  getRallyBuilding(): number {
+    return this.settingRallyForBuilding;
+  }
+
+  startSettingRally(buildingId: number): void {
+    this.settingRallyForBuilding = buildingId;
+    sfx.click();
+  }
+
+  cancelSettingRally(): void {
+    this.settingRallyForBuilding = -1;
+  }
+
+  setRallyPoint(buildingId: number, x: number, y: number): void {
+    this.rallyPoints.set(buildingId, { x, y });
+    this.settingRallyForBuilding = -1;
+    sfx.select();
+  }
+
+  getRallyPoint(buildingId: number): { x: number; y: number } | undefined {
+    return this.rallyPoints.get(buildingId);
+  }
+
+  clearRallyPoints(): void {
+    this.rallyPoints.clear();
+  }
+
+  /**
+   * Called when player taps a map tile while Attack-Move mode is active.
+   */
+  executeAttackMove(targetX: number, targetY: number, runtime: LegacyRuntimeState, touch: TouchControls): void {
+    const dense = runtime.denseState;
+    const squad: number[] = [];
+
+    // Find all currently selected living team 0 units
+    for (let id = 1; id <= 50; id += 1) {
+      if ((dense[UNIT_HP + id] ?? 0) <= 0) continue;
+      // If unit is selected
+      if ((dense[UNIT_SELECTION + id] ?? 0) !== 0 || runtime.game.selectedId === id) {
+        squad.push(id);
+      }
+    }
+
+    if (squad.length === 0 && runtime.game.selectedId > 0) {
+      squad.push(runtime.game.selectedId);
+    }
+
+    if (squad.length > 0) {
+      this.attackMoveSquad = squad;
+      touch.fireAt(targetX, targetY);
+      sfx.select();
+    }
+    this.attackMoveActive = false;
+  }
+
+  tick(runtime: LegacyRuntimeState, touch: TouchControls): void {
+    const game = runtime.game;
+    if (game.loopMode !== 1) return;
+    const dense = runtime.denseState;
+
+    // 1. Attack-Move scan: check if any units in attack move squad see an enemy nearby
+    if (this.attackMoveSquad.length > 0) {
+      for (let i = this.attackMoveSquad.length - 1; i >= 0; i -= 1) {
+        const u = this.attackMoveSquad[i]!;
+        const uHp = dense[UNIT_HP + u] ?? 0;
+        if (uHp <= 0) {
+          this.attackMoveSquad.splice(i, 1);
+          continue;
+        }
+
+        const ux = dense[UNIT_X + u] ?? 0;
+        const uy = dense[UNIT_Y + u] ?? 0;
+        const tx = dense[UNIT_TARGET_X + u] ?? ux;
+        const ty = dense[UNIT_TARGET_Y + u] ?? uy;
+
+        // If unit already arrived at destination
+        if (Math.abs(ux - tx) <= 1 && Math.abs(uy - ty) <= 1) {
+          this.attackMoveSquad.splice(i, 1);
+          continue;
+        }
+
+        // Look for hostile enemy in radius 5
+        let nearestDist = 6;
+        let targetEnemyTile: [number, number] | null = null;
+
+        // Team 1 enemies
+        for (let e = 51; e <= 100; e += 1) {
+          if ((dense[UNIT_HP + e] ?? 0) <= 0) continue;
+          const ex = dense[UNIT_X + e] ?? 0;
+          const ey = dense[UNIT_Y + e] ?? 0;
+          const d = Math.hypot(ex - ux, ey - uy);
+          if (d < nearestDist) {
+            nearestDist = d;
+            targetEnemyTile = [ex, ey];
+          }
+        }
+
+        // Hostile beasts (Mammoth & Tiger)
+        for (let a = 1; a <= 22; a += 1) {
+          if ((dense[ANIMAL_HP + a] ?? 0) <= 0) continue;
+          const kind = dense[ANIMAL_KIND + a] ?? 0;
+          if (kind !== 0 && kind !== 1) continue; // Only aggressive beasts
+          const ax = dense[ANIMAL_X + a] ?? 0;
+          const ay = dense[ANIMAL_Y + a] ?? 0;
+          const d = Math.hypot(ax - ux, ay - uy);
+          if (d < nearestDist) {
+            nearestDist = d;
+            targetEnemyTile = [ax, ay];
+          }
+        }
+
+        // If hostile spotted, intercept!
+        if (targetEnemyTile) {
+          dense[UNIT_ORDER + u] = 2;
+          dense[UNIT_TARGET_X + u] = targetEnemyTile[0];
+          dense[UNIT_TARGET_Y + u] = targetEnemyTile[1];
+          dense[UNIT_WORK_TARGET + u] = 0;
+        }
+      }
+    }
+
+    // 2. Rally points: check newborn/freshly trained villagers and dispatch them
+    for (let id = 1; id <= 50; id += 1) {
+      if ((dense[UNIT_HP + id] ?? 0) <= 0) continue;
+      if (!this.processedNewborns.has(id)) {
+        this.processedNewborns.add(id);
+        const ux = dense[UNIT_X + id] ?? 0;
+        const uy = dense[UNIT_Y + id] ?? 0;
+
+        // Find nearest building with a rally point
+        let nearestRally: { x: number; y: number } | null = null;
+        let minDist = 4;
+        for (const [bId, r] of this.rallyPoints.entries()) {
+          const bx = dense[BLD_X + bId] ?? 0;
+          const by = dense[BLD_Y + bId] ?? 0;
+          const d = Math.hypot(bx - ux, by - uy);
+          if (d < minDist) {
+            minDist = d;
+            nearestRally = r;
+          }
+        }
+
+        if (nearestRally) {
+          dense[UNIT_ORDER + id] = 2;
+          dense[UNIT_TARGET_X + id] = nearestRally.x;
+          dense[UNIT_TARGET_Y + id] = nearestRally.y;
+        }
+      }
+    }
+  }
+
+  /** Render rally flags on the screen */
+  renderRallyMarkers(app: HTMLElement, runtime: LegacyRuntimeState, screen: WideScreen): void {
+    if (!this.markerOverlay) {
+      const el = document.createElement("div");
+      el.className = "rally-markers-layer";
+      el.style.cssText = "position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden;";
+      app.append(el);
+      this.markerOverlay = el;
+    }
+
+    if (this.rallyPoints.size === 0) {
+      this.markerOverlay.replaceChildren();
+      return;
+    }
+
+    const markersHtml: string[] = [];
+    for (const [bId, r] of this.rallyPoints.entries()) {
+      const pos = screen.tileToCss(r.x, r.y);
+      if (pos.x >= -30 && pos.x <= window.innerWidth + 30 && pos.y >= -30 && pos.y <= window.innerHeight + 30) {
+        markersHtml.push(`
+          <div class="rally-flag" style="left: ${pos.x}px; top: ${pos.y}px;">
+            <span class="flag-icon">🚩</span>
+            <span class="flag-label">Rally</span>
+          </div>
+        `);
+      }
+    }
+    this.markerOverlay.innerHTML = markersHtml.join("");
+  }
+}
+
+export const tribeTactics = new TribeTacticsManager();

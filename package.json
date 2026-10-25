@@ -1,0 +1,20 @@
+{
+  "name": "prehistoric-tribes-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=web",
+    "preview": "npm run preview --workspace=web",
+    "lint": "tsc -p web/tsconfig.json --noEmit",
+    "test": "npm test --workspace=web"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7"
+  }
+}
