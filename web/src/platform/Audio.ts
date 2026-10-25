@@ -1,4 +1,5 @@
 import { loadBinaryResource } from "./BinaryResource";
+import { audioManager } from "./AudioManager";
 import { getMasterVolume, onMasterVolumeChange } from "./SoundEffects";
 
 // f.f is the cumulative offset array used by class a; f.e stores slice lengths.
@@ -163,28 +164,19 @@ export class OriginalMidiPlayer {
 
   private schedulePass(): void {
     if (!this.playing || typeof window === "undefined") return;
-    const AudioContextCtor = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextCtor) return;
+    const ctx = audioManager.getContext();
+    if (!ctx) return;
+    this.context = ctx;
     const slice = this.resource.bytes.slice(
       this.resource.offsets[this.trackIndex] ?? 0,
       (this.resource.offsets[this.trackIndex + 1] ?? this.resource.bytes.length),
     );
     const sequence = parseStandardMidi(slice);
-    if (!this.context) {
-      this.context = new AudioContextCtor();
-      this.masterGain = this.context.createGain();
+    if (!this.masterGain) {
+      this.masterGain = ctx.createGain();
       this.masterGain.gain.value = getMasterVolume();
-      this.masterGain.connect(this.context.destination);
-      const unlock = () => {
-        if (this.context && this.context.state === "suspended") {
-          void this.context.resume().catch(() => {});
-        }
-      };
-      window.addEventListener("pointerdown", unlock, { passive: true });
-      window.addEventListener("keydown", unlock, { passive: true });
-    }
-    if (this.context.state === "suspended") {
-      void this.context.resume().catch(() => {});
+      const musicBus = audioManager.getMusicBus() ?? ctx.destination;
+      this.masterGain.connect(musicBus);
     }
     if (!this.masterGain) return;
     this.masterGain.gain.setValueAtTime(getMasterVolume(), this.context.currentTime);

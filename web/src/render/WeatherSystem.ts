@@ -1,4 +1,5 @@
 import { ZH_LANGUAGE } from "../text/LegacyZhText";
+import { audioManager } from "../platform/AudioManager";
 import { getMasterVolume, isSfxEnabled } from "../platform/SoundEffects";
 
 const WEATHER_ENABLED_KEY = "pt.weather";
@@ -148,14 +149,7 @@ export class WeatherSystem {
 
   private ensureAudioContext(): AudioContext | null {
     if (typeof window === "undefined" || !isSfxEnabled() || !this.enabled) return null;
-    const Ctor =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!Ctor) return null;
-    if (!this.audioCtx) this.audioCtx = new Ctor();
-    if (this.audioCtx.state === "suspended") {
-      void this.audioCtx.resume().catch(() => {});
-    }
+    this.audioCtx = audioManager.getContext();
     return this.audioCtx;
   }
 
@@ -213,7 +207,8 @@ export class WeatherSystem {
     gain.gain.setValueAtTime(0.001, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 1.2);
 
-    source.connect(filter).connect(gain).connect(ctx.destination);
+    const destination = audioManager.getWeatherBus() ?? ctx.destination;
+    source.connect(filter).connect(gain).connect(destination);
     source.start();
 
     this.rainSource = source;
@@ -262,7 +257,8 @@ export class WeatherSystem {
     gain.gain.setValueAtTime(vol * 0.8, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
 
-    osc.connect(filter).connect(gain).connect(ctx.destination);
+    const destination = audioManager.getWeatherBus() ?? ctx.destination;
+    osc.connect(filter).connect(gain).connect(destination);
     osc.start(now);
     osc.stop(now + 1.45);
   }

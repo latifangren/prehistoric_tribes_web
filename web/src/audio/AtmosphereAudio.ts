@@ -1,3 +1,4 @@
+import { audioManager } from "../platform/AudioManager";
 import { getMasterVolume, isSfxEnabled, onMasterVolumeChange } from "../platform/SoundEffects";
 
 const AMBIENCE_KEY = "pt.ambience";
@@ -53,18 +54,7 @@ class AtmosphereAudio {
   private initContext(): AudioContext | null {
     if (typeof window === "undefined") return null;
     if (!isSfxEnabled() || !isAmbienceEnabled()) return null;
-
-    const Ctor =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!Ctor) return null;
-
-    if (!this.ctx) {
-      this.ctx = new Ctor();
-    }
-    if (this.ctx.state === "suspended") {
-      void this.ctx.resume().catch(() => {});
-    }
+    this.ctx = audioManager.getContext();
     return this.ctx;
   }
 
@@ -78,7 +68,8 @@ class AtmosphereAudio {
     // Master atmosphere gain
     const master = ctx.createGain();
     master.gain.setValueAtTime(getMasterVolume() * 0.45, ctx.currentTime);
-    master.connect(ctx.destination);
+    const destination = audioManager.getAmbienceBus() ?? ctx.destination;
+    master.connect(destination);
     this.masterGain = master;
 
     onMasterVolumeChange((vol) => {

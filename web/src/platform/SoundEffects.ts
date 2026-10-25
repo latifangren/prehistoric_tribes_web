@@ -1,64 +1,30 @@
-const SFX_KEY = "pt.sfx";
-const VOLUME_KEY = "pt.volume";
+import {
+  audioManager,
+  getMasterVolume,
+  isSfxEnabled,
+  onMasterVolumeChange,
+  setMasterVolume,
+  setSfxEnabled,
+} from "./AudioManager";
 
-export function isSfxEnabled(): boolean {
-  try {
-    const val = localStorage.getItem(SFX_KEY);
-    return val === null ? true : val === "on";
-  } catch {
-    return true;
-  }
-}
-
-export function setSfxEnabled(on: boolean): void {
-  try {
-    localStorage.setItem(SFX_KEY, on ? "on" : "off");
-  } catch {
-    // ignore storage errors
-  }
-}
-
-export function getMasterVolume(): number {
-  try {
-    const raw = localStorage.getItem(VOLUME_KEY);
-    if (raw === null) return 0.75;
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) ? Math.max(0, Math.min(1, parsed)) : 0.75;
-  } catch {
-    return 0.75;
-  }
-}
-
-export function setMasterVolume(vol: number): void {
-  const clamped = Math.max(0, Math.min(1, vol));
-  try {
-    localStorage.setItem(VOLUME_KEY, String(clamped));
-  } catch {
-    // ignore storage errors
-  }
-  onVolumeChangeCallbacks.forEach((cb) => cb(clamped));
-}
-
-const onVolumeChangeCallbacks = new Set<(vol: number) => void>();
-export function onMasterVolumeChange(cb: (vol: number) => void): () => void {
-  onVolumeChangeCallbacks.add(cb);
-  return () => onVolumeChangeCallbacks.delete(cb);
-}
+export {
+  isSfxEnabled,
+  setSfxEnabled,
+  getMasterVolume,
+  setMasterVolume,
+  onMasterVolumeChange,
+};
 
 class SoundEffects {
-  private ctx: AudioContext | null = null;
   private lastPlayed = new Map<string, number>();
 
   private context(): AudioContext | null {
-    if (typeof window === "undefined") return null;
     if (!isSfxEnabled()) return null;
-    const Ctor = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!Ctor) return null;
-    if (!this.ctx) this.ctx = new Ctor();
-    if (this.ctx.state === "suspended") {
-      void this.ctx.resume().catch(() => {});
-    }
-    return this.ctx;
+    return audioManager.getContext();
+  }
+
+  private destination(ctx: AudioContext): AudioNode {
+    return audioManager.getSfxBus() ?? ctx.destination;
   }
 
   private throttle(key: string, minGapMs: number): boolean {
@@ -84,7 +50,7 @@ class SoundEffects {
     osc.frequency.exponentialRampToValueAtTime(180, now + 0.045);
     gain.gain.setValueAtTime(vol, now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
-    osc.connect(gain).connect(ctx.destination);
+    osc.connect(gain).connect(this.destination(ctx));
     osc.start(now);
     osc.stop(now + 0.05);
   }
@@ -105,7 +71,7 @@ class SoundEffects {
       osc.frequency.setValueAtTime(freq, t);
       gain.gain.setValueAtTime(vol, t);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
-      osc.connect(gain).connect(ctx.destination);
+      osc.connect(gain).connect(this.destination(ctx));
       osc.start(t);
       osc.stop(t + 0.085);
     });
@@ -126,7 +92,7 @@ class SoundEffects {
     osc.frequency.exponentialRampToValueAtTime(58, now + 0.11);
     gain.gain.setValueAtTime(vol, now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-    osc.connect(gain).connect(ctx.destination);
+    osc.connect(gain).connect(this.destination(ctx));
     osc.start(now);
     osc.stop(now + 0.125);
   }
@@ -148,7 +114,7 @@ class SoundEffects {
       osc.frequency.exponentialRampToValueAtTime(freq * 0.6, t + 0.07);
       gain.gain.setValueAtTime(vol, t);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.075);
-      osc.connect(gain).connect(ctx.destination);
+      osc.connect(gain).connect(this.destination(ctx));
       osc.start(t);
       osc.stop(t + 0.08);
     });
@@ -174,7 +140,7 @@ class SoundEffects {
       gain.gain.setValueAtTime(0.001, t);
       gain.gain.linearRampToValueAtTime(vol, t + 0.03);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
-      osc.connect(filter).connect(gain).connect(ctx.destination);
+      osc.connect(filter).connect(gain).connect(this.destination(ctx));
       osc.start(t);
       osc.stop(t + 0.21);
     });
@@ -196,7 +162,7 @@ class SoundEffects {
       osc.frequency.setValueAtTime(freq, t);
       gain.gain.setValueAtTime(vol, t);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
-      osc.connect(gain).connect(ctx.destination);
+      osc.connect(gain).connect(this.destination(ctx));
       osc.start(t);
       osc.stop(t + 0.15);
     });
@@ -219,7 +185,7 @@ class SoundEffects {
       osc.frequency.setValueAtTime(freq, t);
       gain.gain.setValueAtTime(vol, t);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
-      osc.connect(gain).connect(ctx.destination);
+      osc.connect(gain).connect(this.destination(ctx));
       osc.start(t);
       osc.stop(t + 0.36);
     });
@@ -242,7 +208,7 @@ class SoundEffects {
       osc.frequency.setValueAtTime(freq, t);
       gain.gain.setValueAtTime(vol, t);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + (idx === notes.length - 1 ? 0.6 : 0.28));
-      osc.connect(gain).connect(ctx.destination);
+      osc.connect(gain).connect(this.destination(ctx));
       osc.start(t);
       osc.stop(t + (idx === notes.length - 1 ? 0.65 : 0.3));
     });
