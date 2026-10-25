@@ -312,15 +312,24 @@ export function attachHud(
   confirmBox.addEventListener("keydown", (event) => event.stopPropagation());
   app.append(confirmBox);
   const ask = (text: string, then: () => void) => {
+    const l = lang();
     confirmBox.querySelector("p")!.textContent = text;
-    confirmBox.querySelector<HTMLElement>('[data-btn="no"]')!.textContent = isZh() ? "取消" : "Cancel";
-    confirmBox.querySelector<HTMLElement>('[data-btn="yes"]')!.textContent = isZh() ? "确定" : "Confirm";
+    confirmBox.querySelector<HTMLElement>('[data-btn="no"]')!.textContent = l === "zh" ? "取消" : l === "id" ? "Batal" : "Cancel";
+    confirmBox.querySelector<HTMLElement>('[data-btn="yes"]')!.textContent = l === "zh" ? "确定" : l === "id" ? "Konfirmasi" : "Confirm";
     confirmBox.returnValue = "no";
     confirmBox.onclose = () => { if (confirmBox.returnValue === "yes") then(); };
     confirmBox.showModal();
   };
   const run = (item: PauseItem) => touch.pauseMenu(item, (record) => notify(originalText(runtime, "t", record)));
-  const message = (record: number) => originalText(runtime, "t", record);
+  const message = (record: number) => {
+    const l = lang();
+    if (l === "id") {
+      if (record === 63) return "Muat simpanan permainan ini?";
+      if (record === 64) return "Simpanan saat ini akan ditimpa! Lanjutkan?";
+      if (record === 65) return "Kembali ke menu utama? Kemajuan yang belum disimpan akan hilang.";
+    }
+    return originalText(runtime, "t", record);
+  };
   // Comprehensive 6-tab HD Tribe Guide & Encyclopedia dialog replacing the legacy 240x320 keypad help screen.
   const helpDialog = document.createElement("dialog");
   helpDialog.className = "settings help-dialog";
@@ -356,6 +365,20 @@ export function attachHud(
     "史前科技研究中心，解锁高阶部落建筑与能力。",
     "照料部落新出生的幼童，直至他们长大成人参与劳动。",
     "防御哨塔，提供广阔视野并自动攻击靠近的敌军或猛兽。",
+  ];
+  const BUILDING_DESCS_ID = [
+    "Membuat senjata jarak dekat, jarak jauh, dan jebakan dari kayu, batu, dan tulang.",
+    "Melatih kekuatan fisik dan kemampuan bertarung jarak dekat penduduk.",
+    "Menaikkan kapasitas populasi suku dan tempat istirahat memulihkan energi.",
+    "Tenda kepala suku dan pusat komando, tingkatkan untuk membuka bangunan tingkat lanjut.",
+    "Tempat koki mengolah bahan mentah menjadi makanan lezat pemulih kekenyangan.",
+    "Melatih akurasi lemparan jarak jauh dan jangkauan pengintaian penduduk.",
+    "Menyimpan senjata dan perbekalan suku agar siap dibagikan kepada warga.",
+    "Pusat hiburan suku, meningkatkan kebahagiaan dan energi melalui musik dan tarian.",
+    "Kuil shaman untuk merapal mantra Penyembuhan, Perisai, Ramuan Cinta, dan Wabah.",
+    "Pusat penelitian prasejarah untuk membuka bangunan dan teknologi suku tingkat tinggi.",
+    "Merawat anak-anak suku hingga mereka beranjak dewasa dan siap bekerja.",
+    "Menara pengawas pertahanan yang otomatis menembaki musuh atau hewan buas yang mendekat.",
   ];
   const renderHelpDialog = () => {
     const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
@@ -396,7 +419,7 @@ export function attachHud(
         if (sCost > 0) costParts.push(`🪨 ${sCost}`);
         if (bCost > 0) costParts.push(`🦴 ${bCost}`);
         const costStr = costParts.length > 0 ? costParts.join(" · ") : (zh ? "初始核心" : "Core");
-        const desc = zh ? BUILDING_DESCS_ZH[kind] : BUILDING_DESCS_EN[kind];
+        const desc = lang === "zh" ? BUILDING_DESCS_ZH[kind] : lang === "id" ? BUILDING_DESCS_ID[kind] : BUILDING_DESCS_EN[kind];
         return `
           <div class="help-item">
             <img src="${UI}ub-${icon}.png" alt="">
@@ -409,29 +432,29 @@ export function attachHud(
       }).join("");
       bodyHtml = `<div class="help-list">${cards}</div>`;
     } else if (activeHelpTab === "arsenal") {
-      const weapons: [string, number, string, string][] = [
-        ["club", 12, "Basic wooden melee club.", "基础木棒，近战防身武器。"],
-        ["stone", 13, "Thrown rock for basic ranged attacks.", "投掷石块，基础远程攻击武器。"],
-        ["spear", 14, "Balanced hunting & combat spear.", "长矛，兼顾狩猎与战斗的利器。"],
-        ["stone-axe", 15, "Heavy stone axe for strong melee strikes.", "石斧，强力近战劈砍武器。"],
-        ["bone-mace", 16, "Crushing bone mace crafted from beast bones.", "骨锤，用猛兽骨骼打造的重型武器。"],
-        ["tomahawk", 17, "High-damage ranged throwing axe.", "飞斧，高伤害远程投掷武器。"],
-        ["net-trap", 18, "Entangles approaching beasts or enemies.", "捕网陷阱，困住靠近的野兽或敌人。"],
-        ["spring-trap", 19, " Launches a sudden spring-loaded strike.", "弹射陷阱，对踏入目标造成伤害。"],
-        ["pit-trap", 20, "Deep concealed pit that traps intruders.", "深坑陷阱，重创落入其中的敌人。"],
-        ["healing", 30, "Sanctuary spell: restores target villager's HP.", "萨满巫术：恢复目标村民的生命值。"],
-        ["defence", 31, "Sanctuary spell: boosts target villager's armor.", "萨满巫术：提升目标村民的防御力。"],
-        ["love-potion", 32, "Sanctuary spell: inspires villagers to start a family.", "萨满巫术：促成成年男女繁衍后代。"],
-        ["disease", 33, "Sanctuary spell: weakens nearby enemy forces.", "萨满巫术：削弱敌方单位战斗力。"],
+      const weapons: [string, number, string, string, string][] = [
+        ["club", 12, "Basic wooden melee club.", "Pentungan kayu dasar untuk pertahanan jarak dekat.", "基础木棒，近战防身武器。"],
+        ["stone", 13, "Thrown rock for basic ranged attacks.", "Batu lempar untuk serangan jarak jauh dasar.", "投掷石块，基础远程攻击武器。"],
+        ["spear", 14, "Balanced hunting & combat spear.", "Tombak seimbang untuk berburu dan bertempur.", "长矛，兼顾狩猎与战斗的利器。"],
+        ["stone-axe", 15, "Heavy stone axe for strong melee strikes.", "Kapak batu berat dengan tebasan jarak dekat kuat.", "石斧，强力近战劈砍武器。"],
+        ["bone-mace", 16, "Crushing bone mace crafted from beast bones.", "Gada penghancur dari tulang belulang hewan buas.", "骨锤，用猛兽骨骼打造的重型武器。"],
+        ["tomahawk", 17, "High-damage ranged throwing axe.", "Kapak lempar dengan daya hancur jarak jauh tinggi.", "飞斧，高伤害远程投掷武器。"],
+        ["net-trap", 18, "Entangles approaching beasts or enemies.", "Jebakan jaring untuk menjerat hewan atau penyusup.", "捕网陷阱，困住靠近的野兽或敌人。"],
+        ["spring-trap", 19, "Launches a sudden spring-loaded strike.", "Jebakan pegas dengan serangan kejutan mematikan.", "弹射陷阱，对踏入目标造成伤害。"],
+        ["pit-trap", 20, "Deep concealed pit that traps intruders.", "Jebakan lubang tersembunyi yang melumpuhkan musuh.", "深坑陷阱，重创落入其中的敌人。"],
+        ["healing", 30, "Sanctuary spell: restores target villager's HP.", "Mantra suci: memulihkan HP penduduk yang terluka.", "萨满巫术：恢复目标村民的生命值。"],
+        ["defence", 31, "Sanctuary spell: boosts target villager's armor.", "Mantra suci: meningkatkan pertahanan penduduk.", "萨满巫术：提升目标村民的防御力。"],
+        ["love-potion", 32, "Sanctuary spell: inspires villagers to start a family.", "Mantra suci: mendorong penduduk dewasa berkeluarga.", "萨满巫术：促成成年男女繁衍后代。"],
+        ["disease", 33, "Sanctuary spell: weakens nearby enemy forces.", "Mantra suci: melemahkan kekuatan pasukan musuh sekitar.", "萨满巫术：削弱敌方单位战斗力。"],
       ];
       bodyHtml = `
         <div class="help-list">
-          ${weapons.map(([ic, sIdx, enDesc, zhDesc]) => `
+          ${weapons.map(([ic, sIdx, enDesc, idDesc, zhDesc]) => `
             <div class="help-item">
               <img src="${UI}${ic}.png" alt="">
               <div>
                 <b>${capitalise(originalText(runtime, "s", sIdx))}</b>
-                <p>${zh ? zhDesc : enDesc}</p>
+                <p>${lang === "zh" ? zhDesc : lang === "id" ? idDesc : enDesc}</p>
               </div>
             </div>
           `).join("")}
@@ -442,31 +465,31 @@ export function attachHud(
       bodyHtml = `
         <p class="help-lead">${intro}</p>
         <div class="help-grid">
-          <div class="help-chip"><img src="${UI}icon-people.png" alt=""><span>${zh ? "人口 / 居住上限（建小屋增加，成人可繁衍后代）" : "Population / Housing cap (build Huts; adults can raise children)"}</span></div>
-          <div class="help-chip"><img src="${UI}icon-food.png" alt=""><span>${zh ? "食物（采集浆果、打猎、厨房加工防止饥饿）" : "Food (forage, hunt, and cook in Kitchen to prevent starvation)"}</span></div>
-          <div class="help-chip"><img src="${UI}icon-wood.png" alt=""><span>${zh ? "木材（砍伐树木，用于建造、升级与制造武器）" : "Wood (chop trees for construction, upgrades & weapons)"}</span></div>
-          <div class="help-chip"><img src="${UI}icon-stone.png" alt=""><span>${zh ? "石头（开采石矿，加固建筑与打造石器）" : "Stone (mine rocks for advanced upgrades & stone tools)"}</span></div>
-          <div class="help-chip"><img src="${UI}icon-bones.png" alt=""><span>${zh ? "骨头（狩猎野兽获取，高级建筑与骨器材料）" : "Bones (harvested from hunted beasts for high-tier builds)"}</span></div>
-          <div class="help-chip"><img src="${UI}pt-chief.png" alt=""><span>${zh ? "族长传承（若族长阵亡，须立即在成年村民中推选新族长）" : "Chief Succession (if your Chief falls, crown an adult villager immediately)"}</span></div>
+          <div class="help-chip"><img src="${UI}icon-people.png" alt=""><span>${lang === "zh" ? "人口 / 居住上限（建小屋增加，成人可繁衍后代）" : lang === "id" ? "Batas Populasi (Bangun Gubuk; dewasa dapat berkeluarga)" : "Population / Housing cap (build Huts; adults can raise children)"}</span></div>
+          <div class="help-chip"><img src="${UI}icon-food.png" alt=""><span>${lang === "zh" ? "食物（采集浆果、打猎、厨房加工防止饥饿）" : lang === "id" ? "Makanan (Kumpulkan buah, berburu, olah di Dapur)" : "Food (forage, hunt, and cook in Kitchen to prevent starvation)"}</span></div>
+          <div class="help-chip"><img src="${UI}icon-wood.png" alt=""><span>${lang === "zh" ? "木材（砍伐树木，用于建造、升级与制造武器）" : lang === "id" ? "Kayu (Tebang pohon untuk konstruksi & senjata)" : "Wood (chop trees for construction, upgrades & weapons)"}</span></div>
+          <div class="help-chip"><img src="${UI}icon-stone.png" alt=""><span>${lang === "zh" ? "石头（开采石矿，加固建筑与打造石器）" : lang === "id" ? "Batu (Tambang batu untuk upgrade & peralatan batu)" : "Stone (mine rocks for advanced upgrades & stone tools)"}</span></div>
+          <div class="help-chip"><img src="${UI}icon-bones.png" alt=""><span>${lang === "zh" ? "骨头（狩猎野兽获取，高级建筑与骨器材料）" : lang === "id" ? "Tulang (Diperoleh dari berburu satwa untuk senjata & bangunan)" : "Bones (harvested from hunted beasts for high-tier builds)"}</span></div>
+          <div class="help-chip"><img src="${UI}pt-chief.png" alt=""><span>${lang === "zh" ? "族长传承（若族长阵亡，须立即在成年村民中推选新族长）" : lang === "id" ? "Suksesi Kepala Suku (Jika Kepala Suku gugur, pilih segera penggantinya)" : "Chief Succession (if your Chief falls, crown an adult villager immediately)"}</span></div>
         </div>
       `;
     } else if (activeHelpTab === "skills") {
       const skillsList = [
-        ["heart", zh ? "生命值" : "Hit Points"],
-        ["hunger", zh ? "饱食度" : "Fullness"],
-        ["sleep", zh ? "精力值" : "Energy"],
-        ["sk-spear", zh ? "近战攻击" : "Melee Attack"],
-        ["sk-eyes", zh ? "远程攻击" : "Ranged Attack"],
-        ["sk-bush", zh ? "侦察隐蔽" : "Scouting"],
-        ["sk-basket", zh ? "资源采集" : "Harvesting"],
-        ["sk-hardhat", zh ? "建造修理" : "Building"],
-        ["sk-hammer", zh ? "武器锻造" : "Weaponsmith"],
-        ["sk-chef", zh ? "烹饪料理" : "Cooking"],
-        ["sk-mask", zh ? "萨满巫术" : "Witchcraft"],
-        ["sk-horseshoe", zh ? "迪厅打碟" : "DJ / Entertainment"],
+        ["heart", lang === "zh" ? "生命值" : lang === "id" ? "Kesehatan (HP)" : "Hit Points"],
+        ["hunger", lang === "zh" ? "饱食度" : lang === "id" ? "Kekenyangan" : "Fullness"],
+        ["sleep", lang === "zh" ? "精力值" : lang === "id" ? "Energi & Istirahat" : "Energy"],
+        ["sk-spear", lang === "zh" ? "近战攻击" : lang === "id" ? "Serangan Jarak Dekat" : "Melee Attack"],
+        ["sk-eyes", lang === "zh" ? "远程攻击" : lang === "id" ? "Serangan Jarak Jauh" : "Ranged Attack"],
+        ["sk-bush", lang === "zh" ? "侦察隐蔽" : lang === "id" ? "Pengintaian & Kamuflase" : "Scouting"],
+        ["sk-basket", lang === "zh" ? "资源采集" : lang === "id" ? "Pengumpulan Sumber Daya" : "Harvesting"],
+        ["sk-hardhat", lang === "zh" ? "建造修理" : lang === "id" ? "Konstruksi & Perbaikan" : "Building"],
+        ["sk-hammer", lang === "zh" ? "武器锻造" : lang === "id" ? "Penempaan Senjata" : "Weaponsmith"],
+        ["sk-chef", lang === "zh" ? "烹饪料理" : lang === "id" ? "Memasak & Mengolah Makanan" : "Cooking"],
+        ["sk-mask", lang === "zh" ? "萨满巫术" : lang === "id" ? "Sihir Shaman" : "Witchcraft"],
+        ["sk-horseshoe", lang === "zh" ? "迪厅打碟" : lang === "id" ? "Hiburan & Tari Disko" : "DJ / Entertainment"],
       ];
       bodyHtml = `
-        <p class="help-lead">${zh ? "村民每执行一次对应工作，该项技能就会提升：" : "Villagers improve their skills as they perform corresponding tasks:"}</p>
+        <p class="help-lead">${lang === "zh" ? "村民每执行一次对应工作，该项技能就会提升：" : lang === "id" ? "Keahlian penduduk meningkat setiap kali melakukan pekerjaan terkait:" : "Villagers improve their skills as they perform corresponding tasks:"}</p>
         <div class="help-skill-grid">
           ${skillsList.map(([ic, name]) => `<div class="help-skill"><img src="${UI}${ic}.png" alt=""><span>${name}</span></div>`).join("")}
         </div>
@@ -515,13 +538,13 @@ export function attachHud(
   };
 
   const menuItems: { label: () => string; glyph: string; act: () => void; enabled?: () => boolean }[] = [
-    { label: () => (isZh() ? "保存" : "Save"), glyph: "save", act: () => (game.screen === 10 ? ask(message(64), () => run("save")) : run("save")) },
-    { label: () => (isZh() ? "读取" : "Load"), glyph: "load", enabled: () => game.screen === 10, act: () => ask(message(63), () => { paused = false; menuList.hidden = true; run("load"); }) },
-    { label: () => (isZh() ? "战绩" : "Stats"), glyph: "stats", act: () => { if (openRecap) openRecap(); } },
-    { label: () => (isZh() ? "成就" : "Trophies"), glyph: "trophy", act: () => { if (openAchievements) openAchievements(); } },
-    { label: () => (isZh() ? "设置" : "Settings"), glyph: "settings", act: openSettings },
-    { label: () => (isZh() ? "帮助" : "Help"), glyph: "help", act: openHelp },
-    { label: () => (isZh() ? "退出" : "Quit"), glyph: "quit", act: () => ask(message(65), () => { paused = false; menuList.hidden = true; run("quit"); }) },
+    { label: () => { const l = lang(); return l === "zh" ? "保存" : l === "id" ? "Simpan" : "Save"; }, glyph: "save", act: () => (game.screen === 10 ? ask(message(64), () => run("save")) : run("save")) },
+    { label: () => { const l = lang(); return l === "zh" ? "读取" : l === "id" ? "Muat" : "Load"; }, glyph: "load", enabled: () => game.screen === 10, act: () => ask(message(63), () => { paused = false; menuList.hidden = true; run("load"); }) },
+    { label: () => { const l = lang(); return l === "zh" ? "战绩" : l === "id" ? "Statistik" : "Stats"; }, glyph: "stats", act: () => { if (openRecap) openRecap(); } },
+    { label: () => { const l = lang(); return l === "zh" ? "成就" : l === "id" ? "Trofi" : "Trophies"; }, glyph: "trophy", act: () => { if (openAchievements) openAchievements(); } },
+    { label: () => { const l = lang(); return l === "zh" ? "设置" : l === "id" ? "Pengaturan" : "Settings"; }, glyph: "settings", act: openSettings },
+    { label: () => { const l = lang(); return l === "zh" ? "帮助" : l === "id" ? "Panduan" : "Help"; }, glyph: "help", act: openHelp },
+    { label: () => { const l = lang(); return l === "zh" ? "退出" : l === "id" ? "Keluar" : "Quit"; }, glyph: "quit", act: () => ask(message(65), () => { paused = false; menuList.hidden = true; run("quit"); }) },
   ];
   const menuEntries = menuItems.map((item) => {
     const entry = button("hud-menu-item", "", item.label());
@@ -871,13 +894,15 @@ export function attachHud(
     }
   };
   const renderChiefBanner = (list: number[]) => {
-    const zh = isZh();
+    const l = lang();
+    const zh = l === "zh";
+    const isId = l === "id";
     const e = runtime.denseState;
     const idx = list.indexOf(candidate);
-    const key = `${zh ? 1 : 0}:${list.join(",")}:${candidate}:${candidate > 0 ? e[UNIT_HP + candidate] : 0}`;
+    const key = `${zh ? 1 : isId ? 2 : 0}:${list.join(",")}:${candidate}:${candidate > 0 ? e[UNIT_HP + candidate] : 0}`;
     if (key === shownChiefBanner) return;
     shownChiefBanner = key;
-    const title = capitalise(originalText(runtime, "s", 41));
+    const title = isId ? "Suksesi Kepala Suku" : capitalise(originalText(runtime, "s", 41));
     if (candidate > 0 && idx >= 0) {
       const cName = capitalise(originalText(runtime, "s", 108 + (e[UNIT_NAME + candidate] ?? 0)));
       const cAge = e[UNIT_AGE + candidate] ?? 18;
@@ -888,13 +913,13 @@ export function attachHud(
           <img src="${UI}pt-chief.png" alt="">
           <div class="chief-banner-meta">
             <b>${title} (${idx + 1}/${list.length})</b>
-            <span>${cName} · ${zh ? `${cAge}岁` : `Age ${cAge}`} · ❤️ ${cHp}/${cMaxHp}</span>
+            <span>${cName} · ${zh ? `${cAge}岁` : isId ? `Usia ${cAge}` : `Age ${cAge}`} · ❤️ ${cHp}/${cMaxHp}</span>
           </div>
         </div>
         <div class="chief-banner-actions">
-          <button type="button" class="chief-nav-btn" data-chief-act="prev" aria-label="${zh ? "上一位" : "Previous"}">◀</button>
-          <button type="button" class="chief-nav-btn" data-chief-act="next" aria-label="${zh ? "下一位" : "Next"}">▶</button>
-          <button type="button" class="chief-crown-btn" data-chief-act="crown">${zh ? "👑 立为族长" : "👑 Crown Chief"}</button>
+          <button type="button" class="chief-nav-btn" data-chief-act="prev" aria-label="${zh ? "上一位" : isId ? "Sebelumnya" : "Previous"}">◀</button>
+          <button type="button" class="chief-nav-btn" data-chief-act="next" aria-label="${zh ? "下一位" : isId ? "Berikutnya" : "Next"}">▶</button>
+          <button type="button" class="chief-crown-btn" data-chief-act="crown">${zh ? "👑 立为族长" : isId ? "👑 Angkat Kepala Suku" : "👑 Crown Chief"}</button>
         </div>
       `;
     } else {
@@ -903,11 +928,11 @@ export function attachHud(
           <img src="${UI}pt-chief.png" alt="">
           <div class="chief-banner-meta">
             <b>${title}</b>
-            <span>${zh ? `点选下方或地图上的成年村民（共 ${list.length} 人）` : `Tap an adult villager below or on the map (${list.length} eligible)`}</span>
+            <span>${zh ? `点选下方或地图上的成年村民（共 ${list.length} 人）` : isId ? `Pilih penduduk dewasa di peta (tersedia ${list.length} orang)` : `Tap an adult villager below or on the map (${list.length} eligible)`}</span>
           </div>
         </div>
         <div class="chief-banner-actions">
-          <button type="button" class="chief-crown-btn" data-chief-act="best">${zh ? "👑 推选最强者" : "👑 Pick Best"}</button>
+          <button type="button" class="chief-crown-btn" data-chief-act="best">${zh ? "👑 推选最强者" : isId ? "👑 Pilih Terkuat" : "👑 Pick Best"}</button>
         </div>
       `;
     }
@@ -970,8 +995,8 @@ export function attachHud(
   panelRow.className = "hud-sheet-row";
   const confirmRow = document.createElement("div");
   confirmRow.className = "hud-sheet-confirm";
-  confirmRow.innerHTML = `${img("demolish")}<span>是否确认拆除？</span>`;
-  const sheetTick = button("hud-sheet-tick", "", "确定");
+  confirmRow.innerHTML = `${img("demolish")}<span></span>`;
+  const sheetTick = button("hud-sheet-tick", "", "Confirm");
   sheetTick.innerHTML = img("btn-tick");
   // An item confirming (w == 4, BUG-019): the original's own line for it ("nothing to do here" ...)
   // in the sheet, closed with its ✕.
@@ -1088,7 +1113,10 @@ export function attachHud(
     const words = notice && game.resourceSectionW === game.vInt ? capitalise(originalText(runtime, "t", runtime.shownTextRecord)) : "";
     if (noticeRow.textContent !== words) noticeRow.textContent = words;
     const confirmText = confirmRow.querySelector("span");
-    if (confirmText) confirmText.textContent = isZh() ? "是否确认拆除？" : "Demolish this building?";
+    if (confirmText) {
+      const l = lang();
+      confirmText.textContent = l === "zh" ? "是否确认拆除？" : l === "id" ? "Robohkan bangunan ini?" : "Demolish this building?";
+    }
     show(panelRow, !confirming && !notice);
     show(confirmRow, confirming);
     show(noticeRow, notice);

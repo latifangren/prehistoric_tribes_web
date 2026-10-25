@@ -96,9 +96,10 @@ class MatchStatsTracker {
   }
 
 
-  calculateGrade(stats: MatchStats): { grade: "S" | "A" | "B" | "C"; title: string; color: string } {
+  calculateGrade(stats: MatchStats, lang: "zh" | "id" | "en" = "en"): { grade: "S" | "A" | "B" | "C"; title: string; color: string } {
     if (!stats.won) {
-      return { grade: "C", title: "Fallen Tribe (陨落氏族)", color: "#9e9e9e" };
+      const title = lang === "zh" ? "陨落氏族" : lang === "id" ? "Suku yang Tumbang" : "Fallen Tribe";
+      return { grade: "C", title, color: "#9e9e9e" };
     }
     let score = 50;
     if (!stats.chiefFell) score += 25;
@@ -112,9 +113,16 @@ class MatchStatsTracker {
     if (stats.tigersKilled > 0) score += 10;
     if (stats.difficulty === 2) score += 15; // Hard bonus
 
-    if (score >= 95) return { grade: "S", title: "Mythic Warlord (远古战神)", color: "#ffd54f" };
-    if (score >= 75) return { grade: "A", title: "Master Chieftain (部落明君)", color: "#81c784" };
-    return { grade: "B", title: "Resilient Elder (坚毅长老)", color: "#64b5f6" };
+    if (score >= 95) {
+      const title = lang === "zh" ? "远古战神" : lang === "id" ? "Panglima Mitos Prasejarah" : "Mythic Warlord";
+      return { grade: "S", title, color: "#ffd54f" };
+    }
+    if (score >= 75) {
+      const title = lang === "zh" ? "部落明君" : lang === "id" ? "Kepala Suku Agung" : "Master Chieftain";
+      return { grade: "A", title, color: "#81c784" };
+    }
+    const title = lang === "zh" ? "坚毅长老" : lang === "id" ? "Tetua Tangguh" : "Resilient Elder";
+    return { grade: "B", title, color: "#64b5f6" };
   }
 
   tick(runtime: LegacyRuntimeState): void {
@@ -278,13 +286,18 @@ export function attachMatchRecap(
   };
 
   const render = () => {
-    const isZh = runtime.language === ZH_LANGUAGE;
+    const lang: "zh" | "id" | "en" = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
     const stats = matchStatsTracker.getStats();
-    const evaluation = matchStatsTracker.calculateGrade(stats);
+    const evaluation = matchStatsTracker.calculateGrade(stats, lang);
 
     const minutes = Math.floor(stats.durationSec / 60);
     const seconds = stats.durationSec % 60;
     const timeFormatted = `${minutes}m ${seconds}s`;
+    const diffLabel = lang === "zh" ? (stats.difficulty === 2 ? "困难模式" : "普通模式") : lang === "id" ? (stats.difficulty === 2 ? "Mode Sulit" : "Mode Normal") : (stats.difficulty === 2 ? "Hard Mode" : "Normal Mode");
+    const durationLabel = lang === "zh" ? "作战时长" : lang === "id" ? "Durasi Pertandingan" : "Match Duration";
+    const outcomeTitle = stats.won
+      ? (lang === "zh" ? "部落征服与胜利！" : lang === "id" ? "KEMENANGAN SUKU!" : "TRIBE VICTORY!")
+      : (lang === "zh" ? "部族覆灭与溃败" : lang === "id" ? "SUKU TELAH TUMBANG" : "TRIBE DEFEATED");
 
     dialog.innerHTML = `
       <form method="dialog">
@@ -292,8 +305,8 @@ export function attachMatchRecap(
           <div class="recap-outcome">
             <span class="recap-badge-icon">${stats.won ? "👑" : "💀"}</span>
             <div class="recap-outcome-text">
-              <h2>${stats.won ? (isZh ? "部落征服与胜利！" : "TRIBE VICTORY!") : (isZh ? "部族覆灭与溃败" : "TRIBE DEFEATED")}</h2>
-              <span class="recap-time">${isZh ? "作战时长" : "Match Duration"}: ${timeFormatted} · ${isZh ? (stats.difficulty === 2 ? "困难模式" : "普通模式") : (stats.difficulty === 2 ? "Hard Mode" : "Normal Mode")}</span>
+              <h2>${outcomeTitle}</h2>
+              <span class="recap-time">${durationLabel}: ${timeFormatted} · ${diffLabel}</span>
             </div>
           </div>
           <div class="recap-grade" style="border-color: ${evaluation.color}; color: ${evaluation.color};">
@@ -303,7 +316,7 @@ export function attachMatchRecap(
         </div>
 
         <div class="recap-section">
-          <span class="recap-section-title">📈 ${isZh ? "人口演进趋势曲线" : "Population Growth Timeline"}</span>
+          <span class="recap-section-title">📈 ${lang === "zh" ? "人口演进趋势曲线" : lang === "id" ? "Grafik Pertumbuhan Populasi" : "Population Growth Timeline"}</span>
           <div class="recap-timeline-box">
             ${renderTimelineSvg(stats.timeline, stats.peakPop)}
           </div>
@@ -311,30 +324,30 @@ export function attachMatchRecap(
 
         <div class="recap-grid">
           <div class="recap-card">
-            <h4>👥 ${isZh ? "部落人口" : "Tribe & People"}</h4>
-            <div class="recap-row"><span>${isZh ? "巅峰人口" : "Peak Population"}</span><b>${stats.peakPop}</b></div>
-            <div class="recap-row"><span>${isZh ? "战损阵亡" : "Casualties"}</span><b style="color: ${stats.villagersLost > 0 ? "#ef5350" : "#a5d6a7"}">${stats.villagersLost}</b></div>
-            <div class="recap-row"><span>${isZh ? "酋长健在" : "Chief Survived"}</span><b>${stats.chiefFell ? (isZh ? "❌ 阵亡推选" : "❌ Fallen") : (isZh ? "✓ 完好无损" : "✓ Safe")}</b></div>
+            <h4>👥 ${lang === "zh" ? "部落人口" : lang === "id" ? "Populasi & Suku" : "Tribe & People"}</h4>
+            <div class="recap-row"><span>${lang === "zh" ? "巅峰人口" : lang === "id" ? "Puncak Populasi" : "Peak Population"}</span><b>${stats.peakPop}</b></div>
+            <div class="recap-row"><span>${lang === "zh" ? "战损阵亡" : lang === "id" ? "Korban Gugur" : "Casualties"}</span><b style="color: ${stats.villagersLost > 0 ? "#ef5350" : "#a5d6a7"}">${stats.villagersLost}</b></div>
+            <div class="recap-row"><span>${lang === "zh" ? "酋长健在" : lang === "id" ? "Kepala Suku" : "Chief Survived"}</span><b>${stats.chiefFell ? (lang === "zh" ? "❌ 阵亡推选" : lang === "id" ? "❌ Gugur" : "❌ Fallen") : (lang === "zh" ? "✓ 完好无损" : lang === "id" ? "✓ Selamat" : "✓ Safe")}</b></div>
           </div>
 
           <div class="recap-card">
-            <h4>⚔️ ${isZh ? "狩猎与战役" : "Hunt & Combat"}</h4>
-            <div class="recap-row"><span>${isZh ? "击退敌军" : "Raiders Defeated"}</span><b>${stats.enemiesKilled}</b></div>
-            <div class="recap-row"><span>${isZh ? "猎杀猛犸" : "Mammoths Hunted"}</span><b>${stats.mammothsKilled}</b></div>
-            <div class="recap-row"><span>${isZh ? "猎杀剑齿虎" : "Saber-tooth Tigers"}</span><b>${stats.tigersKilled}</b></div>
+            <h4>⚔️ ${lang === "zh" ? "狩猎与战役" : lang === "id" ? "Perburuan & Tempur" : "Hunt & Combat"}</h4>
+            <div class="recap-row"><span>${lang === "zh" ? "击退敌军" : lang === "id" ? "Musuh Dikalahkan" : "Raiders Defeated"}</span><b>${stats.enemiesKilled}</b></div>
+            <div class="recap-row"><span>${lang === "zh" ? "猎杀猛犸" : lang === "id" ? "Mamut Diburu" : "Mammoths Hunted"}</span><b>${stats.mammothsKilled}</b></div>
+            <div class="recap-row"><span>${lang === "zh" ? "猎杀剑齿虎" : lang === "id" ? "Harimau Taring Pedang" : "Saber-tooth Tigers"}</span><b>${stats.tigersKilled}</b></div>
           </div>
 
           <div class="recap-card">
-            <h4>🪵 ${isZh ? "采集与建筑" : "Economy & Build"}</h4>
-            <div class="recap-row"><span>${isZh ? "完工建筑" : "Buildings Built"}</span><b>${stats.buildingsBuilt}</b></div>
-            <div class="recap-row"><span>${isZh ? "粮食采集" : "Food Harvested"}</span><b>${stats.foodGathered}</b></div>
-            <div class="recap-row"><span>${isZh ? "木石骨料" : "Wood/Stone/Bones"}</span><b>${stats.woodGathered + stats.stoneGathered + stats.bonesGathered}</b></div>
+            <h4>🪵 ${lang === "zh" ? "采集与建筑" : lang === "id" ? "Ekonomi & Bangunan" : "Economy & Build"}</h4>
+            <div class="recap-row"><span>${lang === "zh" ? "完工建筑" : lang === "id" ? "Bangunan Berdiri" : "Buildings Built"}</span><b>${stats.buildingsBuilt}</b></div>
+            <div class="recap-row"><span>${lang === "zh" ? "粮食采集" : lang === "id" ? "Makanan Dipanen" : "Food Harvested"}</span><b>${stats.foodGathered}</b></div>
+            <div class="recap-row"><span>${lang === "zh" ? "木石骨料" : lang === "id" ? "Kayu/Batu/Tulang" : "Wood/Stone/Bones"}</span><b>${stats.woodGathered + stats.stoneGathered + stats.bonesGathered}</b></div>
           </div>
         </div>
 
         <div class="recap-actions">
-          ${openAchievements ? `<button type="button" class="recap-btn recap-trophy-btn">🏆 ${isZh ? "查看成就勋章" : "View Trophies"}</button>` : ""}
-          <button type="submit" class="recap-btn recap-close-btn">${isZh ? "返回战场 / 确认" : "Close Recap"}</button>
+          ${openAchievements ? `<button type="button" class="recap-btn recap-trophy-btn">🏆 ${lang === "zh" ? "查看成就勋章" : lang === "id" ? "Lihat Lemari Trofi" : "View Trophies"}</button>` : ""}
+          <button type="submit" class="recap-btn recap-close-btn">${lang === "zh" ? "返回战场 / 确认" : lang === "id" ? "Tutup Laporan" : "Close Recap"}</button>
         </div>
       </form>
     `;

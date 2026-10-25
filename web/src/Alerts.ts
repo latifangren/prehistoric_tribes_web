@@ -2,6 +2,7 @@ import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { UNIT_NAME } from "./core/DenseLayout";
 import { capitalise, originalText } from "./OriginalText";
 import { sfx } from "./platform/SoundEffects";
+import { haptic } from "./platform/Haptic";
 import type { TouchControls } from "./TouchControls";
 
 /**
@@ -98,6 +99,7 @@ export function attachAlerts(app: HTMLElement, runtime: LegacyRuntimeState, touc
     lastBlow = now;
     if (quiet) {
       sfx.alert();
+      haptic.alert();
       post(capitalise(label(41 + ATTACK_TYPE)), x, y, true);
     }
   };
@@ -107,6 +109,7 @@ export function attachAlerts(app: HTMLElement, runtime: LegacyRuntimeState, touc
     let text = label(41 + type);
     if (NAMED_TYPES.has(type)) text = label(108 + (runtime.denseState[UNIT_NAME + value] ?? 0)) + text;
     sfx.message();
+    haptic.tap();
     post(capitalise(text.trim()), x, y, false);
   };
 
