@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/Language-TypeScript_5-blue.svg" alt="TypeScript">
   <img src="https://img.shields.io/badge/Bundler-Vite_6-646CFF.svg" alt="Vite">
   <img src="https://img.shields.io/badge/Platform-Web_Canvas_%2F_Mobile-success.svg" alt="Platform">
-  <img src="https://img.shields.io/badge/License-Non--Commercial_Fan_Project-orange.svg" alt="License">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT_(Code_Only)-green.svg" alt="License"></a>
 </p>
 
 ---
@@ -163,5 +163,6 @@ The compiled, production-ready static assets will be output to the `web/dist/` d
 ## 📜 Disclaimer & Asset Licensing
 
 * **Asset Ownership Notice:** All original in-game assets—including but not limited to textures, sprites, animations, sound effects, MIDI tracks, dialogues, and game design concepts—are the exclusive intellectual property of the original game developer, **Gear Games, Ltd.**, and publisher, **THQ Wireless Inc. / THQ Inc.** (© 2008 THQ Wireless Inc.). Neither BOMBWCC nor the maintainers of this repository claim any ownership over these original assets.
+* **Split MIT License:** The source code and custom tooling created for this web port are licensed under the [MIT License](LICENSE). Original game assets are explicitly excluded from this license.
 * **Non-Commercial Fan Preservation:** This project is an unofficial, non-profit, educational open-source fan recreation developed strictly for historical preservation, research, and learning purposes. No commercial monetization or proprietary licensing applies to the original game contents.
 * **Web Port Credit:** All credit for the web port reverse-engineering and implementation goes to **[BOMBWCC](https://github.com/BOMBWCC/Prehistoric_Tribes_Web)**.

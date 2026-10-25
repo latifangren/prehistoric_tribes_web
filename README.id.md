@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/Bahasa-TypeScript_5-blue.svg" alt="TypeScript">
   <img src="https://img.shields.io/badge/Bundler-Vite_6-646CFF.svg" alt="Vite">
   <img src="https://img.shields.io/badge/Platform-Web_Canvas_%2F_HP-success.svg" alt="Platform">
-  <img src="https://img.shields.io/badge/Lisensi-Proyek_Komunitas_Non--Komersial-orange.svg" alt="Lisensi">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/Lisensi-MIT_(Khusus_Kode)-green.svg" alt="Lisensi"></a>
 </p>
 
 ---
@@ -171,5 +171,6 @@ File web hasil kompilasi siap publikasi akan tersimpan di dalam folder `web/dist
 ## 📜 Lisensi & Kepemilikan Aset Intelektual
 
 * **Pemberitahuan Kepemilikan Aset:** Seluruh aset asli di dalam game—termasuk namun tidak terbatas pada tekstur, sprite grafis, efek suara, aransemen musik, teks cerita, dan desain gameplay—adalah hak milik intelektual eksklusif dari developer game aslinya, **Gear Games, Ltd.**, dan publisher, **THQ Wireless Inc. / THQ Inc.** (© 2008 THQ Wireless Inc.). Baik BOMBWCC maupun pengembang fork ini tidak mengklaim kepemilikan apa pun atas aset-aset orisinal tersebut.
+* **Lisensi Split MIT:** Kode sumber dan peralatan khusus yang dibangun untuk porting web ini dilisensikan di bawah [Lisensi MIT](LICENSE). Aset game orisinal secara eksplisit dikecualikan dari lisensi ini.
 * **Pelestarian Non-Komersial Penggemar:** Proyek ini merupakan karya nirlaba tidak resmi dari penggemar (*fan recreation*) yang dibuat murni untuk tujuan pelestarian sejarah game klasik, riset teknologi peramban web, dan sarana belajar (*educational & archiving purposes*). Tidak ada monetisasi komersial dalam bentuk apa pun.
 * **Kredit Porting Web:** Seluruh penghargaan atas pembuatan dasar porting web J2ME diserahkan kepada **[BOMBWCC](https://github.com/BOMBWCC/Prehistoric_Tribes_Web)**.
