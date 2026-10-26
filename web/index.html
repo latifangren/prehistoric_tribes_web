@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <!-- Accessibility (branch harden/audit-fixes): browser zoom is no
+         longer disabled page-wide. The game screen itself still locks
+         pinch / double-tap (see main.ts) because pinch is the map zoom
+         and double-tap is select-all in-game; dialogs and menus outside
+         the screen element are now free to use browser zoom. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" href="/favicon.png" />
     <!-- Played as a home-screen app, portrait only (phase 3): full screen, the status bar over the
          page, whose notch strip WideScreen.ts fills with the resource bar's colour. -->

@@ -3,6 +3,7 @@ import { OriginalKey } from "./platform/Input";
 import { sfx } from "./platform/SoundEffects";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import { capitalise, originalText } from "./OriginalText";
+import { escapeHtml } from "./platform/Html";
 import type { TouchControls } from "./TouchControls";
 import type { WideScreen } from "./WideScreen";
 
@@ -56,19 +57,23 @@ export function attachStoryHud(
   let shown = ""; // what the layer was last built for
   let parts: string[] = [];
   let part = 0;
-  // When FIRE was sent: taps right after it are dropped, so a double tap cannot skip a text (the
-  // original may also ignore a press in a new text's first ticks; a later tap sends it again).
-  let pressedAt = -Infinity;
+  // When FIRE was sent (in game ticks, ported from upstream BOMBWCC 3b37af1): taps right after
+  // it are dropped, so a double tap cannot skip a text (the original may also ignore a press in
+  // a new text's first ticks; a later tap sends it again). Counted in ticks, not wall time, so
+  // the same taps give the same game however fast it runs.
+  let ticks = 0;
+  let pressedTick = -Infinity;
+  const PRESS_GAP_TICKS = 5; // about 0.6 s
 
   const next = () => {
-    if (performance.now() - pressedAt < 600) return;
+    if (ticks - pressedTick < PRESS_GAP_TICKS) return;
     sfx.click();
     if (part < parts.length - 1) {
       part += 1;
       build();
       return;
     }
-    pressedAt = performance.now();
+    pressedTick = ticks;
     touch.pressKey(OriginalKey.FIRE);
   };
   layer.addEventListener("click", next);
@@ -96,8 +101,8 @@ export function attachStoryHud(
       <div class="story-outcome-badge">
         <img src="hd/ui/${won ? "pt-chief" : "demolish"}.png" alt="">
       </div>
-      <h2 class="story-outcome-title">${title}</h2>
-      <p class="story-outcome-sub">${subtitle}</p>
+      <h2 class="story-outcome-title">${escapeHtml(title)}</h2>
+      <p class="story-outcome-sub">${escapeHtml(subtitle)}</p>
       <img class="story-tick" src="hd/ui/btn-tick.png" alt="">
     `;
     layer.append(card);
@@ -119,7 +124,7 @@ export function attachStoryHud(
       const isTotal = idx === statIndices.length - 1;
       return `<div class="story-stat-row${isTotal ? " total" : ""}">
         <span class="val player">${v0}</span>
-        <span class="lbl">${label}</span>
+        <span class="lbl">${escapeHtml(label)}</span>
         <span class="val enemy">${v1}</span>
       </div>`;
     }).join("");
@@ -162,6 +167,7 @@ export function attachStoryHud(
   }
 
   function update(): void {
+    ticks += 1;
     const offMap = game.loopMode !== 1 && !screen.frozen;
     const story = offMap && game.screen === 18;
     const talking = offMap && (game.screen === 17 || game.screen === 20) && game.resourceSectionW === game.vInt;

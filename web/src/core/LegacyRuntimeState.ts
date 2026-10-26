@@ -1,4 +1,7 @@
 import { hdArt } from "../render/HdArt";
+import { boolLayers2x3x96, byteGrid, cloneCube, cloneRows, copyCube, copyRows, toJavaByte } from "./RowUtils";
+// Re-exported so existing imports from this module keep working.
+export { boolLayers2x3x96, byteGrid, cloneCube, cloneRows, copyCube, copyRows, toJavaByte } from "./RowUtils";
 import type { AnchorValue } from "../platform/anchors";
 import type { DrawableImage } from "../platform/Image";
 import { stepLegacySubsystemEntityRevertIdle } from "../sim/tribe/LegacySubsystemEntityRevertIdle";
@@ -513,8 +516,10 @@ export class LegacyRuntimeState {
     readonly t: DelimitedTable;
     readonly d0: DelimitedTable;
   };
-  /** All five JAR languages' /s, /t, /d0 (index = f.a:B), for the Q14 choice. */
-  languageTables?: readonly { readonly s: DelimitedTable; readonly t: DelimitedTable; readonly d0: DelimitedTable }[];
+  /** All five JAR languages' /s, /t, /d0 (index = f.a:B), for the Q14 choice.
+   *  Slots may be undefined until their set is background-loaded (see
+   *  ResourceBootstrap); selectLanguage() already guards that case. */
+  languageTables?: readonly ({ readonly s: DelimitedTable; readonly t: DelimitedTable; readonly d0: DelimitedTable } | undefined)[];
   /** f.a:B (static), the language c.b() loads from; ZH_LANGUAGE (5) is the added Chinese. */
   language = 0;
   zhStrings: ZhStrings | null = null;
@@ -551,10 +556,9 @@ export class LegacyRuntimeState {
   /** Not in the original: the text record the last f.a(BII) compose drew (after c.g's section
    *  offset for records >= 71), read by the HD story / dialogue pages (StoryHud). */
   shownTextRecord = -1;
-  /** Not in the original: what the selected-unit panel (frame command 4) drew last -- its pictures
-   *  (composite ids, text "") and numbers (asset -1) at their frame positions -- for the HD
-   *  villager panel (Hud.ts); `drawingVillagerPanel` while that command's rows run. */
-  villagerPanel: { asset: number; text: string; x: number; y: number }[] = [];
+  /** Not in the original: what the selected-unit panel (frame command 4) draws -- its pictures
+   *  (composite ids, text "") and numbers (asset -1) at their frame positions -- collected while
+   *  `drawingVillagerPanel`; WideView.villagerPanelOf reads it for the HD villager panel (Hud.ts). */
   villagerPanelDraft: { asset: number; text: string; x: number; y: number }[] = [];
   drawingVillagerPanel = false;
   /** Not in the original: the /pi8 picture the last c(byte) chose (the story picture). */
@@ -1984,9 +1988,24 @@ export class LegacyRuntimeState {
   }
 
   /** Every JAR language set, so the Q14 choice (f.a:B) can switch c.b()'s source. */
-  withLanguageTables(tables: readonly { readonly s: DelimitedTable; readonly t: DelimitedTable; readonly d0: DelimitedTable }[]): LegacyRuntimeState {
+  withLanguageTables(tables: readonly ({ readonly s: DelimitedTable; readonly t: DelimitedTable; readonly d0: DelimitedTable } | undefined)[]): LegacyRuntimeState {
     this.languageTables = tables;
     return this;
+  }
+
+  /**
+   * Fill one language slot after the fact (background preload from
+   * main.ts). Replaces the array instead of mutating it, so the
+   * `readonly` table list stays honest and selectLanguage() sees the
+   * new set on its next call. Out-of-range indices are ignored.
+   */
+  setLanguageTable(index: number, table: { readonly s: DelimitedTable; readonly t: DelimitedTable; readonly d0: DelimitedTable }): void {
+    if (!Number.isInteger(index) || index < 0 || index >= 5) return;
+    const current = this.languageTables ?? [];
+    const next = [...current];
+    while (next.length < 5) next.push(undefined);
+    next[index] = table;
+    this.languageTables = next;
   }
 
   /** The Chinese strings (docs/translation-zh-CN.json); enables Q14's sixth row. */
@@ -2640,51 +2659,4 @@ export class LegacyRuntimeState {
 
   stepGameplayOuterLoop(...args: RtArgs<typeof stepGameplayOuterLoop>): ReturnType<typeof stepGameplayOuterLoop> { return stepGameplayOuterLoop(this, ...args); }
 
-}
-
-function byteGrid(rows: number, columns: number): Int8Array[] {
-  return Array.from({ length: rows }, () => new Int8Array(columns));
-}
-
-export function toJavaByte(value: number): number {
-  const narrowed = value & 0xff;
-  return narrowed >= 0x80 ? narrowed - 0x100 : narrowed;
-}
-
-export function copyRows<T extends Int8Array | Int16Array | Int32Array>(
-  target: T[], source: readonly T[], count: number,
-): void {
-  if (source.length < count || target.length < count) throw new RangeError("RMS row count mismatch");
-  for (let row = 0; row < count; row += 1) {
-    if (target[row].length !== source[row].length) throw new RangeError("RMS row length mismatch");
-    target[row].set(source[row]);
-  }
-}
-
-export function cloneRows<T extends Int8Array | Int16Array | Int32Array>(
-  source: readonly T[], count: number,
-): T[] {
-  return source.slice(0, count).map((row) => new (row.constructor as { new (values: ArrayLike<number>): T })(row));
-}
-
-export function copyCube(
-  target: readonly Int8Array[][],
-  source: readonly (readonly Int8Array[])[],
-  depth: number,
-): void {
-  if (target.length < depth || source.length < depth) throw new RangeError("RMS cube depth mismatch");
-  for (let layer = 0; layer < depth; layer += 1) copyRows(target[layer], source[layer], source[layer].length);
-}
-
-export function cloneCube(
-  source: readonly Int8Array[][],
-  depth: number,
-): Int8Array[][] {
-  return source.slice(0, depth).map((layer) => layer.map((row) => new Int8Array(row)));
-}
-
-function boolLayers2x3x96(): boolean[][][] {
-  return Array.from({ length: 2 }, () =>
-    Array.from({ length: 3 }, () => Array.from({ length: 96 }, () => false)),
-  );
 }

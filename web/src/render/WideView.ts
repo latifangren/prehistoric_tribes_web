@@ -136,7 +136,9 @@ export function renderWideView(rt: LegacyRuntimeState, window: WideWindow, touch
     renderMap(rt, { fromColumn: 0, toColumn: window.columns, fromRow: 0, toRow: window.rows }, slot, null);
     stepCameraFrame(rt, image.graphics);
     stepGameplayOuterLoop(rt, image.graphics);
-    stepLegacyC2(rt, g.cursorColumn * 22, g.cursorRow * 16, touchCursor);
+    // Ported from upstream BOMBWCC 29e035f: placing a building (w 3, a site's f.s): the HUD's
+    // ghost replaces the original's preview.
+    if (!(g.barMode === 3 && g.cSInt > 3 && g.cSInt !== 100)) stepLegacyC2(rt, g.cursorColumn * 22, g.cursorRow * 16, touchCursor);
   } finally {
     hdArt.end();
     targets.graphics[slot] = original;
@@ -159,10 +161,10 @@ export function renderPortrait(rt: LegacyRuntimeState, id: number): HTMLCanvasEl
 }
 
 /** What the selected-unit panel (frame command 4) draws for villager `id` -- its composites and
- *  numbers (runtime.villagerPanel's form) --, drawn privately as if `id` alone were selected, the
+ *  numbers (runtime.villagerPanelDraft's form) --, drawn privately as if `id` alone were selected, the
  *  game state put back after it: one of several selected villagers in the HD panel (Hud.ts). */
-export function villagerPanelOf(rt: LegacyRuntimeState, id: number): LegacyRuntimeState["villagerPanel"] {
-  let cells: LegacyRuntimeState["villagerPanel"] = [];
+export function villagerPanelOf(rt: LegacyRuntimeState, id: number): LegacyRuntimeState["villagerPanelDraft"] {
+  let cells: LegacyRuntimeState["villagerPanelDraft"] = [];
   renderPicture(rt, 1, () => {
     rt.game.selectedId = id;
     rt.game.am = id;

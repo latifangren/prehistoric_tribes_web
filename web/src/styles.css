@@ -365,17 +365,15 @@ button.notice {
 }
 
 /* The tick that places a building, kept at its footprint's corner (Hud.ts). */
+/* The tick that places a building, kept at its footprint's corner (Hud.ts). Ported from
+   upstream BOMBWCC 29e035f: the tick is now the btn-tick picture (40px), grey when blocked. */
 .hud-place {
   position: absolute;
-  width: 44px;
-  height: 44px;
-  border: 2px solid #1d4d20;
-  border-radius: 50%;
-  background: #4caf50;
-  color: #fff;
-  font: bold 24px/1 sans-serif;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: none;
   padding: 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   touch-action: none;
   cursor: pointer;
 }
@@ -387,6 +385,166 @@ button.notice {
 .hud-place:focus-visible {
   outline: 2px solid #f5f400;
   outline-offset: 2px;
+}
+
+.hud-place img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4));
+}
+
+.hud-place.blocked img {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+/* Placing a building (Hud.ts; ported from upstream BOMBWCC 29e035f, UI design "放置建筑"):
+   the level-1 picture as a ghost, a patch under it, red where it cannot go. */
+.hud-ghost {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hud-ghost[hidden] {
+  display: none;
+}
+
+.hud-ghost .patch {
+  position: absolute;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: rgba(120, 230, 90, 0.45);
+  border: 2px dashed #e9ffd8;
+}
+
+.hud-ghost img {
+  position: absolute;
+  opacity: 0.72;
+}
+
+.hud-ghost.blocked .patch {
+  background: rgba(235, 50, 40, 0.45);
+  border-color: #ffd8d2;
+}
+
+.hud-ghost.blocked img {
+  filter: sepia(1) saturate(6) hue-rotate(-38deg) brightness(0.95);
+}
+
+/* An order's spot (Hud.ts; ported from upstream BOMBWCC 29e035f): the order's icon in the
+   middle of the screen, its ✓, and the pop + ring burst on confirming. */
+.hud-order,
+.hud-order-burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  pointer-events: none;
+}
+
+.hud-order[hidden],
+.hud-order-burst[hidden] {
+  display: none;
+}
+
+.hud-order img,
+.hud-order-burst img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hud-order img.glyph,
+.hud-order-burst img.glyph {
+  left: 18%;
+  top: 18%;
+  width: 64%;
+  height: 64%;
+}
+
+.hud-order {
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.4));
+}
+
+.hud .hud-order-tick {
+  position: absolute;
+  left: calc(50% + 18px);
+  top: calc(50% - 52px);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.hud-order-tick img {
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4));
+}
+
+.hud-order-burst .pop {
+  animation: hud-order-pop 0.9s ease-out both;
+}
+
+.hud-order-burst .ring {
+  position: absolute;
+  inset: -6px;
+  border: 3px solid #ffe27a;
+  border-radius: 50%;
+  animation: hud-order-ring 0.9s ease-out both;
+}
+
+@keyframes hud-order-pop {
+  0% { transform: scale(0.6); opacity: 0.2; }
+  25% { transform: scale(1.18); opacity: 1; }
+  45% { transform: scale(1); }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes hud-order-ring {
+  0% { transform: scale(0.4); opacity: 0.95; }
+  100% { transform: scale(2.3); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-order-burst .pop,
+  .hud-order-burst .ring {
+    animation: none;
+  }
+}
+
+/* A running order's command item cancels it (Hud.ts, ported from upstream BOMBWCC 29e035f).
+   Fork adaptation: upstream swaps the glyph for a red-cross PNG; here the cross is drawn in
+   CSS over the existing glyph, so no new binary asset is needed. */
+.hud-cmd-item.is-cancel::after {
+  content: "✕";
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  font: 900 20px/1 system-ui, sans-serif;
+  color: #e5322a;
+  text-shadow: 0 0 3px #fff, 0 1px 2px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* Touch play's action icon at the cursor (Hud.ts, ported from upstream BOMBWCC 3b37af1),
+   centred on its tile. */
+.hud-action-icon {
+  position: absolute;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45));
+}
+
+.hud-action-icon[hidden] {
+  display: none;
 }
 
 /* The long-press arc that starts a box select (TouchControls.ts): a third of a circle above the
@@ -1043,10 +1201,12 @@ button.notice {
   filter: drop-shadow(2px 0 0 #fff2b0) drop-shadow(-2px 0 0 #fff2b0) drop-shadow(0 2px 0 #fff2b0) drop-shadow(0 -2px 0 #fff2b0);
 }
 
+/* Lower than the card's top (ported from upstream BOMBWCC 29e035f): the sheet's corner ✕ no
+   longer covers it; never red: being short does not stop the placing. */
 .hud-card .cost {
   position: absolute;
   right: 0;
-  top: 0;
+  top: 30px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -1073,10 +1233,6 @@ button.notice {
 .hud-card .cost .n img {
   height: 13px;
   margin-right: -1px;
-}
-
-.hud-card .cost .short .n {
-  filter: hue-rotate(-48deg) saturate(1.8);
 }
 
 .hud-sheet-dots {

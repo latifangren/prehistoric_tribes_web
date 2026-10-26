@@ -4,6 +4,7 @@ import { sfx } from "../platform/SoundEffects";
 import type { TouchControls } from "../TouchControls";
 import type { WideScreen } from "../WideScreen";
 import { atmosphereAudio } from "../audio/AtmosphereAudio";
+import { escapeHtml } from "../platform/Html";
 
 interface DangerSpot {
   id: string;
@@ -111,7 +112,7 @@ export function attachDangerIndicators(
       el.innerHTML = `
         <div class="danger-arrow"></div>
         <div class="danger-body">
-          <span class="danger-icon">${spot.icon}</span>
+          <span class="danger-icon">${escapeHtml(spot.icon)}</span>
           <span class="danger-dist"></span>
         </div>
       `;
