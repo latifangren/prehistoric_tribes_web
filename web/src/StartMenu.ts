@@ -4,7 +4,7 @@ import { sfx } from "./platform/SoundEffects";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import type { TouchControls } from "./TouchControls";
 import { stepAs } from "./ui/UiRuntime";
-import { safeAssetPath } from "./platform/Html";
+import { escapeHtml, safeAssetPath } from "./platform/Html";
 import type { WideScreen } from "./WideScreen";
 
 const ART = "hd/menu/";
@@ -46,7 +46,7 @@ export function savedMusic(): boolean {
   return read(MUSIC_KEY) === "on";
 }
 
-type Page = "splash" | "main" | "mode" | "question" | "locked" | "difficulty" | "chapters" | "maps" | "about" | "loading";
+type Page = "splash" | "main" | "mode" | "question" | "locked" | "difficulty" | "chapters" | "maps" | "about" | "extra" | "loading";
 
 export function attachStartMenu(
   app: HTMLElement,
@@ -88,7 +88,8 @@ export function attachStartMenu(
   };
   const word = (key: string, onClick: () => void) =>
     button("start-item", key, picture(`words/${language().art}/${key}.png`, "start-word"), onClick);
-
+  const stoneWord = (label: string, onClick: () => void) =>
+    button("start-item", label, `<span class="start-word-stone">${escapeHtml(label)}</span>`, onClick);
   const go = (next: Page) => { if (page) history.push(page); show(next); };
   const back = () => show(history.pop() ?? "main");
 
@@ -174,6 +175,7 @@ export function attachStartMenu(
     page = next;
     layer.hidden = next === null;
     layer.dataset.page = next ?? "";
+    layer.dataset.lang = language().code;
     if (next === null) return;
     const code = language().code;
     const zh = code === "zh";
@@ -191,7 +193,22 @@ export function attachStartMenu(
       return;
     }
 
-    if (next === "main") layer.append(column(word("campaign", () => choose(false)), word("custom", () => choose(true)), word("about", () => go("about"))));
+    if (next === "main") {
+      const settingsLabel = zh ? "设置" : id ? "PENGATURAN" : "SETTINGS";
+      const extraLabel = zh ? "附加内容" : id ? "EKSTRA" : "EXTRAS";
+      const items: HTMLElement[] = [
+        word("campaign", () => choose(false)),
+        word("custom", () => choose(true)),
+      ];
+      if (openSettings) {
+        items.push(stoneWord(settingsLabel, openSettings));
+      }
+      if (openAchievements || openHelp) {
+        items.push(stoneWord(extraLabel, () => go("extra")));
+      }
+      items.push(word("about", () => go("about")));
+      layer.append(column(...items));
+    }
     else if (next === "mode") layer.append(column(word("continue", () => start(true)), word("newgame", () => go("question"))));
     else if (next === "question") {
       layer.append(column(message(custom ? LOSE_SAVE : LOSE_CAMPAIGN), word("yes", () => go("difficulty")), word("no", back)));
@@ -278,40 +295,61 @@ export function attachStartMenu(
           ${paragraphs.map((p) => `<p>${p}</p>`).join("")}
         </div>`;
       layer.append(aboutWrap);
+    } else if (next === "extra") {
+      const extraTitle = zh ? "附加内容" : id ? "EKSTRA" : "EXTRAS";
+      const extraWrap = document.createElement("div");
+      extraWrap.className = "start-extra-wrap";
+      extraWrap.innerHTML = `<div class="start-word-stone start-extra-heading">${escapeHtml(extraTitle)}</div>`;
+
+      if (openAchievements) {
+        const achTitle = zh ? "成就勋章与荣誉" : id ? "PRESTASI & KOLEKSI" : "ACHIEVEMENTS & TROPHIES";
+        const achDesc = zh ? "查看部落成就、狩猎徽章与里程碑" : id ? "Pencapaian suku, medali berburu & rekor" : "Tribe achievements, hunting badges & milestones";
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "start-extra-card";
+        card.setAttribute("aria-label", achTitle);
+        card.innerHTML = `
+          <div class="start-extra-icon">🏆</div>
+          <div class="start-extra-body">
+            <div class="start-extra-title">${escapeHtml(achTitle)}</div>
+            <div class="start-extra-desc">${escapeHtml(achDesc)}</div>
+          </div>
+          <div class="start-extra-arrow">➔</div>
+        `;
+        card.addEventListener("click", () => {
+          sfx.click();
+          openAchievements();
+        });
+        extraWrap.append(card);
+      }
+
+      if (openHelp) {
+        const helpTitle = zh ? "部落百科与指南" : id ? "PANDUAN SUKU" : "TRIBE GUIDE & HELP";
+        const helpDesc = zh ? "建筑手册、战斗战术与史前野兽图鉴" : id ? "Manual bangunan, taktik suku & bestiari" : "Building manual, tactics & beast bestiary";
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "start-extra-card";
+        card.setAttribute("aria-label", helpTitle);
+        card.innerHTML = `
+          <div class="start-extra-icon"><img src="hd/ui/glyph-help.png" alt="" draggable="false"></div>
+          <div class="start-extra-body">
+            <div class="start-extra-title">${escapeHtml(helpTitle)}</div>
+            <div class="start-extra-desc">${escapeHtml(helpDesc)}</div>
+          </div>
+          <div class="start-extra-arrow">➔</div>
+        `;
+        card.addEventListener("click", () => {
+          sfx.click();
+          openHelp();
+        });
+        extraWrap.append(card);
+      }
+
+      layer.append(extraWrap);
     }
 
     const corner = document.createElement("div");
     corner.className = "start-corner";
-    if (openAchievements) {
-      corner.append(
-        button(
-          "start-round start-util start-trophy-btn",
-          zh ? "成就勋章与荣誉陈列室" : "Tribe Achievements & Trophy Cabinet",
-          `<span class="start-util-trophy">🏆</span>`,
-          openAchievements,
-        ),
-      );
-    }
-    if (openHelp) {
-      corner.append(
-        button(
-          "start-round start-util",
-          zh ? "部落百科与帮助" : "Tribe Guide & Help",
-          `<img src="hd/ui/glyph-help.png" alt="" draggable="false">`,
-          openHelp,
-        ),
-      );
-    }
-    if (openSettings) {
-      corner.append(
-        button(
-          "start-round start-util",
-          zh ? "设置与多槽位存档" : "Settings & Save Slots",
-          `<img src="hd/ui/glyph-settings.png" alt="" draggable="false">`,
-          openSettings,
-        ),
-      );
-    }
     corner.append(
       button("start-round", zh ? "语言" : id ? "Bahasa" : "Language", picture(`flag-${language().art}.png`, ""), nextLanguage),
       button("start-round", game.eByte !== 0 ? (zh ? "声音：开" : id ? "Suara: Aktif" : "Sound: On") : (zh ? "声音：关" : id ? "Suara: Senyap" : "Sound: Off"), picture(game.eByte !== 0 ? "sound-on.png" : "sound-off.png", ""), toggleMusic),
