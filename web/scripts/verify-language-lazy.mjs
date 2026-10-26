@@ -12,8 +12,9 @@ import ts from "typescript";
 import vm from "node:vm";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const srcDir = new URL("../src/", import.meta.url).pathname;
+const srcDir = fileURLToPath(new URL("../src/", import.meta.url));
 const context = vm.createContext({ Int8Array, Int16Array, Int32Array, Array, console, Math });
 const cache = new Map();
 
