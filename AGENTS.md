@@ -21,13 +21,18 @@
 - Preserve the existing save format and JSON export/import as the transfer path between web and native targets. Do not add a second save migration system without an explicit requirement.
 - Keep the modularization decisions in `docs/plan/codebase_modularization_plan.md`. The detailed PWA/TWA and Tauri 2 checklist belongs in `docs/plan/pwa_twa_tauri_roadmap.md`; do not expand the old modularization plan with another detailed platform checklist.
 
-## Platform roadmap
+## Platform status & runtime targets
 
-- The agreed order is PWA/TWA first, then Tauri 2 for Android and Windows after the PWA/TWA acceptance gate is met.
-- The platform roadmap is planning material. Do not add native dependencies, TWA/Tauri configuration, signing files, or wrapper code until the relevant decisions and prerequisites in `docs/plan/pwa_twa_tauri_roadmap.md` have been reviewed.
-- Open decisions include the production HTTPS origin, Android application ID and signing owner, orientation, offline policy, initial TWA distribution channel, and Windows package format.
-- Do not mark roadmap checklist items complete based only on configuration being present; require the documented behavior or target-device verification.
-
+- **Tauri 2 Standalone (Active & Verified):**
+  - Standalone offline packaging via Tauri 2 is implemented, tested, and complete for Windows Desktop (`.exe`) and Android Mobile (`.apk`).
+  - PWA/TWA was intentionally bypassed to eliminate public root domain and `assetlinks.json` verification requirements.
+  - Shell native configuration resides in `web/src-tauri/` and Android wrapper in `web/src-tauri/gen/android/`.
+  - Windows release executable: `web/src-tauri/target/release/prehistoric-tribes.exe`.
+  - Android APK: `web/src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk`.
+  - NPM build scripts: `npm run tauri:build`, `npm run tauri:dev`, `npm run tauri:android:build`, `npm run tauri:android:dev`.
+- **Single Source of Truth:** The web frontend in `web/src` remains the single source of truth for both browser and Tauri native apps.
+- **Platform Seams Invariant:** Gameplay and simulation modules MUST NOT import Tauri or native APIs directly. All platform capabilities remain strictly behind `web/src/platform/` adapters (`Storage`, `BackButton`, `PageLifecycle`, `Haptic`).
+- **Development Focus:** The platform setup phase is complete. Ongoing and future work focuses on in-game bug fixes, gameplay balance, simulation polish, and new features built upon the established Tauri 2 base.
 ## Editing and verification
 
 - Read the relevant source, documentation, and existing decisions before changing them. Keep changes scoped to the user's request and update affected callers and documentation when behavior changes.

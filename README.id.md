@@ -140,6 +140,22 @@ npm run build
 ```
 File web hasil kompilasi siap publikasi akan tersimpan di dalam folder `web/dist/`, siap diunggah ke GitHub Pages, Vercel, Netlify, atau web hosting pilihan Anda.
 
+### Aplikasi Mandiri Desktop & Mobile (Tauri 2)
+Game ini juga dapat dikompilasi menjadi aplikasi mandiri offline (tanpa butuh browser, internet, atau hosting web) menggunakan **Tauri 2**:
+
+```bash
+# Menjalankan game versi desktop di komputer (mode dev)
+npm run tauri:dev --workspace=web
+
+# Mengompilasi installer/binary Windows mandiri (.exe)
+npm run tauri:build --workspace=web
+# Output: web/src-tauri/target/release/prehistoric-tribes.exe
+
+# Mengompilasi paket mandiri Android (.apk)
+npm run tauri:android:build --workspace=web
+# Output: web/src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk
+```
+
 ---
 
 ## 📁 Struktur Folder Proyek

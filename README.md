@@ -132,6 +132,22 @@ npm run build
 ```
 The compiled, production-ready static assets will be output to the `web/dist/` directory, ready to be hosted on GitHub Pages, Cloudflare Pages, Vercel, or any static web host.
 
+### Standalone Desktop & Mobile Apps (Tauri 2)
+Prehistoric Tribes builds into self-contained, offline native applications for Windows and Android via Tauri 2 without requiring external web servers or domain verification:
+
+```bash
+# Run Windows desktop application in development mode
+npm run tauri:dev --workspace=web
+
+# Build optimized Windows release executable (.exe)
+npm run tauri:build --workspace=web
+# Output: web/src-tauri/target/release/prehistoric-tribes.exe
+
+# Build standalone Android package (.apk)
+npm run tauri:android:build --workspace=web
+# Output: web/src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk
+```
+
 ---
 
 ## 📁 Repository Structure

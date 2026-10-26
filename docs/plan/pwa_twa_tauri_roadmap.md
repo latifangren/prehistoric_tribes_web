@@ -1,6 +1,6 @@
 # Roadmap Tauri 2 (Aplikasi Mandiri Windows & Android)
 
-**Status:** Disepakati untuk langsung ke **Tauri 2** (melewati PWA/TWA) untuk menghindari birokrasi domain, verifikasi `assetlinks.json`, dan ketergantungan web-hosting. Game dibundel sebagai aplikasi mandiri offline murni.
+**Status:** **SELESAI & DITUTUP (2026-10-27).** Seluruh target Tahap T1 (Windows Desktop `.exe`), Tahap T2 (Platform Adapters Seams), dan Tahap T3 (Android Mobile `.apk`) telah lulus verifikasi dan dapat dibangun secara offline mandiri. Roadmap platform ditutup; pengembangan selanjutnya fokus pada bug fixes, balance, dan fitur in-game.
 
 ## Arah yang disepakati
 
