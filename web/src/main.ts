@@ -219,9 +219,11 @@ function render(): void {
     screen.renderWide();
     endWide?.();
   }
-  const endCompose = perf?.start("compose");
-  screen.compose();
-  endCompose?.();
+  if (typeof requestAnimationFrame === "undefined") {
+    const endCompose = perf?.start("compose");
+    screen.compose();
+    endCompose?.();
+  }
   const endSystems = perf?.start("systems");
   if (runtime.game.loopMode === 1 && !screen.frozen) {
     const sw = screen.element.clientWidth || window.innerWidth;

@@ -1130,6 +1130,96 @@ button.notice {
   width: 36px;
   height: 36px;
 }
+/* Build List Navigation Arrows on Desktop */
+.hud .hud-sheet-nav {
+  position: absolute;
+  top: 36px;
+  width: 30px;
+  height: 38px;
+  padding: 0;
+  border-radius: 8px;
+  border: 2px solid #5d4037;
+  background: rgba(45, 30, 16, 0.94);
+  color: #ffe27a;
+  font: 900 15px/1 system-ui, sans-serif;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.hud .hud-sheet-nav.prev {
+  left: 6px;
+}
+
+.hud .hud-sheet-nav.next {
+  right: 6px;
+}
+
+.hud .hud-sheet-nav:hover {
+  background: #5d4037;
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.hud .hud-sheet-nav:active {
+  transform: scale(0.94);
+}
+
+.hud .hud-sheet-nav.disabled {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* Responsive Landscape & Desktop: Floating Compact Card */
+@media (min-width: 768px) {
+  .hud-sheet {
+    left: calc(env(safe-area-inset-left) + 16px);
+    right: auto;
+    width: min(calc(100% - 32px), 510px);
+    bottom: 12px;
+    border-radius: 18px;
+    border: 3px solid #3c220c;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), inset 0 2px 0 #d9cc6e;
+    overflow: visible;
+  }
+  .hud-sheet:has(.hud-sheet-list:not([hidden])) {
+    width: min(calc(100% - 32px), 680px);
+  }
+  .hud-sheet:has(.hud-sheet-list:not([hidden])) .hud-sheet-list {
+    padding: 0 42px;
+  }
+  .hud-sheet .deco.bottom {
+    border-radius: 0 0 15px 15px;
+    overflow: hidden;
+  }
+  .hud-sheet .deco.top {
+    width: 240px;
+    max-width: 55%;
+  }
+  .hud .hud-sheet-close {
+    right: 10px;
+    top: -18px;
+  }
+  .hud-cols {
+    gap: 12px;
+    justify-content: flex-start;
+  }
+  .hud .hud-sheet-nav {
+    display: flex;
+  }
+  .hud-sheet-list {
+    cursor: grab;
+  }
+  .hud-sheet-list:active {
+    cursor: grabbing;
+  }
+}
+
 
 .hud-sheet-list {
   position: absolute;

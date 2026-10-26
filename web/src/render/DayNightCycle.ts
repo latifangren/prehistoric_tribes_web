@@ -29,6 +29,52 @@ export interface LightSource {
   radius: number;
   color: string;
 }
+const SPRITE_SIZE = 256;
+let punchSprite: HTMLCanvasElement | null = null;
+let glowSprite: HTMLCanvasElement | null = null;
+
+function getOrCreateLightSprites(): { punch: HTMLCanvasElement | null; glow: HTMLCanvasElement | null } {
+  if (typeof document === "undefined") return { punch: null, glow: null };
+  if (!punchSprite) {
+    const cvs = document.createElement("canvas");
+    cvs.width = SPRITE_SIZE;
+    cvs.height = SPRITE_SIZE;
+    const ctx = cvs.getContext("2d");
+    if (ctx) {
+      const half = SPRITE_SIZE / 2;
+      const grad = ctx.createRadialGradient(half, half, half * 0.12, half, half, half);
+      grad.addColorStop(0, "rgba(0, 0, 0, 1)");
+      grad.addColorStop(0.65, "rgba(0, 0, 0, 0.75)");
+      grad.addColorStop(0.9, "rgba(0, 0, 0, 0.35)");
+      grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(half, half, half, 0, Math.PI * 2);
+      ctx.fill();
+      punchSprite = cvs;
+    }
+  }
+  if (!glowSprite) {
+    const cvs = document.createElement("canvas");
+    cvs.width = SPRITE_SIZE;
+    cvs.height = SPRITE_SIZE;
+    const ctx = cvs.getContext("2d");
+    if (ctx) {
+      const half = SPRITE_SIZE / 2;
+      const grad = ctx.createRadialGradient(half, half, half * 0.1, half, half, half);
+      grad.addColorStop(0, "rgba(255, 185, 45, 0.28)");
+      grad.addColorStop(0.5, "rgba(255, 130, 20, 0.12)");
+      grad.addColorStop(0.85, "rgba(255, 90, 0, 0.03)");
+      grad.addColorStop(1, "rgba(255, 80, 0, 0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(half, half, half, 0, Math.PI * 2);
+      ctx.fill();
+      glowSprite = cvs;
+    }
+  }
+  return { punch: punchSprite, glow: glowSprite };
+}
 
 export class DayNightCycle {
   private canvas: HTMLCanvasElement;
@@ -39,6 +85,7 @@ export class DayNightCycle {
   private cycleDurationSec = 360;
   private enabled = true;
   private lastTickTime = performance.now();
+  private scaleFactor = 1;
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -56,9 +103,12 @@ export class DayNightCycle {
   }
 
   resize(width: number, height: number): void {
-    if (this.canvas.width !== width || this.canvas.height !== height) {
-      this.canvas.width = width;
-      this.canvas.height = height;
+    this.scaleFactor = width > 1280 ? 1280 / width : 1;
+    const cw = Math.max(1, Math.round(width * this.scaleFactor));
+    const ch = Math.max(1, Math.round(height * this.scaleFactor));
+    if (this.canvas.width !== cw || this.canvas.height !== ch) {
+      this.canvas.width = cw;
+      this.canvas.height = ch;
     }
   }
 
@@ -142,6 +192,7 @@ export class DayNightCycle {
   ): LightSource[] {
     const lights: LightSource[] = [];
     const dense = runtime.denseState;
+    const s = this.scaleFactor;
 
     // Organic flame flicker factor
     const flicker =
@@ -162,9 +213,9 @@ export class DayNightCycle {
       if (kind === 3) {
         const center = screen.tileToCss(tx + 1.5, ty + 1.5);
         lights.push({
-          x: center.x,
-          y: center.y,
-          radius: Math.round(145 * flicker),
+          x: center.x * s,
+          y: center.y * s,
+          radius: Math.round(145 * flicker * s),
           color: "#ffb300",
         });
       }
@@ -172,9 +223,9 @@ export class DayNightCycle {
       else if (kind === 11) {
         const pos = screen.tileToCss(tx + 1, ty + 1);
         lights.push({
-          x: pos.x,
-          y: pos.y,
-          radius: Math.round(95 * flicker),
+          x: pos.x * s,
+          y: pos.y * s,
+          radius: Math.round(95 * flicker * s),
           color: "#ffa000",
         });
       }
@@ -182,9 +233,9 @@ export class DayNightCycle {
       else if (kind === 7) {
         const pos = screen.tileToCss(tx + 1.5, ty + 1.5);
         lights.push({
-          x: pos.x,
-          y: pos.y,
-          radius: Math.round(110 * (0.9 + 0.1 * Math.sin(now * 0.01))),
+          x: pos.x * s,
+          y: pos.y * s,
+          radius: Math.round(110 * (0.9 + 0.1 * Math.sin(now * 0.01)) * s),
           color: "#ff7043",
         });
       }
@@ -192,9 +243,9 @@ export class DayNightCycle {
       else if (kind === 8) {
         const pos = screen.tileToCss(tx + 1.5, ty + 1.5);
         lights.push({
-          x: pos.x,
-          y: pos.y,
-          radius: Math.round(105 * flicker),
+          x: pos.x * s,
+          y: pos.y * s,
+          radius: Math.round(105 * flicker * s),
           color: "#ffd54f",
         });
       }
@@ -202,9 +253,9 @@ export class DayNightCycle {
       else if (kind === 4) {
         const pos = screen.tileToCss(tx + 1.5, ty + 1.5);
         lights.push({
-          x: pos.x,
-          y: pos.y,
-          radius: Math.round(85 * flicker),
+          x: pos.x * s,
+          y: pos.y * s,
+          radius: Math.round(85 * flicker * s),
           color: "#ff9800",
         });
       }
@@ -218,9 +269,9 @@ export class DayNightCycle {
         (dense[101 + chiefId] ?? 0) + 0.5,
       );
       lights.push({
-        x: tile.x,
-        y: tile.y - 12,
-        radius: Math.round(75 * flicker),
+        x: tile.x * s,
+        y: (tile.y - 12) * s,
+        radius: Math.round(75 * flicker * s),
         color: "#ffb74d",
       });
     }
@@ -271,66 +322,36 @@ export class DayNightCycle {
     const lights = this.collectLightSources(runtime, screen, now);
 
     if (lights.length > 0) {
-      // Step A: Cut holes in the darkness
-      ctx.globalCompositeOperation = "destination-out";
-      for (const light of lights) {
-        if (
-          light.x < -light.radius ||
-          light.x > w + light.radius ||
-          light.y < -light.radius ||
-          light.y > h + light.radius
-        ) {
-          continue;
+      const { punch, glow } = getOrCreateLightSprites();
+      if (punch) {
+        ctx.globalCompositeOperation = "destination-out";
+        for (const light of lights) {
+          if (
+            light.x < -light.radius ||
+            light.x > w + light.radius ||
+            light.y < -light.radius ||
+            light.y > h + light.radius
+          ) {
+            continue;
+          }
+          const d = light.radius * 2;
+          ctx.drawImage(punch, light.x - light.radius, light.y - light.radius, d, d);
         }
-
-        const grad = ctx.createRadialGradient(
-          light.x,
-          light.y,
-          Math.max(1, light.radius * 0.12),
-          light.x,
-          light.y,
-          light.radius,
-        );
-        grad.addColorStop(0, "rgba(0, 0, 0, 1)");
-        grad.addColorStop(0.65, "rgba(0, 0, 0, 0.75)");
-        grad.addColorStop(0.9, "rgba(0, 0, 0, 0.35)");
-        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
-
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(light.x, light.y, light.radius, 0, Math.PI * 2);
-        ctx.fill();
       }
-
-      // Step B: Add warm golden fire glow on the rim
-      ctx.globalCompositeOperation = "source-over";
-      for (const light of lights) {
-        if (
-          light.x < -light.radius ||
-          light.x > w + light.radius ||
-          light.y < -light.radius ||
-          light.y > h + light.radius
-        ) {
-          continue;
+      if (glow) {
+        ctx.globalCompositeOperation = "source-over";
+        for (const light of lights) {
+          if (
+            light.x < -light.radius ||
+            light.x > w + light.radius ||
+            light.y < -light.radius ||
+            light.y > h + light.radius
+          ) {
+            continue;
+          }
+          const d = light.radius * 2;
+          ctx.drawImage(glow, light.x - light.radius, light.y - light.radius, d, d);
         }
-
-        const glowGrad = ctx.createRadialGradient(
-          light.x,
-          light.y,
-          Math.max(1, light.radius * 0.1),
-          light.x,
-          light.y,
-          light.radius,
-        );
-        glowGrad.addColorStop(0, "rgba(255, 185, 45, 0.28)");
-        glowGrad.addColorStop(0.5, "rgba(255, 130, 20, 0.12)");
-        glowGrad.addColorStop(0.85, "rgba(255, 90, 0, 0.03)");
-        glowGrad.addColorStop(1, "rgba(255, 80, 0, 0)");
-
-        ctx.fillStyle = glowGrad;
-        ctx.beginPath();
-        ctx.arc(light.x, light.y, light.radius, 0, Math.PI * 2);
-        ctx.fill();
       }
     }
 

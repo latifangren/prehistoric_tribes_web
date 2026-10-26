@@ -39,7 +39,8 @@ import { stepLegacyStateT, type LegacyStateTInput } from "./LegacyStateT";
 import { stepLegacyByteActionQueue } from "./LegacyByteActionQueue";
 import { stepLegacySelectionFlags } from "./LegacySelectionFlags";
 import { stepLegacyAk, stepLegacyAl, stepLegacyAm, stepLegacyAo, stepLegacyAq, stepLegacyAs, stepLegacyAt, stepLegacyAu, stepLegacyAv, stepLegacyAw, stepLegacyAx, stepLegacyAy, stepLegacyAz, stepLegacyAA, stepLegacyAB, stepLegacyAC, stepLegacyAi, stepLegacyAKViewport, stepLegacyAL, resetLegacyAM, stepLegacyAOMap, stepLegacyMapEntry, stepLegacyAPPrefix, stepLegacyAQAudio, type LegacyAkCallbacks, type LegacyAmInput, type LegacyAqState, type LegacyAiInput, type LegacyAOMapInput, type LegacyAPPrefixInput, type LegacyAQAudioInput, type LegacyMapEntryCallbacks } from "./LegacyStateMachine";
-import { BLD_KIND, BLD_X, BLD_Y, UNIT_DIRECTION, UNIT_FLAGS, UNIT_HAPPINESS, UNIT_HP, UNIT_ORDER, UNIT_RECORD, UNIT_SPEED, UNIT_TARGET_X, UNIT_TARGET_Y, UNIT_TYPE, UNIT_WORK_TARGET } from "../core/DenseLayout";
+import { BLD_KIND, BLD_X, BLD_Y, UNIT_DIRECTION, UNIT_FLAGS, UNIT_HAPPINESS, UNIT_HOME_X, UNIT_HOME_Y, UNIT_HP, UNIT_ORDER, UNIT_RECORD, UNIT_SPEED, UNIT_TARGET_X, UNIT_TARGET_Y, UNIT_TYPE, UNIT_WORK_TARGET, UNIT_X, UNIT_Y } from "../core/DenseLayout";
+import { T_BUILDING } from "../core/DataTables";
 import { liveView } from "../core/LegacyRuntimeState";
 import { stepSubsystemStateCommand, subsystemBC, subsystemTenSlotReleaseEntity } from "../sim/tribe/TribeRuntime";
 import { entityDeathCleanup, finalizeEntity, placeEntity, stepEntityActionConfirmation, stepEntityRemoval } from "../sim/units/UnitRuntime";
@@ -910,6 +911,65 @@ export function stepLegacyL(rt: LegacyRuntimeState, value: number): void {
  * default/else (branch D -- an in-bounds check via the original's
  * private `b(int,int):boolean` #533, then a real `placeEntity()` call).
  */
+/**
+ * Smart Villager Auto-Displace:
+ * If friendly villagers are inside the building footprint when placing,
+ * smoothly nudges them to the nearest safe, free, walkable tile adjacent to the building.
+ */
+function displaceVillagersFromFootprint(
+  rt: LegacyRuntimeState,
+  fx: number,
+  fy: number,
+  width: number,
+  height: number,
+): void {
+  const g = rt.game;
+  const dense = rt.denseState;
+
+  for (let cy = fy; cy < fy + height; cy += 1) {
+    for (let cx = fx; cx < fx + width; cx += 1) {
+      const vid = rt.gridC[cy]?.[cx] ?? 0;
+      if (vid >= 1 && vid <= 50) {
+        let safeX = -1;
+        let safeY = -1;
+        let bestDist = Infinity;
+
+        for (let r = 1; r <= 6; r += 1) {
+          for (let dy = -r; dy <= r; dy += 1) {
+            for (let dx = -r; dx <= r; dx += 1) {
+              const nx = cx + dx;
+              const ny = cy + dy;
+              if (nx >= fx && nx < fx + width && ny >= fy && ny < fy + height) continue;
+              if (nx < 0 || ny < 0 || nx >= g.mapWidth || ny >= g.mapHeight) continue;
+              if ((rt.gridC[ny]?.[nx] ?? -1) !== 0) continue;
+              if (rt.occupancyClass(nx, ny) === 2) continue;
+
+              const dist = dx * dx + dy * dy;
+              if (dist < bestDist) {
+                bestDist = dist;
+                safeX = nx;
+                safeY = ny;
+              }
+            }
+          }
+          if (safeX !== -1) break;
+        }
+
+        if (safeX !== -1) {
+          rt.gridC[cy][cx] = 0;
+          rt.gridC[safeY][safeX] = vid;
+          dense[UNIT_X + vid] = safeX;
+          dense[UNIT_Y + vid] = safeY;
+          dense[UNIT_TARGET_X + vid] = safeX;
+          dense[UNIT_TARGET_Y + vid] = safeY;
+          dense[UNIT_HOME_X + vid] = safeX;
+          dense[UNIT_HOME_Y + vid] = safeY;
+        }
+      }
+    }
+  }
+}
+
 export function stepLegacyX(rt: LegacyRuntimeState): void {
   const g = rt.game;
   const dense = rt.denseState;
@@ -963,6 +1023,10 @@ export function stepLegacyX(rt: LegacyRuntimeState): void {
   const x = g.cameraColumn + g.cTInt;
   const y = g.cameraRow + g.cUInt;
   if (!(x >= 0 && y >= 0 && x < g.mapWidth && y < g.mapHeight)) return;
+  const tableBase = rt.packedOffsets[T_BUILDING] ?? 0;
+  const width = rt.packedBytes[tableBase + 104 + g.cSInt] ?? 1;
+  const height = rt.packedBytes[tableBase + 130 + g.cSInt] ?? 1;
+  displaceVillagersFromFootprint(rt, x, y, width, height);
   const placementOptions = rt.buildingPlacementOptions();
   const placed = rt.placeEntity(rt.gridC, 0, g.cSInt, x, y, 1, false, -1, placementOptions);
   if (placed <= 0) return;
