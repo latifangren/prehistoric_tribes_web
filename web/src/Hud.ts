@@ -1163,24 +1163,27 @@ export function attachHud(
         const rallyBtn = document.createElement("button");
         rallyBtn.type = "button";
         rallyBtn.className = `hud-item hud-rally-btn${currentRally ? " has-rally" : ""}`;
-        rallyBtn.setAttribute("aria-label", isZh() ? "设置建筑集结点" : "Set Rally Point");
-        rallyBtn.innerHTML = `<span>🚩</span><span class="rally-text">${isZh() ? (currentRally ? "已设点" : "集结点") : (currentRally ? "Active" : "Rally")}</span>`;
+        const l = lang();
+        rallyBtn.setAttribute("aria-label", l === "zh" ? "设置建筑集结点" : l === "id" ? "Titik Kumpul" : "Set Rally Point");
+        rallyBtn.innerHTML = `<span>🚩</span><span class="rally-text">${l === "zh" ? (currentRally ? "已设点" : "集结点") : l === "id" ? (currentRally ? "Aktif" : "Kumpul") : (currentRally ? "Active" : "Rally")}</span>`;
         rallyBtn.addEventListener("click", () => {
           tribeTactics.startSettingRally(game.qCounter);
-          notify(isZh() ? "🚩 请点击地图目标，为该建筑设定集结点位置" : "🚩 Tap map tile to set Rally Point for this building");
+          notify(l === "zh" ? "🚩 请点击地图目标，为该建筑设定集结点位置" : l === "id" ? "🚩 Ketuk petak peta untuk memasang titik kumpul bangunan" : "🚩 Tap map tile to set Rally Point for this building");
         });
         items.push(rallyBtn);
       }
       panelRow.replaceChildren(...items);
     }
     const counts = runtime.mainArrays.s;
-    for (const entry of Array.from(panelRow.querySelectorAll<HTMLElement>("button.hud-item"))) {
+    for (const entry of Array.from(panelRow.querySelectorAll<HTMLElement>("button.hud-item[data-code]"))) {
       const index = Number(entry.dataset.index);
       const code = Number(entry.dataset.code);
       entry.classList.toggle("active", index === game.menuCursor && (code < 0 || (kind === ARMOURY && code <= 5)));
-      const n = entry.querySelector<HTMLElement>(".n")!;
-      const text = code >= 0 && code <= 8 ? String(counts[index] ?? 0) : "";
-      if (n.dataset.text !== text) { n.dataset.text = text; n.innerHTML = text ? digits(text) : ""; }
+      const n = entry.querySelector<HTMLElement>(".n");
+      if (n) {
+        const text = code >= 0 && code <= 8 ? String(counts[index] ?? 0) : "";
+        if (n.dataset.text !== text) { n.dataset.text = text; n.innerHTML = text ? digits(text) : ""; }
+      }
     }
     const notice = game.barMode === 4 && !confirming;
     const words = notice && game.resourceSectionW === game.vInt ? capitalise(originalText(runtime, "t", runtime.shownTextRecord)) : "";
