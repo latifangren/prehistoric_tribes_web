@@ -153,6 +153,9 @@ export function drawPackedSpritePrimitive(rt: LegacyRuntimeState, id: number, x:
  * `drawImageHelper`: its >= 1000 arm takes its origin from S:I/T:I, not
  * ah/ai, so the earlier objection did not apply.
  */
+/** Ported from upstream BOMBWCC 3b37af1: in touch play the action icon at the cursor (its sub-record, 0 none) is drawn by the HUD instead, centred on the cursor's tile and larger (user, 2026-10-26), not beside the hand. A module object, not runtime state: the wide view's state snapshot does not undo it. */
+export const touchAction = { icon: 0 };
+
 export function stepLegacyC2(rt: LegacyRuntimeState, arg1: number, arg2: number, touchCursor = false): void {
   const g = rt.game;
   const dense = rt.denseState;
@@ -308,6 +311,10 @@ export function stepLegacyC2(rt: LegacyRuntimeState, arg1: number, arg2: number,
   // original's four inward arrows (sub-record 35) where they will go.
   const ownUnit = (id: number) => id >= 1 && id <= 50;
   if (touchCursor && local3 === 0 && g.barMode === 1 && !ownUnit(local4) && !ownUnit(g.hoverUnit)) local3 = 35;
+  if (touchCursor) {
+    touchAction.icon = local3 !== 0 && g.outerLoopZByte !== 2 ? local3 : 0;
+    return;
+  }
   if (local3 !== 0 && g.outerLoopZByte !== 2) {
     rt.stepZSubrecordDraw(local3, arg1, arg2, g.animStep, {
       onSpriteRecord: (record, x, y) => drawPackedComposite(rt, record, x, y),

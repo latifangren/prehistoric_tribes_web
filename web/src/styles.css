@@ -534,6 +534,19 @@ button.notice {
   pointer-events: none;
 }
 
+/* Touch play's action icon at the cursor (Hud.ts, ported from upstream BOMBWCC 3b37af1),
+   centred on its tile. */
+.hud-action-icon {
+  position: absolute;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45));
+}
+
+.hud-action-icon[hidden] {
+  display: none;
+}
+
 /* The long-press arc that starts a box select (TouchControls.ts): a third of a circle above the
    finger, filling clockwise. */
 .box-arc {

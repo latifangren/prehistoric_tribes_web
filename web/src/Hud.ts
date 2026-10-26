@@ -7,12 +7,13 @@ import { oldArt } from "./platform/OldArt";
 import { capitalise, originalText } from "./OriginalText";
 import { escapeHtml, safeAssetName } from "./platform/Html";
 import { T_BUILDING } from "./core/DataTables";
-import { BLD_KIND, UNIT_AGE, UNIT_ENERGY, UNIT_FOOD, UNIT_GENDER, UNIT_HELD_ITEM, UNIT_HP, UNIT_JOB_TYPE, UNIT_MAX_HP, UNIT_NAME, UNIT_SELECTION, UNIT_TYPE } from "./core/DenseLayout";
+import { BLD_KIND, RES_KIND, UNIT_AGE, UNIT_ENERGY, UNIT_FOOD, UNIT_GENDER, UNIT_HELD_ITEM, UNIT_HOME_X, UNIT_HOME_Y, UNIT_HP, UNIT_JOB_TYPE, UNIT_MAX_HP, UNIT_NAME, UNIT_SELECTION, UNIT_TARGET_X, UNIT_TARGET_Y, UNIT_TYPE, UNIT_X, UNIT_Y } from "./core/DenseLayout";
 import type { PauseItem, TouchControls } from "./TouchControls";
 import { attachTribeModals } from "./TribeModals";
 import type { WideScreen } from "./WideScreen";
 import { villagerPanelOf } from "./render/WideView";
 import { hdArt } from "./render/HdArt";
+import { touchAction } from "./render/RenderRuntime";
 import { achievementManager } from "./Achievements";
 import { renderBestiaryHtml } from "./Bestiary";
 import { tribeTactics } from "./combat/TribeTactics";
@@ -1397,8 +1398,60 @@ export function attachHud(
     for (let kind = 0; kind < 12; kind += 1) if ((runtime.packedBytes[table + 416 + kind] ?? -1) === s) return kind;
     return -1;
   };
+  // ---- touch play's action icon (ported from upstream BOMBWCC 3b37af1, user 2026-10-26):
+  // the order a tap just gave (move, gather, attack, enter ... -- the original's icon beside its
+  // hand, RenderRuntime.touchAction), in HD, centred on the cursor's tile and larger. ----
+  const actionIcon = document.createElement("img");
+  actionIcon.className = "hud-action-icon";
+  actionIcon.alt = "";
+  actionIcon.hidden = true;
+  app.append(actionIcon);
+  const ACTION_FRAMES: Record<number, number> = { 35: 5 }; // the move arrows' animation
+  const ACTION_SIZE = 1.4; // tiles
+  const ACTION_FLASH_MS = 800;
+  /** One selected villager's job, for the icon that stays on it (ported from upstream 3b37af1,
+   *  user 2026-10-26): his work spot -- the original's return position (6262 / 6363: the tree,
+   *  rock, bush or fish he keeps going back to, or where he was sent) -- or the animal he hunts
+   *  (his target, 3131 / 3232), with the icon the original's cursor shows on that cell (c(int,int):
+   *  44 tree, 45 rock, 46 bones, 43 the other resources and animals); plain ground while he walks
+   *  there: the move arrows. Children, idlers and work inside buildings show nothing. */
+  const jobIcon = (id: number): { icon: number; tx: number; ty: number } | null => {
+    const e = runtime.denseState;
+    if ((e[UNIT_TYPE + id] ?? 0) === 17) return null;
+    const cell = (x: number, y: number) => runtime.gridC[y]?.[x] ?? 0;
+    const tx = e[UNIT_TARGET_X + id] ?? 0;
+    const ty = e[UNIT_TARGET_Y + id] ?? 0;
+    const target = cell(tx, ty);
+    if (target >= 101 && target <= 122) return { icon: 43, tx, ty };
+    const hx = e[UNIT_HOME_X + id] ?? 0;
+    const hy = e[UNIT_HOME_Y + id] ?? 0;
+    const home = cell(hx, hy);
+    if (home === -124) return { icon: 44, tx: hx, ty: hy };
+    if (home === -125) return { icon: 45, tx: hx, ty: hy };
+    if (home <= -61 && home >= -110) return { icon: (e[RES_KIND - (home + 61)] ?? 0) === 7 ? 46 : 43, tx: hx, ty: hy };
+    const away = (e[UNIT_X + id] ?? 0) !== hx || (e[UNIT_Y + id] ?? 0) !== hy;
+    if (home === 0 && away && touch.villagerTile(id)) return { icon: 35, tx: hx, ty: hy };
+    return null;
+  };
   /** Every display frame: keeps the tick on the footprint while the map is dragged. */
   const track = () => {
+    // Shown for a moment after a tap: the order a tap gives (one tap, user 2026-10-26); with one
+    // villager selected, his job's icon stays on it.
+    const onMap = screen.touchPlay && game.loopMode === 1 && game.barMode === 1 && !screen.frozen;
+    const recent = performance.now() - lastTouch < ACTION_FLASH_MS;
+    const flash = recent && onMap ? touchAction.icon : 0;
+    const job = !flash && onMap && screen.villagerSheet ? jobIcon(game.selectedId) : null;
+    const icon = flash || job?.icon || 0;
+    actionIcon.hidden = icon === 0;
+    if (icon) {
+      const frames = ACTION_FRAMES[icon] ?? 1;
+      const src = `hd/effects/${icon}-${frames > 1 ? Math.floor(performance.now() / 150) % frames : 0}.png`;
+      if (!actionIcon.src.endsWith(src)) actionIcon.src = src;
+      const at = job ? screen.tileToCss(job.tx, job.ty) : screen.tileToCss(game.cameraColumn + game.cursorColumn, game.cameraRow + game.cursorRow);
+      const tile = screen.tileToCss(1, 1).x - screen.tileToCss(0, 0).x;
+      const size = tile * ACTION_SIZE;
+      Object.assign(actionIcon.style, { left: `${at.x + tile / 2 - size / 2}px`, top: `${at.y + (tile * 16) / 22 / 2 - size / 2}px`, width: `${size}px`, height: `${size}px` });
+    }
     // The aimed item over the chosen villager's head.
     const tile = picking && pickTarget > 0 ? touch.villagerTile(pickTarget) : null;
     marker.hidden = !tile || screen.frozen;
@@ -1445,8 +1498,13 @@ export function attachHud(
   // BOMBWCC 29e035f, BUG-010, user 2026-10-16): back on the map, placing and selections are
   // closed. Not when the player's own tap just led to it (a villager's answer, Q 20) -- the
   // original keeps them, and so does play that has not touched the screen (keys, replays).
-  let lastTouch = -Infinity;
-  document.addEventListener("pointerdown", () => { lastTouch = performance.now(); }, true);
+  // Counted in game ticks, not wall time (refined in upstream BOMBWCC 3b37af1): the same taps
+  // give the same game however fast it runs (a slow phone, the scenario tests).
+  let lastTouch = -Infinity; // ms, for the action icon's flash only
+  let ticks = 0;
+  let lastTouchTick = -1;
+  const SCENE_AFTER_TAP_TICKS = 12; // about 1.5 s
+  document.addEventListener("pointerdown", () => { lastTouch = performance.now(); lastTouchTick = ticks; }, true);
   let sceneFromMap = false;
   let wasOnMap = false;
   // Nothing shows before the game's first frame (the splash, the start-up questions).
@@ -1457,9 +1515,9 @@ export function attachHud(
     openHelp,
     update() {
       modals.update();
+      ticks += 1;
       const nowOnMap = game.loopMode === 1;
-      const sinceTouch = performance.now() - lastTouch;
-      if (wasOnMap && !nowOnMap && (game.screen === 17 || game.screen === 20) && Number.isFinite(sinceTouch) && sinceTouch > 1500) sceneFromMap = true;
+      if (wasOnMap && !nowOnMap && (game.screen === 17 || game.screen === 20) && lastTouchTick >= 0 && ticks - lastTouchTick > SCENE_AFTER_TAP_TICKS) sceneFromMap = true;
       if (nowOnMap && sceneFromMap) { sceneFromMap = false; if (game.barMode !== 0 && !game.choosingChief) touch.closeBars(); }
       wasOnMap = nowOnMap;
       // Choosing a chief: take the map taps and show the HD candidate row / HD villager panel in the bottom sheet.
