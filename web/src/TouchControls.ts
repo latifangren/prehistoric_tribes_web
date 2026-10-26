@@ -75,6 +75,8 @@ export type TouchControls = {
   villagerTile(id: number): [number, number] | null;
   /** A scripted key sequence is still running (the game must tick for it). */
   readonly busy: boolean;
+  /** Moves the cursor to map tile (tx, ty), panning the game's camera if needed (an order's spot). Ported from upstream BOMBWCC 29e035f. */
+  aim(tx: number, ty: number): void;
   /** While set, a tap on the map goes here instead (with the villager tapped, or 0). */
   setMapTapHandler(handler: ((villager: number) => void) | null): void;
   /** While set, a tap on the map calls this; if it returns true, normal map tapping is intercepted. */
@@ -429,6 +431,8 @@ export function attachTouchControls(
     id: number; sx: number; sy: number; cx: number; cy: number; // CSS pixels: at the press, and now
     x0: number; y0: number; gx: number; gy: number; // frame pixels: at the press, and now
     drag: boolean; on: "map" | "panel" | "screen" | "top"; at: number; // performance.now() at the press
+    /** Placing a building, pressed on its footprint: the drag moves it (ported from upstream BOMBWCC 29e035f, UI design "放置建筑"), keeping the pressed tile's offset from the cursor. */
+    grip: [number, number] | null;
   };
   let gesture: Gesture | null = null;
   const activePointers = new Map<number, { x: number; y: number }>();
@@ -452,7 +456,15 @@ export function attachTouchControls(
     const gx = point.x;
     const gy = point.y;
     const on = point.on === "bottom" ? "panel" : point.on;
-    gesture = { id: event.pointerId, sx: event.clientX, sy: event.clientY, cx: event.clientX, cy: event.clientY, x0: gx, y0: gy, gx, gy, drag: false, on, at: performance.now() };
+    let grip: [number, number] | null = null;
+    const area = on === "map" && game.cSInt !== 100 ? controls.footprint() : null;
+    if (area) {
+      const [tx, ty] = tileAt(gx, gy);
+      if (tx >= area.column && tx < area.column + area.columns && ty >= area.row && ty < area.row + area.rows) {
+        grip = [tx - (game.cameraColumn + game.cursorColumn), ty - (game.cameraRow + game.cursorRow)];
+      }
+    }
+    gesture = { id: event.pointerId, sx: event.clientX, sy: event.clientY, cx: event.clientX, cy: event.clientY, x0: gx, y0: gy, gx, gy, drag: grip !== null, on, at: performance.now(), grip };
     touched();
     if (on === "map") requestAnimationFrame(frame);
   });
@@ -489,7 +501,10 @@ export function attachTouchControls(
       const arcShown = performance.now() - gesture.at >= LONG_MS;
       if (moved > (arcShown ? ARC_SLOP_PX : DRAG_PX)) { gesture.drag = true; arc.style.display = "none"; }
     }
-    if (!box && gesture.drag && gesture.on === "map") {
+    if (gesture.grip) {
+      const [tx, ty] = tileAt(gx, gy);
+      moveCursorTo(tx - gesture.grip[0], ty - gesture.grip[1]);
+    } else if (!box && gesture.drag && gesture.on === "map") {
       const k = screen.gamePixelsPerCssPixel();
       screen.panBy((gesture.cx - event.clientX) * k, (gesture.cy - event.clientY) * k);
       follow = true;
@@ -613,7 +628,9 @@ export function attachTouchControls(
   let pendingSteps = 0;
   let adjusting: Script | null = null;
 
-  return {
+  // Named (not returned inline) so the pointer handlers above can call controls.footprint()
+  // for the placing grip, as in upstream BOMBWCC 29e035f.
+  const controls: TouchControls = {
     bindKey(button: HTMLElement, key: OriginalKeyName) {
       const up = () => { if (button.dataset.down) { delete button.dataset.down; keys.release(key); } };
       button.addEventListener("pointerdown", (event) => {
@@ -689,6 +706,7 @@ export function attachTouchControls(
     setMapTapHandler(handler: ((villager: number) => void) | null) { mapTapHandler = handler; },
     setTileTapHandler(handler: ((tx: number, ty: number) => boolean) | null) { tileTapHandler = handler; },
     closeBars() { run(backOut()); },
+    aim(tx: number, ty: number) { moveCursorTo(tx, ty); },
     startGame(plan) {
       const ch = plan.chapter ?? 0;
       const rows: Record<number, number> = {
@@ -760,7 +778,11 @@ export function attachTouchControls(
         yield; // let the bar fill f.r
         const slot = Array.from(runtime.mainArrays.r.slice(0, 8)).findIndex((code) => codes.includes(code));
         if (game.barMode !== 2 || slot < 0) return;
+        const code = runtime.mainArrays.r[slot];
         yield* navigate(() => game.menuCursor, slot, OriginalKey.LEFT, OriginalKey.RIGHT, true);
+        // Ported from upstream BOMBWCC 29e035f: dismiss (14) and back to work (15) leave the
+        // original's command bar open: close it.
+        if (code === 14 || code === 15) { yield; yield* backOut(); }
       })());
     },
     openPause() {
@@ -813,6 +835,7 @@ export function attachTouchControls(
       runtime.touchBarNumberX = -1; // the coming tick's bar draw sets it again (read above first)
     },
   };
+  return controls;
 
   function stepInput(): void {
     if (follow && !box) followView();

@@ -182,6 +182,20 @@ export class WideScreen {
   }
 
   /** The screen shows the original's 240 x 320 frame (menus, etc.), not the HD map view. */
+  /**
+   * Ported from upstream BOMBWCC/Prehistoric_Tribes_Web 29e035f ("Sync from the port
+   * repository (7d55b15)"): the map tiles the screen shows (fractions; may reach past
+   * the map's edges), used by the order-spot UI (Hud.ts) to follow the screen's centre.
+   */
+  viewRect(): { column: number; row: number; columns: number; rows: number } {
+    return { column: this.viewX / TILE_W, row: this.viewY / TILE_H, columns: this.width / TILE_W, rows: this.height / TILE_H };
+  }
+
+  /** Ported from the same upstream commit: the map tile in the middle of the screen. */
+  centreTile(): [number, number] {
+    return [Math.floor((this.viewX + this.width / 2) / TILE_W), Math.floor((this.viewY + this.height / 2) / TILE_H)];
+  }
+
   get framed(): boolean {
     return !this.onMap;
   }
