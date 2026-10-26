@@ -1,0 +1,57 @@
+/* StartMenu About page */
+.start-menu[data-page="about"] .start-logo {
+  top: calc(env(safe-area-inset-top) + 6vh);
+  width: calc(60 * var(--unit));
+}
+
+.start-about {
+  position: absolute;
+  left: 50%;
+  top: calc(env(safe-area-inset-top) + 6vh + 24 * var(--unit));
+  bottom: calc(env(safe-area-inset-bottom) + 96px);
+  width: min(calc(100% - 36px), 440px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.start-about-title {
+  height: calc(8.5 * var(--unit));
+  flex: none;
+}
+
+.start-about-card {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
+  border: 2px solid #c9a350;
+  border-radius: 14px;
+  background: rgba(43, 29, 14, 0.86);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  color: #fff3c4;
+  font: 500 14px/1.55 system-ui, sans-serif;
+  overflow-y: auto;
+  touch-action: pan-y;
+}
+
+.start-about-card p {
+  margin: 0 0 12px;
+}
+
+.start-about-card p:last-child {
+  margin-bottom: 0;
+}
+
+.start-about-highlight {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(201, 163, 80, 0.2);
+  border: 1px solid rgba(255, 226, 122, 0.45);
+  color: #ffe27a;
+  font-weight: 600;
+}
+

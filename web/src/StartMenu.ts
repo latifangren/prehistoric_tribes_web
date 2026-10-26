@@ -1,9 +1,10 @@
+import { readStorage, writeStorage } from "./platform/Storage";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { capitalise, originalText } from "./OriginalText";
 import { sfx } from "./platform/SoundEffects";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import type { TouchControls } from "./TouchControls";
-import { stepAs } from "./ui/UiRuntime";
+import { stepAs } from "./ui/UiStateRuntime";
 import { escapeHtml, safeAssetPath } from "./platform/Html";
 import type { WideScreen } from "./WideScreen";
 
@@ -28,8 +29,8 @@ const LOSE_CAMPAIGN = 62;
 const LOSE_SAVE = 64;
 const PASS_TUTORIAL = 70;
 
-const read = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
-const write = (key: string, value: string) => { try { localStorage.setItem(key, value); } catch { /* not kept */ } };
+const read = (key: string) => { try { return readStorage(key); } catch { return null; } };
+const write = (key: string, value: string) => { try { void writeStorage(key, value); } catch { /* not kept */ } };
 
 export function currentLanguageCode(): "en" | "zh" | "id" {
   const code = read(LANGUAGE_KEY);

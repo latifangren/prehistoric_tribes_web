@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
 
-const webDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const webDir = path.resolve(path.dirname(process.getBuiltinModule("node:url").fileURLToPath(import.meta.url)), "..");
 const outDir = path.resolve(webDir, "..", "art-export");
 
 // Names of the bar codes / sub-records the port knows (docs/touch-mouse-design.md, step 9).

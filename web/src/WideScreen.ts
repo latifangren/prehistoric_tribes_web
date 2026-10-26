@@ -1,3 +1,4 @@
+import { writeStorage } from "./platform/Storage";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { Graphics } from "./platform/Graphics";
 import { oldArt } from "./platform/OldArt";
@@ -168,7 +169,7 @@ export class WideScreen {
     const mapPxX = this.viewX + (cx * ratio) / oldScale;
     const mapPxY = this.viewY + (cy * ratio) / oldScale;
     this.zoomOut = next;
-    try { localStorage.setItem("pt.zoomOut", String(next)); } catch { /* ignore */ }
+    try { void writeStorage("pt.zoomOut", String(next)); } catch { /* ignore */ }
     this.resize();
     this.viewX = mapPxX - (cx * ratio) / newScale;
     this.viewY = mapPxY - (cy * ratio) / newScale;

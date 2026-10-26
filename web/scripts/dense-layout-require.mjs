@@ -1,13 +1,14 @@
 // `require` for tests that transpile one source file into a bare vm context: the only imports
 // those files have are the constant modules core/DenseLayout.ts and core/DataTables.ts, so those
 // are the only modules this resolves.
+import { fileURLToPath } from "node:url";
 import fs from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
 
 const constants = {};
 for (const name of ["DenseLayout", "DataTables"]) {
-  const file = new URL(`../src/core/${name}.ts`, import.meta.url).pathname;
+  const file = fileURLToPath(new URL(`../src/core/${name}.ts`, import.meta.url));
   const module = { exports: {} };
   vm.runInNewContext(
     ts.transpileModule(fs.readFileSync(file, "utf8"), {

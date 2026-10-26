@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import ts from "typescript";
 
-const webDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const webDir = path.resolve(path.dirname(process.getBuiltinModule("node:url").fileURLToPath(import.meta.url)), "..");
 const [fileArg, className, ...pairs] = process.argv.slice(2);
 const declFile = path.resolve(webDir, fileArg);
 

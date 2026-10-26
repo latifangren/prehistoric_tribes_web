@@ -3,7 +3,7 @@ import ts from "typescript";
 import vm from "node:vm";
 import fs from "node:fs";
 
-const path = new URL("../src/render/LegacyCameraScroll.ts", import.meta.url).pathname;
+const path = process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/render/LegacyCameraScroll.ts", import.meta.url));
 const output = ts.transpileModule(fs.readFileSync(path, "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText;
@@ -175,7 +175,7 @@ function freshState() {
   const tsMod = await import("typescript");
   const fsMod = await import("node:fs");
   const pathMod = await import("node:path");
-  const srcDir = new URL("../src/", import.meta.url).pathname;
+  const srcDir = process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/", import.meta.url));
   const context = stateMod.createContext({ Int8Array, Int16Array, Int32Array, Array, console, Math });
   const cache = new Map();
   function loadModule(specifier, fromDir) {

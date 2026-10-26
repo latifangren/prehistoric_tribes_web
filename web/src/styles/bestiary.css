@@ -1,0 +1,123 @@
+
+/* =========================================================================
+   Bestiary & Encyclopedia Tab Styles
+   ========================================================================= */
+.bestiary-lead {
+  font: 600 13px/1.35 system-ui, sans-serif;
+  color: #4a2e10;
+  margin-bottom: 10px;
+}
+
+.bestiary-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 48vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.bestiary-card {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1.5px solid rgba(140, 77, 25, 0.28);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bestiary-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bestiary-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: radial-gradient(circle, #ffe082 0%, #b38814 100%);
+  border: 1.5px solid #8c4d19;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.bestiary-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.bestiary-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.bestiary-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.bestiary-name {
+  margin: 0;
+  font: 800 14px/1.2 system-ui, sans-serif;
+  color: #3e2723;
+}
+
+.bestiary-danger {
+  font-size: 11px;
+  letter-spacing: -1px;
+}
+
+.bestiary-cat {
+  font: 600 11px/1 system-ui, sans-serif;
+  color: #8c4d19;
+}
+
+.bestiary-stats-row {
+  display: flex;
+  gap: 8px;
+  background: rgba(140, 77, 25, 0.07);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font: 11px/1.2 system-ui, sans-serif;
+}
+
+.bestiary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.bestiary-stat span {
+  font-size: 10px;
+  color: #6d4c41;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.bestiary-stat b {
+  font-size: 12px;
+  color: #271406;
+}
+
+.bestiary-traits {
+  margin: 0;
+  font: 500 12px/1.35 system-ui, sans-serif;
+  color: #4e342e;
+}
+
+.bestiary-tactics {
+  font: 500 11px/1.35 system-ui, sans-serif;
+  background: rgba(46, 125, 50, 0.1);
+  border-left: 3px solid #2e7d32;
+  padding: 4px 8px;
+  border-radius: 0 6px 6px 0;
+  color: #1b5e20;
+}

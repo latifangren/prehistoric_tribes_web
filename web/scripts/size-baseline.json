@@ -1,0 +1,1922 @@
+{
+  "effectiveLimit": 800,
+  "physicalLimit": 1000,
+  "physicalExceptions": {
+    "web/src/core/LegacyGameState.ts": "Legacy bytecode field catalog; preserve its documented physical-line exception.",
+    "web/src/core/LegacyRuntimeState.ts": "Approved runtime facade exception; ceiling is ratcheted to its measured physical size."
+  },
+  "files": {
+    "web/scripts/browser-smoke.mjs": {
+      "effective": 74,
+      "physical": 80
+    },
+    "web/scripts/browser-smoke-hud.mjs": {
+      "effective": 46,
+      "physical": 50
+    },
+    "web/scripts/check-file-size.mjs": {
+      "effective": 130,
+      "physical": 144
+    },
+    "web/scripts/dense-layout-require.mjs": {
+      "effective": 21,
+      "physical": 26
+    },
+    "web/scripts/export-art.mjs": {
+      "effective": 186,
+      "physical": 225
+    },
+    "web/scripts/import-hd.mjs": {
+      "effective": 81,
+      "physical": 107
+    },
+    "web/scripts/oracle-all.mjs": {
+      "effective": 152,
+      "physical": 184
+    },
+    "web/scripts/rename-field.mjs": {
+      "effective": 61,
+      "physical": 70
+    },
+    "web/scripts/test-all.mjs": {
+      "effective": 22,
+      "physical": 26
+    },
+    "web/scripts/verify-1010-renderer.mjs": {
+      "effective": 36,
+      "physical": 47
+    },
+    "web/scripts/verify-1137-composition.mjs": {
+      "effective": 35,
+      "physical": 36
+    },
+    "web/scripts/verify-animal-hit-reaction.mjs": {
+      "effective": 59,
+      "physical": 81
+    },
+    "web/scripts/verify-animal-roam.mjs": {
+      "effective": 113,
+      "physical": 147
+    },
+    "web/scripts/verify-animated-slot-scan.mjs": {
+      "effective": 165,
+      "physical": 201
+    },
+    "web/scripts/verify-ao-wiring.mjs": {
+      "effective": 252,
+      "physical": 324
+    },
+    "web/scripts/verify-auxiliary-copy.mjs": {
+      "effective": 90,
+      "physical": 134
+    },
+    "web/scripts/verify-auxiliary-mode-writes.mjs": {
+      "effective": 27,
+      "physical": 31
+    },
+    "web/scripts/verify-auxiliary-mode4.mjs": {
+      "effective": 21,
+      "physical": 24
+    },
+    "web/scripts/verify-auxiliary-modes67.mjs": {
+      "effective": 21,
+      "physical": 24
+    },
+    "web/scripts/verify-auxiliary-placement.mjs": {
+      "effective": 62,
+      "physical": 77
+    },
+    "web/scripts/verify-auxiliary-queue.mjs": {
+      "effective": 137,
+      "physical": 177
+    },
+    "web/scripts/verify-begin-entity-action-i-fix.mjs": {
+      "effective": 54,
+      "physical": 66
+    },
+    "web/scripts/verify-byte-action-queue.mjs": {
+      "effective": 57,
+      "physical": 66
+    },
+    "web/scripts/verify-c-composition.mjs": {
+      "effective": 74,
+      "physical": 113
+    },
+    "web/scripts/verify-c-scan-draw.mjs": {
+      "effective": 168,
+      "physical": 203
+    },
+    "web/scripts/verify-camera-follow.mjs": {
+      "effective": 137,
+      "physical": 185
+    },
+    "web/scripts/verify-camera-frame.mjs": {
+      "effective": 106,
+      "physical": 128
+    },
+    "web/scripts/verify-camera-scroll.mjs": {
+      "effective": 161,
+      "physical": 207
+    },
+    "web/scripts/verify-cell-compatibility-check.mjs": {
+      "effective": 205,
+      "physical": 270
+    },
+    "web/scripts/verify-complete-entity-record-wiring.mjs": {
+      "effective": 50,
+      "physical": 69
+    },
+    "web/scripts/verify-css-order.mjs": {
+      "effective": 15,
+      "physical": 16
+    },
+    "web/scripts/verify-cursor-hover.mjs": {
+      "effective": 66,
+      "physical": 76
+    },
+    "web/scripts/verify-default-ad-i-fix.mjs": {
+      "effective": 37,
+      "physical": 46
+    },
+    "web/scripts/verify-default-ad-writeback.mjs": {
+      "effective": 65,
+      "physical": 89
+    },
+    "web/scripts/verify-digit-latch-entity-action.mjs": {
+      "effective": 58,
+      "physical": 75
+    },
+    "web/scripts/verify-effect-rect-mark.mjs": {
+      "effective": 57,
+      "physical": 70
+    },
+    "web/scripts/verify-effect-slot-scan.mjs": {
+      "effective": 116,
+      "physical": 134
+    },
+    "web/scripts/verify-entity-a-alert.mjs": {
+      "effective": 75,
+      "physical": 110
+    },
+    "web/scripts/verify-entity-abduction.mjs": {
+      "effective": 92,
+      "physical": 115
+    },
+    "web/scripts/verify-entity-action-commit.mjs": {
+      "effective": 176,
+      "physical": 209
+    },
+    "web/scripts/verify-entity-action-dispatch.mjs": {
+      "effective": 53,
+      "physical": 55
+    },
+    "web/scripts/verify-entity-action-score-gate.mjs": {
+      "effective": 201,
+      "physical": 288
+    },
+    "web/scripts/verify-entity-action-transfer.mjs": {
+      "effective": 32,
+      "physical": 37
+    },
+    "web/scripts/verify-entity-action.mjs": {
+      "effective": 170,
+      "physical": 214
+    },
+    "web/scripts/verify-entity-association-cleanup.mjs": {
+      "effective": 98,
+      "physical": 116
+    },
+    "web/scripts/verify-entity-batch-allocate.mjs": {
+      "effective": 68,
+      "physical": 91
+    },
+    "web/scripts/verify-entity-c-watch.mjs": {
+      "effective": 167,
+      "physical": 211
+    },
+    "web/scripts/verify-entity-classifiers.mjs": {
+      "effective": 38,
+      "physical": 44
+    },
+    "web/scripts/verify-entity-coordinate-update.mjs": {
+      "effective": 28,
+      "physical": 33
+    },
+    "web/scripts/verify-entity-core-update.mjs": {
+      "effective": 66,
+      "physical": 79
+    },
+    "web/scripts/verify-entity-courtship.mjs": {
+      "effective": 70,
+      "physical": 86
+    },
+    "web/scripts/verify-entity-crowd-stress.mjs": {
+      "effective": 89,
+      "physical": 112
+    },
+    "web/scripts/verify-entity-d-predicate.mjs": {
+      "effective": 108,
+      "physical": 131
+    },
+    "web/scripts/verify-entity-death-cleanup.mjs": {
+      "effective": 81,
+      "physical": 99
+    },
+    "web/scripts/verify-entity-e-selection.mjs": {
+      "effective": 60,
+      "physical": 72
+    },
+    "web/scripts/verify-entity-equip-issue.mjs": {
+      "effective": 84,
+      "physical": 105
+    },
+    "web/scripts/verify-entity-finalize.mjs": {
+      "effective": 104,
+      "physical": 129
+    },
+    "web/scripts/verify-entity-focus-flag-merge.mjs": {
+      "effective": 40,
+      "physical": 59
+    },
+    "web/scripts/verify-entity-followup.mjs": {
+      "effective": 141,
+      "physical": 174
+    },
+    "web/scripts/verify-entity-footprint-mark.mjs": {
+      "effective": 60,
+      "physical": 81
+    },
+    "web/scripts/verify-entity-g-prefix.mjs": {
+      "effective": 31,
+      "physical": 37
+    },
+    "web/scripts/verify-entity-h-action-branch.mjs": {
+      "effective": 71,
+      "physical": 89
+    },
+    "web/scripts/verify-entity-h-prefix.mjs": {
+      "effective": 26,
+      "physical": 29
+    },
+    "web/scripts/verify-entity-happiness.mjs": {
+      "effective": 82,
+      "physical": 101
+    },
+    "web/scripts/verify-entity-health-delta.mjs": {
+      "effective": 69,
+      "physical": 87
+    },
+    "web/scripts/verify-entity-housing.mjs": {
+      "effective": 52,
+      "physical": 66
+    },
+    "web/scripts/verify-entity-i-finalize.mjs": {
+      "effective": 105,
+      "physical": 124
+    },
+    "web/scripts/verify-entity-i-update.mjs": {
+      "effective": 373,
+      "physical": 462
+    },
+    "web/scripts/verify-entity-j-trigger.mjs": {
+      "effective": 106,
+      "physical": 147
+    },
+    "web/scripts/verify-entity-k-predicate.mjs": {
+      "effective": 106,
+      "physical": 125
+    },
+    "web/scripts/verify-entity-lifecycle-filter.mjs": {
+      "effective": 20,
+      "physical": 22
+    },
+    "web/scripts/verify-entity-link-byte.mjs": {
+      "effective": 34,
+      "physical": 39
+    },
+    "web/scripts/verify-entity-m-calculation.mjs": {
+      "effective": 96,
+      "physical": 125
+    },
+    "web/scripts/verify-entity-m-update.mjs": {
+      "effective": 31,
+      "physical": 36
+    },
+    "web/scripts/verify-entity-marker-commit.mjs": {
+      "effective": 212,
+      "physical": 262
+    },
+    "web/scripts/verify-entity-mode-listed.mjs": {
+      "effective": 26,
+      "physical": 31
+    },
+    "web/scripts/verify-entity-mode-promotion.mjs": {
+      "effective": 21,
+      "physical": 23
+    },
+    "web/scripts/verify-entity-mode-select.mjs": {
+      "effective": 102,
+      "physical": 118
+    },
+    "web/scripts/verify-entity-mode-value.mjs": {
+      "effective": 37,
+      "physical": 43
+    },
+    "web/scripts/verify-entity-mode.mjs": {
+      "effective": 39,
+      "physical": 42
+    },
+    "web/scripts/verify-entity-mood-pick.mjs": {
+      "effective": 115,
+      "physical": 150
+    },
+    "web/scripts/verify-entity-move-trigger.mjs": {
+      "effective": 110,
+      "physical": 136
+    },
+    "web/scripts/verify-entity-occupant-care.mjs": {
+      "effective": 60,
+      "physical": 76
+    },
+    "web/scripts/verify-entity-occupant-check.mjs": {
+      "effective": 66,
+      "physical": 87
+    },
+    "web/scripts/verify-entity-overlay-draw.mjs": {
+      "effective": 412,
+      "physical": 483
+    },
+    "web/scripts/verify-entity-partition.mjs": {
+      "effective": 19,
+      "physical": 21
+    },
+    "web/scripts/verify-entity-placement.mjs": {
+      "effective": 117,
+      "physical": 143
+    },
+    "web/scripts/verify-entity-produce-item.mjs": {
+      "effective": 103,
+      "physical": 126
+    },
+    "web/scripts/verify-entity-record-cancel.mjs": {
+      "effective": 134,
+      "physical": 164
+    },
+    "web/scripts/verify-entity-record-check.mjs": {
+      "effective": 76,
+      "physical": 94
+    },
+    "web/scripts/verify-entity-record-completion.mjs": {
+      "effective": 21,
+      "physical": 26
+    },
+    "web/scripts/verify-entity-record-door-retarget.mjs": {
+      "effective": 117,
+      "physical": 147
+    },
+    "web/scripts/verify-entity-record-lifecycle.mjs": {
+      "effective": 75,
+      "physical": 95
+    },
+    "web/scripts/verify-entity-record-recovery.mjs": {
+      "effective": 124,
+      "physical": 159
+    },
+    "web/scripts/verify-entity-record-target-clear.mjs": {
+      "effective": 33,
+      "physical": 44
+    },
+    "web/scripts/verify-entity-removal.mjs": {
+      "effective": 103,
+      "physical": 140
+    },
+    "web/scripts/verify-entity-resource-cost.mjs": {
+      "effective": 136,
+      "physical": 167
+    },
+    "web/scripts/verify-entity-screen-index.mjs": {
+      "effective": 72,
+      "physical": 91
+    },
+    "web/scripts/verify-entity-selection-drop.mjs": {
+      "effective": 60,
+      "physical": 76
+    },
+    "web/scripts/verify-entity-selection-nibble.mjs": {
+      "effective": 125,
+      "physical": 163
+    },
+    "web/scripts/verify-entity-selection-release.mjs": {
+      "effective": 46,
+      "physical": 58
+    },
+    "web/scripts/verify-entity-skill-gain.mjs": {
+      "effective": 95,
+      "physical": 116
+    },
+    "web/scripts/verify-entity-spot-alert.mjs": {
+      "effective": 132,
+      "physical": 167
+    },
+    "web/scripts/verify-entity-status-guard.mjs": {
+      "effective": 94,
+      "physical": 110
+    },
+    "web/scripts/verify-entity-strike-gate.mjs": {
+      "effective": 206,
+      "physical": 276
+    },
+    "web/scripts/verify-entity-target-scan.mjs": {
+      "effective": 34,
+      "physical": 38
+    },
+    "web/scripts/verify-entity-target-step.mjs": {
+      "effective": 113,
+      "physical": 126
+    },
+    "web/scripts/verify-entity-type-change.mjs": {
+      "effective": 49,
+      "physical": 64
+    },
+    "web/scripts/verify-entity-update-cleanup.mjs": {
+      "effective": 36,
+      "physical": 38
+    },
+    "web/scripts/verify-entity-update-selection.mjs": {
+      "effective": 85,
+      "physical": 107
+    },
+    "web/scripts/verify-entity-vacate.mjs": {
+      "effective": 115,
+      "physical": 136
+    },
+    "web/scripts/verify-html-escape.mjs": {
+      "effective": 16,
+      "physical": 21
+    },
+    "web/scripts/verify-language-lazy.mjs": {
+      "effective": 41,
+      "physical": 64
+    },
+    "web/scripts/verify-platform-storage.mjs": {
+      "effective": 33,
+      "physical": 35
+    },
+    "web/scripts/verify-upstream-port.mjs": {
+      "effective": 41,
+      "physical": 57
+    },
+    "web/src/Achievements.ts": {
+      "effective": 827,
+      "physical": 909
+    },
+    "web/src/Alerts.ts": {
+      "effective": 87,
+      "physical": 118
+    },
+    "web/src/audio/AtmosphereAudio.ts": {
+      "effective": 240,
+      "physical": 322
+    },
+    "web/src/Bestiary.ts": {
+      "effective": 213,
+      "physical": 222
+    },
+    "web/src/combat/TribeTactics.ts": {
+      "effective": 212,
+      "physical": 261
+    },
+    "web/src/core/DataTables.ts": {
+      "effective": 36,
+      "physical": 78
+    },
+    "web/src/core/DenseLayout.ts": {
+      "effective": 68,
+      "physical": 128
+    },
+    "web/src/core/LegacyFrameStep.ts": {
+      "effective": 41,
+      "physical": 56
+    },
+    "web/src/core/LegacyGameplayTick.ts": {
+      "effective": 112,
+      "physical": 151
+    },
+    "web/src/core/LegacyGameState.ts": {
+      "effective": 359,
+      "physical": 1320
+    },
+    "web/src/core/LegacyInputState.ts": {
+      "effective": 183,
+      "physical": 225
+    },
+    "web/src/core/LegacyKeyHandlers.ts": {
+      "effective": 99,
+      "physical": 121
+    },
+    "web/src/core/LegacyMainArrays.ts": {
+      "effective": 34,
+      "physical": 80
+    },
+    "web/src/core/LegacyNumericSequence.ts": {
+      "effective": 48,
+      "physical": 52
+    },
+    "web/src/core/LegacyRuntimeState.ts": {
+      "effective": 945,
+      "physical": 1750
+    },
+    "web/src/core/LegacySubsystemArrays.ts": {
+      "effective": 92,
+      "physical": 335
+    },
+    "web/src/core/RowUtils.ts": {
+      "effective": 40,
+      "physical": 64
+    },
+    "web/src/Hud.ts": {
+      "effective": 645,
+      "physical": 771
+    },
+    "web/src/hud/BuildList.ts": {
+      "effective": 91,
+      "physical": 96
+    },
+    "web/src/hud/BuildingCatalog.ts": {
+      "effective": 59,
+      "physical": 61
+    },
+    "web/src/hud/HelpDialog.ts": {
+      "effective": 175,
+      "physical": 178
+    },
+    "web/src/hud/PauseMenu.ts": {
+      "effective": 127,
+      "physical": 131
+    },
+    "web/src/hud/PlacementOverlay.ts": {
+      "effective": 128,
+      "physical": 135
+    },
+    "web/src/hud/RightThumbControls.ts": {
+      "effective": 163,
+      "physical": 169
+    },
+    "web/src/hud/Tooltips.ts": {
+      "effective": 68,
+      "physical": 71
+    },
+    "web/src/hud/TopBar.ts": {
+      "effective": 163,
+      "physical": 169
+    },
+    "web/src/hud/VillagerPanel.ts": {
+      "effective": 99,
+      "physical": 103
+    },
+    "web/src/main.ts": {
+      "effective": 9,
+      "physical": 12
+    },
+    "web/src/mainRuntime.ts": {
+      "effective": 383,
+      "physical": 522
+    },
+    "web/src/MenuHud.ts": {
+      "effective": 53,
+      "physical": 67
+    },
+    "web/src/OriginalIcons.ts": {
+      "effective": 50,
+      "physical": 64
+    },
+    "web/src/OriginalText.ts": {
+      "effective": 14,
+      "physical": 22
+    },
+    "web/src/platform/anchors.ts": {
+      "effective": 10,
+      "physical": 12
+    },
+    "web/src/platform/Audio.ts": {
+      "effective": 210,
+      "physical": 231
+    },
+    "web/src/platform/AudioManager.ts": {
+      "effective": 139,
+      "physical": 175
+    },
+    "web/src/platform/BackButton.ts": {
+      "effective": 6,
+      "physical": 7
+    },
+    "web/src/platform/BinaryResource.ts": {
+      "effective": 138,
+      "physical": 183
+    },
+    "web/src/platform/Canvas.ts": {
+      "effective": 21,
+      "physical": 24
+    },
+    "web/src/platform/DelimitedResource.ts": {
+      "effective": 27,
+      "physical": 32
+    },
+    "web/src/platform/EntityBank.ts": {
+      "effective": 27,
+      "physical": 46
+    },
+    "web/src/platform/FixedLoop.ts": {
+      "effective": 59,
+      "physical": 74
+    },
+    "web/src/platform/Graphics.ts": {
+      "effective": 114,
+      "physical": 144
+    },
+    "web/src/platform/Haptic.ts": {
+      "effective": 23,
+      "physical": 38
+    },
+    "web/src/platform/Html.ts": {
+      "effective": 21,
+      "physical": 53
+    },
+    "web/src/platform/Image.ts": {
+      "effective": 21,
+      "physical": 25
+    },
+    "web/src/platform/ImagePack.ts": {
+      "effective": 50,
+      "physical": 59
+    },
+    "web/src/platform/Input.ts": {
+      "effective": 98,
+      "physical": 117
+    },
+    "web/src/platform/LegacyRandom.ts": {
+      "effective": 20,
+      "physical": 27
+    },
+    "web/src/platform/LegacyResourceTables.ts": {
+      "effective": 90,
+      "physical": 153
+    },
+    "web/src/platform/OldArt.ts": {
+      "effective": 42,
+      "physical": 68
+    },
+    "web/src/platform/PackedData.ts": {
+      "effective": 32,
+      "physical": 41
+    },
+    "web/src/platform/PerfOverlay.ts": {
+      "effective": 106,
+      "physical": 144
+    },
+    "web/src/platform/RecordStore.ts": {
+      "effective": 54,
+      "physical": 70
+    },
+    "web/src/platform/SoundEffects.ts": {
+      "effective": 196,
+      "physical": 218
+    },
+    "web/src/platform/Storage.ts": {
+      "effective": 68,
+      "physical": 80
+    },
+    "web/src/render/DangerIndicators.ts": {
+      "effective": 191,
+      "physical": 254
+    },
+    "web/src/render/DayNightCycle.ts": {
+      "effective": 297,
+      "physical": 363
+    },
+    "web/src/render/EmotionBubbles.ts": {
+      "effective": 205,
+      "physical": 271
+    },
+    "web/src/render/HdArt.ts": {
+      "effective": 294,
+      "physical": 398
+    },
+    "web/src/render/Legacy1010Renderer.ts": {
+      "effective": 58,
+      "physical": 91
+    },
+    "web/src/render/Legacy1137Composition.ts": {
+      "effective": 51,
+      "physical": 75
+    },
+    "web/src/render/LegacyAnimatedSlotScan.ts": {
+      "effective": 93,
+      "physical": 148
+    },
+    "web/src/render/LegacyCameraFollow.ts": {
+      "effective": 88,
+      "physical": 136
+    },
+    "web/src/render/LegacyCameraFrame.ts": {
+      "effective": 79,
+      "physical": 163
+    },
+    "web/src/render/LegacyCameraScroll.ts": {
+      "effective": 101,
+      "physical": 150
+    },
+    "web/src/render/LegacyEffectRectMark.ts": {
+      "effective": 27,
+      "physical": 51
+    },
+    "web/src/render/LegacyEffectSlotScan.ts": {
+      "effective": 83,
+      "physical": 159
+    },
+    "web/src/render/LegacyEntityAction.ts": {
+      "effective": 68,
+      "physical": 162
+    },
+    "web/src/render/LegacyEntityClassifiers.ts": {
+      "effective": 22,
+      "physical": 49
+    },
+    "web/src/render/LegacyEntityOverlayDraw.ts": {
+      "effective": 213,
+      "physical": 482
+    },
+    "web/src/render/LegacyFrameCommandDraw.ts": {
+      "effective": 165,
+      "physical": 216
+    },
+    "web/src/render/LegacyFrameLayout.ts": {
+      "effective": 34,
+      "physical": 83
+    },
+    "web/src/render/LegacyGameplayCellBodyDispatch.ts": {
+      "effective": 75,
+      "physical": 114
+    },
+    "web/src/render/LegacyGameplayCellLoop.ts": {
+      "effective": 109,
+      "physical": 255
+    },
+    "web/src/render/LegacyGameplayFramePrep.ts": {
+      "effective": 58,
+      "physical": 140
+    },
+    "web/src/render/LegacyGameplayNegativeEntityBranch.ts": {
+      "effective": 128,
+      "physical": 247
+    },
+    "web/src/render/LegacyGameplayNegativeEntityBranchTail.ts": {
+      "effective": 68,
+      "physical": 130
+    },
+    "web/src/render/LegacyGameplayOuterLoop.ts": {
+      "effective": 45,
+      "physical": 112
+    },
+    "web/src/render/LegacyGameplayPaintTriggers.ts": {
+      "effective": 233,
+      "physical": 415
+    },
+    "web/src/render/LegacyGameplayPositiveEntityBranch.ts": {
+      "effective": 74,
+      "physical": 126
+    },
+    "web/src/render/LegacyImageHelperInvocation.ts": {
+      "effective": 101,
+      "physical": 150
+    },
+    "web/src/render/LegacyMapGridProjection.ts": {
+      "effective": 19,
+      "physical": 21
+    },
+    "web/src/render/LegacyMapMarkerDetail.ts": {
+      "effective": 253,
+      "physical": 376
+    },
+    "web/src/render/LegacyMapMarkerDispatch.ts": {
+      "effective": 170,
+      "physical": 254
+    },
+    "web/src/render/LegacyMapMarkerScan.ts": {
+      "effective": 89,
+      "physical": 159
+    },
+    "web/src/render/LegacyMapOverlay.ts": {
+      "effective": 82,
+      "physical": 118
+    },
+    "web/src/render/LegacyMapOverview.ts": {
+      "effective": 140,
+      "physical": 188
+    },
+    "web/src/render/LegacyMapRenderer.ts": {
+      "effective": 53,
+      "physical": 79
+    },
+    "web/src/render/LegacyOffscreenTargets.ts": {
+      "effective": 49,
+      "physical": 60
+    },
+    "web/src/render/LegacyPackedSpritePrimitive.ts": {
+      "effective": 47,
+      "physical": 50
+    },
+    "web/src/render/LegacyPackedSpriteRenderer.ts": {
+      "effective": 126,
+      "physical": 189
+    },
+    "web/src/render/LegacyPaintScreen.ts": {
+      "effective": 15,
+      "physical": 69
+    },
+    "web/src/render/LegacyProjectionDrawPreparation.ts": {
+      "effective": 49,
+      "physical": 52
+    },
+    "web/src/render/LegacyProjectionLifecycle.ts": {
+      "effective": 23,
+      "physical": 26
+    },
+    "web/src/render/LegacyProjectionP.ts": {
+      "effective": 47,
+      "physical": 50
+    },
+    "web/src/render/LegacyRenderTargets.ts": {
+      "effective": 21,
+      "physical": 37
+    },
+    "web/src/render/LegacySecondaryCellChain.ts": {
+      "effective": 41,
+      "physical": 91
+    },
+    "web/src/render/LegacySpriteLayerLoop.ts": {
+      "effective": 77,
+      "physical": 200
+    },
+    "web/src/render/LegacySpriteLayerPredicates.ts": {
+      "effective": 174,
+      "physical": 350
+    },
+    "web/src/render/LegacyZElementCoordinates.ts": {
+      "effective": 24,
+      "physical": 26
+    },
+    "web/src/render/LegacyZElementScan.ts": {
+      "effective": 134,
+      "physical": 144
+    },
+    "web/src/render/LegacyZKind2.ts": {
+      "effective": 42,
+      "physical": 70
+    },
+    "web/src/render/LegacyZKind3.ts": {
+      "effective": 54,
+      "physical": 57
+    },
+    "web/src/render/LegacyZKind4.ts": {
+      "effective": 22,
+      "physical": 26
+    },
+    "web/src/render/LegacyZSubrecordDraw.ts": {
+      "effective": 24,
+      "physical": 27
+    },
+    "web/src/render/MatchRecap.ts": {
+      "effective": 325,
+      "physical": 374
+    },
+    "web/src/render/RenderRuntime.ts": {
+      "effective": 1256,
+      "physical": 1841
+    },
+    "web/src/render/WeatherSystem.ts": {
+      "effective": 352,
+      "physical": 420
+    },
+    "web/src/render/WideView.ts": {
+      "effective": 162,
+      "physical": 214
+    },
+    "web/src/ResourceBootstrap.ts": {
+      "effective": 63,
+      "physical": 81
+    },
+    "web/src/save/LegacyProgressStore.ts": {
+      "effective": 60,
+      "physical": 77
+    },
+    "web/src/save/RmsGameplayRecord.ts": {
+      "effective": 297,
+      "physical": 339
+    },
+    "web/src/save/RmsRecords.ts": {
+      "effective": 42,
+      "physical": 48
+    },
+    "web/src/save/SaveRuntime.ts": {
+      "effective": 182,
+      "physical": 268
+    },
+    "web/src/save/SaveSlotManager.ts": {
+      "effective": 111,
+      "physical": 133
+    },
+    "web/src/Settings.ts": {
+      "effective": 394,
+      "physical": 427
+    },
+    "web/src/sim/tribe/LegacySubsystemAa.ts": {
+      "effective": 49,
+      "physical": 75
+    },
+    "web/src/sim/tribe/LegacySubsystemAb.ts": {
+      "effective": 102,
+      "physical": 142
+    },
+    "web/src/sim/tribe/LegacySubsystemAe.ts": {
+      "effective": 57,
+      "physical": 86
+    },
+    "web/src/sim/tribe/LegacySubsystemAf.ts": {
+      "effective": 94,
+      "physical": 165
+    },
+    "web/src/sim/tribe/LegacySubsystemAg.ts": {
+      "effective": 87,
+      "physical": 203
+    },
+    "web/src/sim/tribe/LegacySubsystemAh.ts": {
+      "effective": 37,
+      "physical": 71
+    },
+    "web/src/sim/tribe/LegacySubsystemAi.ts": {
+      "effective": 24,
+      "physical": 43
+    },
+    "web/src/sim/tribe/LegacySubsystemAj.ts": {
+      "effective": 25,
+      "physical": 27
+    },
+    "web/src/sim/tribe/LegacySubsystemAk.ts": {
+      "effective": 32,
+      "physical": 54
+    },
+    "web/src/sim/tribe/LegacySubsystemAl.ts": {
+      "effective": 67,
+      "physical": 74
+    },
+    "web/src/sim/tribe/LegacySubsystemAm.ts": {
+      "effective": 34,
+      "physical": 42
+    },
+    "web/src/sim/tribe/LegacySubsystemAn.ts": {
+      "effective": 60,
+      "physical": 108
+    },
+    "web/src/sim/tribe/LegacySubsystemAq.ts": {
+      "effective": 94,
+      "physical": 182
+    },
+    "web/src/sim/tribe/LegacySubsystemAr.ts": {
+      "effective": 90,
+      "physical": 155
+    },
+    "web/src/sim/tribe/LegacySubsystemAs.ts": {
+      "effective": 109,
+      "physical": 207
+    },
+    "web/src/sim/tribe/LegacySubsystemAt.ts": {
+      "effective": 131,
+      "physical": 298
+    },
+    "web/src/sim/tribe/LegacySubsystemAv.ts": {
+      "effective": 99,
+      "physical": 182
+    },
+    "web/src/sim/tribe/LegacySubsystemAw.ts": {
+      "effective": 78,
+      "physical": 135
+    },
+    "web/src/sim/tribe/LegacySubsystemAx.ts": {
+      "effective": 26,
+      "physical": 78
+    },
+    "web/src/sim/tribe/LegacySubsystemBActionSelector.ts": {
+      "effective": 17,
+      "physical": 19
+    },
+    "web/src/sim/tribe/LegacySubsystemBActivityPrefix.ts": {
+      "effective": 32,
+      "physical": 47
+    },
+    "web/src/sim/tribe/LegacySubsystemBBoolean.ts": {
+      "effective": 56,
+      "physical": 117
+    },
+    "web/src/sim/tribe/LegacySubsystemBBoolean2.ts": {
+      "effective": 59,
+      "physical": 118
+    },
+    "web/src/sim/tribe/LegacySubsystemBClassify.ts": {
+      "effective": 28,
+      "physical": 37
+    },
+    "web/src/sim/tribe/LegacySubsystemBCoordinateSync.ts": {
+      "effective": 48,
+      "physical": 64
+    },
+    "web/src/sim/tribe/LegacySubsystemBDecision.ts": {
+      "effective": 68,
+      "physical": 95
+    },
+    "web/src/sim/tribe/LegacySubsystemBEntryGate.ts": {
+      "effective": 13,
+      "physical": 21
+    },
+    "web/src/sim/tribe/LegacySubsystemBFinalPrefix.ts": {
+      "effective": 30,
+      "physical": 98
+    },
+    "web/src/sim/tribe/LegacySubsystemBFreeList.ts": {
+      "effective": 23,
+      "physical": 54
+    },
+    "web/src/sim/tribe/LegacySubsystemBM.ts": {
+      "effective": 65,
+      "physical": 100
+    },
+    "web/src/sim/tribe/LegacySubsystemBOrchestrator.ts": {
+      "effective": 55,
+      "physical": 82
+    },
+    "web/src/sim/tribe/LegacySubsystemBPreActionGate.ts": {
+      "effective": 31,
+      "physical": 51
+    },
+    "web/src/sim/tribe/LegacySubsystemBTenSlot.ts": {
+      "effective": 61,
+      "physical": 143
+    },
+    "web/src/sim/tribe/LegacySubsystemBuildingEconomy.ts": {
+      "effective": 100,
+      "physical": 154
+    },
+    "web/src/sim/tribe/LegacySubsystemBVoidO.ts": {
+      "effective": 18,
+      "physical": 56
+    },
+    "web/src/sim/tribe/LegacySubsystemClampBounds.ts": {
+      "effective": 17,
+      "physical": 50
+    },
+    "web/src/sim/tribe/LegacySubsystemDecision.ts": {
+      "effective": 20,
+      "physical": 22
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityAnimOffset.ts": {
+      "effective": 36,
+      "physical": 59
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityAssociationScan.ts": {
+      "effective": 115,
+      "physical": 216
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityDisplace.ts": {
+      "effective": 44,
+      "physical": 109
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityHpGate.ts": {
+      "effective": 21,
+      "physical": 43
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityLoop.ts": {
+      "effective": 68,
+      "physical": 123
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityMoveApply.ts": {
+      "effective": 52,
+      "physical": 91
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityMoveCancel.ts": {
+      "effective": 96,
+      "physical": 159
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityMoveGate.ts": {
+      "effective": 25,
+      "physical": 90
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityOccupancyCheck.ts": {
+      "effective": 55,
+      "physical": 141
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityPaceAccum.ts": {
+      "effective": 19,
+      "physical": 37
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityPaceReset.ts": {
+      "effective": 30,
+      "physical": 50
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityPathStep.ts": {
+      "effective": 106,
+      "physical": 248
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityProbe.ts": {
+      "effective": 130,
+      "physical": 315
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityRegen.ts": {
+      "effective": 106,
+      "physical": 200
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityRevertIdle.ts": {
+      "effective": 5,
+      "physical": 14
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityRRoll.ts": {
+      "effective": 93,
+      "physical": 208
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityStateCode.ts": {
+      "effective": 31,
+      "physical": 46
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityTrainingSlot.ts": {
+      "effective": 63,
+      "physical": 112
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityTransform.ts": {
+      "effective": 148,
+      "physical": 326
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityTypeReaction.ts": {
+      "effective": 76,
+      "physical": 171
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityTypeSettle.ts": {
+      "effective": 9,
+      "physical": 15
+    },
+    "web/src/sim/tribe/LegacySubsystemEntityUpdateTail.ts": {
+      "effective": 54,
+      "physical": 121
+    },
+    "web/src/sim/tribe/LegacySubsystemFlagPass.ts": {
+      "effective": 235,
+      "physical": 541
+    },
+    "web/src/sim/tribe/LegacySubsystemH.ts": {
+      "effective": 62,
+      "physical": 109
+    },
+    "web/src/sim/tribe/LegacySubsystemLifecycle.ts": {
+      "effective": 24,
+      "physical": 32
+    },
+    "web/src/sim/tribe/LegacySubsystemLowerO.ts": {
+      "effective": 34,
+      "physical": 72
+    },
+    "web/src/sim/tribe/LegacySubsystemN.ts": {
+      "effective": 85,
+      "physical": 179
+    },
+    "web/src/sim/tribe/LegacySubsystemNDecision.ts": {
+      "effective": 71,
+      "physical": 109
+    },
+    "web/src/sim/tribe/LegacySubsystemNearbyMarkerLookup.ts": {
+      "effective": 86,
+      "physical": 196
+    },
+    "web/src/sim/tribe/LegacySubsystemNearestBuilding.ts": {
+      "effective": 70,
+      "physical": 126
+    },
+    "web/src/sim/tribe/LegacySubsystemNGate.ts": {
+      "effective": 16,
+      "physical": 24
+    },
+    "web/src/sim/tribe/LegacySubsystemNOrchestrator.ts": {
+      "effective": 27,
+      "physical": 31
+    },
+    "web/src/sim/tribe/LegacySubsystemNPrivateO.ts": {
+      "effective": 96,
+      "physical": 238
+    },
+    "web/src/sim/tribe/LegacySubsystemO.ts": {
+      "effective": 76,
+      "physical": 113
+    },
+    "web/src/sim/tribe/LegacySubsystemOLower.ts": {
+      "effective": 18,
+      "physical": 20
+    },
+    "web/src/sim/tribe/LegacySubsystemP.ts": {
+      "effective": 102,
+      "physical": 183
+    },
+    "web/src/sim/tribe/LegacySubsystemPairSetup.ts": {
+      "effective": 131,
+      "physical": 441
+    },
+    "web/src/sim/tribe/LegacySubsystemPrepass.ts": {
+      "effective": 28,
+      "physical": 39
+    },
+    "web/src/sim/tribe/LegacySubsystemRecord.ts": {
+      "effective": 45,
+      "physical": 55
+    },
+    "web/src/sim/tribe/LegacySubsystemScore.ts": {
+      "effective": 261,
+      "physical": 612
+    },
+    "web/src/sim/tribe/LegacySubsystemT.ts": {
+      "effective": 55,
+      "physical": 90
+    },
+    "web/src/sim/tribe/LegacySubsystemTail.ts": {
+      "effective": 79,
+      "physical": 132
+    },
+    "web/src/sim/tribe/LegacySubsystemTrainingComplete.ts": {
+      "effective": 28,
+      "physical": 76
+    },
+    "web/src/sim/tribe/LegacySubsystemTrainingCount.ts": {
+      "effective": 29,
+      "physical": 56
+    },
+    "web/src/sim/tribe/LegacySubsystemU.ts": {
+      "effective": 35,
+      "physical": 65
+    },
+    "web/src/sim/tribe/LegacySubsystemUnitTraining.ts": {
+      "effective": 63,
+      "physical": 118
+    },
+    "web/src/sim/tribe/LegacySubsystemV.ts": {
+      "effective": 103,
+      "physical": 163
+    },
+    "web/src/sim/tribe/LegacySubsystemVoidN.ts": {
+      "effective": 45,
+      "physical": 119
+    },
+    "web/src/sim/tribe/LegacySubsystemWorkerDispatch.ts": {
+      "effective": 61,
+      "physical": 99
+    },
+    "web/src/sim/tribe/TribeRuntime.ts": {
+      "effective": 1902,
+      "physical": 2902
+    },
+    "web/src/sim/units/LegacyAnimalHitReaction.ts": {
+      "effective": 30,
+      "physical": 71
+    },
+    "web/src/sim/units/LegacyAnimalRoam.ts": {
+      "effective": 66,
+      "physical": 129
+    },
+    "web/src/sim/units/LegacyEntityAbduction.ts": {
+      "effective": 66,
+      "physical": 134
+    },
+    "web/src/sim/units/LegacyEntityActionCommit.ts": {
+      "effective": 67,
+      "physical": 110
+    },
+    "web/src/sim/units/LegacyEntityActionDispatch.ts": {
+      "effective": 25,
+      "physical": 29
+    },
+    "web/src/sim/units/LegacyEntityActionScoreGate.ts": {
+      "effective": 120,
+      "physical": 255
+    },
+    "web/src/sim/units/LegacyEntityActionTransfer.ts": {
+      "effective": 53,
+      "physical": 65
+    },
+    "web/src/sim/units/LegacyEntityAssociationCleanup.ts": {
+      "effective": 105,
+      "physical": 167
+    },
+    "web/src/sim/units/LegacyEntityBatchAllocate.ts": {
+      "effective": 85,
+      "physical": 145
+    },
+    "web/src/sim/units/LegacyEntityCoreUpdate.ts": {
+      "effective": 65,
+      "physical": 96
+    },
+    "web/src/sim/units/LegacyEntityCourtship.ts": {
+      "effective": 81,
+      "physical": 116
+    },
+    "web/src/sim/units/LegacyEntityCrowdStress.ts": {
+      "effective": 52,
+      "physical": 102
+    },
+    "web/src/sim/units/LegacyEntityCWatch.ts": {
+      "effective": 45,
+      "physical": 132
+    },
+    "web/src/sim/units/LegacyEntityDeathCleanup.ts": {
+      "effective": 45,
+      "physical": 83
+    },
+    "web/src/sim/units/LegacyEntityDPredicate.ts": {
+      "effective": 51,
+      "physical": 100
+    },
+    "web/src/sim/units/LegacyEntityEquipIssue.ts": {
+      "effective": 33,
+      "physical": 79
+    },
+    "web/src/sim/units/LegacyEntityESelection.ts": {
+      "effective": 48,
+      "physical": 71
+    },
+    "web/src/sim/units/LegacyEntityFollowup.ts": {
+      "effective": 55,
+      "physical": 117
+    },
+    "web/src/sim/units/LegacyEntityFootprintMark.ts": {
+      "effective": 45,
+      "physical": 83
+    },
+    "web/src/sim/units/LegacyEntityGPrefix.ts": {
+      "effective": 49,
+      "physical": 59
+    },
+    "web/src/sim/units/LegacyEntityHActionBranch.ts": {
+      "effective": 64,
+      "physical": 105
+    },
+    "web/src/sim/units/LegacyEntityHappiness.ts": {
+      "effective": 35,
+      "physical": 75
+    },
+    "web/src/sim/units/LegacyEntityHealthDelta.ts": {
+      "effective": 31,
+      "physical": 58
+    },
+    "web/src/sim/units/LegacyEntityHousing.ts": {
+      "effective": 29,
+      "physical": 56
+    },
+    "web/src/sim/units/LegacyEntityHPrefix.ts": {
+      "effective": 22,
+      "physical": 34
+    },
+    "web/src/sim/units/LegacyEntityIFinalize.ts": {
+      "effective": 37,
+      "physical": 62
+    },
+    "web/src/sim/units/LegacyEntityIUpdate.ts": {
+      "effective": 71,
+      "physical": 231
+    },
+    "web/src/sim/units/LegacyEntityKPredicate.ts": {
+      "effective": 68,
+      "physical": 114
+    },
+    "web/src/sim/units/LegacyEntityLifecycleFilter.ts": {
+      "effective": 36,
+      "physical": 39
+    },
+    "web/src/sim/units/LegacyEntityLinkByte.ts": {
+      "effective": 17,
+      "physical": 20
+    },
+    "web/src/sim/units/LegacyEntityMarkerCommit.ts": {
+      "effective": 146,
+      "physical": 274
+    },
+    "web/src/sim/units/LegacyEntityMCalculation.ts": {
+      "effective": 54,
+      "physical": 115
+    },
+    "web/src/sim/units/LegacyEntityMode.ts": {
+      "effective": 26,
+      "physical": 32
+    },
+    "web/src/sim/units/LegacyEntityModePromotion.ts": {
+      "effective": 19,
+      "physical": 23
+    },
+    "web/src/sim/units/LegacyEntityModeSelect.ts": {
+      "effective": 113,
+      "physical": 159
+    },
+    "web/src/sim/units/LegacyEntityModeValue.ts": {
+      "effective": 26,
+      "physical": 28
+    },
+    "web/src/sim/units/LegacyEntityMoodPick.ts": {
+      "effective": 42,
+      "physical": 91
+    },
+    "web/src/sim/units/LegacyEntityMoveTrigger.ts": {
+      "effective": 47,
+      "physical": 105
+    },
+    "web/src/sim/units/LegacyEntityMUpdate.ts": {
+      "effective": 19,
+      "physical": 37
+    },
+    "web/src/sim/units/LegacyEntityOccupantCare.ts": {
+      "effective": 35,
+      "physical": 72
+    },
+    "web/src/sim/units/LegacyEntityOccupantCheck.ts": {
+      "effective": 22,
+      "physical": 44
+    },
+    "web/src/sim/units/LegacyEntityPlacement.ts": {
+      "effective": 138,
+      "physical": 165
+    },
+    "web/src/sim/units/LegacyEntityProduceItem.ts": {
+      "effective": 62,
+      "physical": 129
+    },
+    "web/src/sim/units/LegacyEntityRecordCancel.ts": {
+      "effective": 70,
+      "physical": 107
+    },
+    "web/src/sim/units/LegacyEntityRecordCheck.ts": {
+      "effective": 43,
+      "physical": 75
+    },
+    "web/src/sim/units/LegacyEntityRecordCompletion.ts": {
+      "effective": 11,
+      "physical": 13
+    },
+    "web/src/sim/units/LegacyEntityRecordDoorRetarget.ts": {
+      "effective": 69,
+      "physical": 137
+    },
+    "web/src/sim/units/LegacyEntityRecordRecovery.ts": {
+      "effective": 98,
+      "physical": 175
+    },
+    "web/src/sim/units/LegacyEntityRecordTargetClear.ts": {
+      "effective": 28,
+      "physical": 37
+    },
+    "web/src/sim/units/LegacyEntityResourceCost.ts": {
+      "effective": 138,
+      "physical": 199
+    },
+    "web/src/sim/units/LegacyEntityScreenIndex.ts": {
+      "effective": 28,
+      "physical": 69
+    },
+    "web/src/sim/units/LegacyEntitySelectionNibble.ts": {
+      "effective": 37,
+      "physical": 71
+    },
+    "web/src/sim/units/LegacyEntitySkillGain.ts": {
+      "effective": 46,
+      "physical": 95
+    },
+    "web/src/sim/units/LegacyEntitySpotAlert.ts": {
+      "effective": 65,
+      "physical": 116
+    },
+    "web/src/sim/units/LegacyEntityStatusGuard.ts": {
+      "effective": 124,
+      "physical": 235
+    },
+    "web/src/sim/units/LegacyEntityStrikeGate.ts": {
+      "effective": 152,
+      "physical": 282
+    },
+    "web/src/sim/units/LegacyEntityTargetScan.ts": {
+      "effective": 82,
+      "physical": 94
+    },
+    "web/src/sim/units/LegacyEntityTargetStep.ts": {
+      "effective": 87,
+      "physical": 131
+    },
+    "web/src/sim/units/LegacyEntityTypeChange.ts": {
+      "effective": 61,
+      "physical": 85
+    },
+    "web/src/sim/units/LegacyEntityUpdateCleanup.ts": {
+      "effective": 26,
+      "physical": 32
+    },
+    "web/src/sim/units/LegacyEntityUpdateSelection.ts": {
+      "effective": 60,
+      "physical": 89
+    },
+    "web/src/sim/units/LegacyEntityVacate.ts": {
+      "effective": 81,
+      "physical": 141
+    },
+    "web/src/sim/units/LegacyEntityWorkDeposit.ts": {
+      "effective": 66,
+      "physical": 102
+    },
+    "web/src/sim/units/LegacyEntityWUpdate.ts": {
+      "effective": 58,
+      "physical": 71
+    },
+    "web/src/sim/units/UnitRuntime.ts": {
+      "effective": 905,
+      "physical": 1215
+    },
+    "web/src/sim/world/LegacyAuxiliaryCopy.ts": {
+      "effective": 39,
+      "physical": 110
+    },
+    "web/src/sim/world/LegacyAuxiliaryMode4.ts": {
+      "effective": 26,
+      "physical": 32
+    },
+    "web/src/sim/world/LegacyAuxiliaryModes67.ts": {
+      "effective": 67,
+      "physical": 71
+    },
+    "web/src/sim/world/LegacyAuxiliaryModeWrites.ts": {
+      "effective": 41,
+      "physical": 50
+    },
+    "web/src/sim/world/LegacyAuxiliaryPlacement.ts": {
+      "effective": 57,
+      "physical": 96
+    },
+    "web/src/sim/world/LegacyAuxiliaryQueue.ts": {
+      "effective": 125,
+      "physical": 228
+    },
+    "web/src/sim/world/LegacyBSpatialPass.ts": {
+      "effective": 67,
+      "physical": 87
+    },
+    "web/src/sim/world/LegacyCellCompatibilityCheck.ts": {
+      "effective": 87,
+      "physical": 172
+    },
+    "web/src/sim/world/LegacyEntityFinalize.ts": {
+      "effective": 56,
+      "physical": 92
+    },
+    "web/src/sim/world/LegacyEntityPartition.ts": {
+      "effective": 5,
+      "physical": 11
+    },
+    "web/src/sim/world/LegacyEntityRecordLifecycle.ts": {
+      "effective": 43,
+      "physical": 58
+    },
+    "web/src/sim/world/LegacyFootprintCheck.ts": {
+      "effective": 39,
+      "physical": 60
+    },
+    "web/src/sim/world/LegacyMapRleDecoder.ts": {
+      "effective": 65,
+      "physical": 107
+    },
+    "web/src/sim/world/LegacyNearestCandidateSearch.ts": {
+      "effective": 45,
+      "physical": 75
+    },
+    "web/src/sim/world/LegacyOccupancyClass.ts": {
+      "effective": 13,
+      "physical": 21
+    },
+    "web/src/sim/world/LegacyPathCellPredicate.ts": {
+      "effective": 61,
+      "physical": 83
+    },
+    "web/src/sim/world/LegacyPathDirection.ts": {
+      "effective": 25,
+      "physical": 28
+    },
+    "web/src/sim/world/LegacyPathE.ts": {
+      "effective": 77,
+      "physical": 149
+    },
+    "web/src/sim/world/LegacyPathPreparation.ts": {
+      "effective": 71,
+      "physical": 78
+    },
+    "web/src/sim/world/LegacyRecordAllocator.ts": {
+      "effective": 132,
+      "physical": 162
+    },
+    "web/src/sim/world/LegacyResourceNodeGate.ts": {
+      "effective": 27,
+      "physical": 71
+    },
+    "web/src/sim/world/LegacySpatialRecordUpdate.ts": {
+      "effective": 62,
+      "physical": 101
+    },
+    "web/src/sim/world/LegacySpecialTileAllocator.ts": {
+      "effective": 43,
+      "physical": 63
+    },
+    "web/src/sim/world/LegacySpiralPlacementGate.ts": {
+      "effective": 192,
+      "physical": 370
+    },
+    "web/src/sim/world/LegacyTerrainAdjustment.ts": {
+      "effective": 12,
+      "physical": 21
+    },
+    "web/src/sim/world/WorldRuntime.ts": {
+      "effective": 693,
+      "physical": 969
+    },
+    "web/src/StartMenu.ts": {
+      "effective": 391,
+      "physical": 425
+    },
+    "web/src/StoryHud.ts": {
+      "effective": 164,
+      "physical": 199
+    },
+    "web/src/styles.css": {
+      "effective": 18,
+      "physical": 18
+    },
+    "web/src/styles/alerts-achievements.css": {
+      "effective": 431,
+      "physical": 500
+    },
+    "web/src/styles/bestiary.css": {
+      "effective": 103,
+      "physical": 123
+    },
+    "web/src/styles/combat-orders.css": {
+      "effective": 93,
+      "physical": 108
+    },
+    "web/src/styles/global.css": {
+      "effective": 209,
+      "physical": 259
+    },
+    "web/src/styles/help-dialog.css": {
+      "effective": 140,
+      "physical": 163
+    },
+    "web/src/styles/hud-actions.css": {
+      "effective": 314,
+      "physical": 401
+    },
+    "web/src/styles/hud-bar-sheet.css": {
+      "effective": 445,
+      "physical": 517
+    },
+    "web/src/styles/hud-counters.css": {
+      "effective": 14,
+      "physical": 18
+    },
+    "web/src/styles/hud-extra-controls.css": {
+      "effective": 229,
+      "physical": 269
+    },
+    "web/src/styles/hud-responsive.css": {
+      "effective": 264,
+      "physical": 304
+    },
+    "web/src/styles/match-recap.css": {
+      "effective": 142,
+      "physical": 170
+    },
+    "web/src/styles/settings.css": {
+      "effective": 416,
+      "physical": 483
+    },
+    "web/src/styles/start-about.css": {
+      "effective": 49,
+      "physical": 57
+    },
+    "web/src/styles/start-chapters.css": {
+      "effective": 88,
+      "physical": 101
+    },
+    "web/src/styles/start-menu.css": {
+      "effective": 328,
+      "physical": 376
+    },
+    "web/src/styles/story-outcomes.css": {
+      "effective": 101,
+      "physical": 117
+    },
+    "web/src/styles/story.css": {
+      "effective": 112,
+      "physical": 131
+    },
+    "web/src/styles/villager-panel.css": {
+      "effective": 123,
+      "physical": 149
+    },
+    "web/src/text/LegacyCComposition.ts": {
+      "effective": 194,
+      "physical": 272
+    },
+    "web/src/text/LegacyCScanDraw.ts": {
+      "effective": 73,
+      "physical": 249
+    },
+    "web/src/text/LegacyGeometryDecoder.ts": {
+      "effective": 177,
+      "physical": 241
+    },
+    "web/src/text/LegacyGeometryRenderer.ts": {
+      "effective": 101,
+      "physical": 116
+    },
+    "web/src/text/LegacyZGeometryBridge.ts": {
+      "effective": 10,
+      "physical": 14
+    },
+    "web/src/text/LegacyZhText.ts": {
+      "effective": 202,
+      "physical": 265
+    },
+    "web/src/text/LegacyZKText.ts": {
+      "effective": 34,
+      "physical": 50
+    },
+    "web/src/TouchControls.ts": {
+      "effective": 665,
+      "physical": 844
+    },
+    "web/src/TribeModals.ts": {
+      "effective": 386,
+      "physical": 425
+    },
+    "web/src/ui/LegacyByteActionQueue.ts": {
+      "effective": 57,
+      "physical": 70
+    },
+    "web/src/ui/LegacyCursorHover.ts": {
+      "effective": 61,
+      "physical": 80
+    },
+    "web/src/ui/LegacyEntityCoordinateUpdate.ts": {
+      "effective": 33,
+      "physical": 51
+    },
+    "web/src/ui/LegacyEntitySelectionDrop.ts": {
+      "effective": 27,
+      "physical": 62
+    },
+    "web/src/ui/LegacyEntitySelectionRelease.ts": {
+      "effective": 40,
+      "physical": 54
+    },
+    "web/src/ui/LegacyFPairCommand.ts": {
+      "effective": 64,
+      "physical": 85
+    },
+    "web/src/ui/LegacyFrameCommandChanged.ts": {
+      "effective": 331,
+      "physical": 645
+    },
+    "web/src/ui/LegacyFrameDispatch.ts": {
+      "effective": 81,
+      "physical": 105
+    },
+    "web/src/ui/LegacyFrameProgressionScan.ts": {
+      "effective": 10,
+      "physical": 32
+    },
+    "web/src/ui/LegacyGameplayCommand.ts": {
+      "effective": 74,
+      "physical": 92
+    },
+    "web/src/ui/LegacyGameplayInput.ts": {
+      "effective": 70,
+      "physical": 113
+    },
+    "web/src/ui/LegacyGFrame.ts": {
+      "effective": 78,
+      "physical": 116
+    },
+    "web/src/ui/LegacyMFrame.ts": {
+      "effective": 32,
+      "physical": 43
+    },
+    "web/src/ui/LegacySelectionFlags.ts": {
+      "effective": 102,
+      "physical": 127
+    },
+    "web/src/ui/LegacySimpleFrameHandlers.ts": {
+      "effective": 123,
+      "physical": 137
+    },
+    "web/src/ui/LegacyStateMachine.ts": {
+      "effective": 736,
+      "physical": 901
+    },
+    "web/src/ui/LegacyStateS.ts": {
+      "effective": 67,
+      "physical": 77
+    },
+    "web/src/ui/LegacyStateT.ts": {
+      "effective": 100,
+      "physical": 118
+    },
+    "web/src/ui/LegacyStateTransitionCommand.ts": {
+      "effective": 82,
+      "physical": 114
+    },
+    "web/src/ui/LegacyStateU.ts": {
+      "effective": 123,
+      "physical": 184
+    },
+    "web/src/ui/LegacyZAa.ts": {
+      "effective": 93,
+      "physical": 169
+    },
+    "web/src/ui/LegacyZAb.ts": {
+      "effective": 41,
+      "physical": 51
+    },
+    "web/src/ui/LegacyZAc.ts": {
+      "effective": 28,
+      "physical": 33
+    },
+    "web/src/ui/LegacyZAd.ts": {
+      "effective": 54,
+      "physical": 64
+    },
+    "web/src/ui/LegacyZAe.ts": {
+      "effective": 101,
+      "physical": 140
+    },
+    "web/src/ui/LegacyZAf.ts": {
+      "effective": 178,
+      "physical": 235
+    },
+    "web/src/ui/LegacyZAg.ts": {
+      "effective": 52,
+      "physical": 82
+    },
+    "web/src/ui/LegacyZAh.ts": {
+      "effective": 39,
+      "physical": 54
+    },
+    "web/src/ui/LegacyZAi.ts": {
+      "effective": 47,
+      "physical": 61
+    },
+    "web/src/ui/LegacyZAj.ts": {
+      "effective": 24,
+      "physical": 58
+    },
+    "web/src/ui/LegacyZB2.ts": {
+      "effective": 33,
+      "physical": 63
+    },
+    "web/src/ui/LegacyZCommandConsumer.ts": {
+      "effective": 59,
+      "physical": 75
+    },
+    "web/src/ui/LegacyZDispatch.ts": {
+      "effective": 25,
+      "physical": 28
+    },
+    "web/src/ui/LegacyZI.ts": {
+      "effective": 30,
+      "physical": 62
+    },
+    "web/src/ui/LegacyZL.ts": {
+      "effective": 58,
+      "physical": 76
+    },
+    "web/src/ui/LegacyZTransition.ts": {
+      "effective": 65,
+      "physical": 72
+    },
+    "web/src/ui/UiRuntime.ts": {
+      "effective": 1321,
+      "physical": 1969
+    },
+    "web/src/vite-env.d.ts": {
+      "effective": 0,
+      "physical": 1
+    },
+    "web/src/WideScreen.ts": {
+      "effective": 399,
+      "physical": 554
+    }
+  }
+}

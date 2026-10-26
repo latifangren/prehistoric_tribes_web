@@ -1,3 +1,4 @@
+import { readStorage } from "./platform/Storage";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { OriginalKey } from "./platform/Input";
 import { sfx } from "./platform/SoundEffects";
@@ -50,7 +51,7 @@ export function attachMenuHud(
 
   function update(): void {
     const zh = runtime.language === ZH_LANGUAGE;
-    const isId = typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id";
+    const isId = readStorage("pt.language") === "id";
     yes.setAttribute("aria-label", zh ? "确定" : isId ? "Konfirmasi" : "Confirm");
     back.setAttribute("aria-label", zh ? "返回" : isId ? "Kembali" : "Back");
     const offMap = game.loopMode !== 1 && !screen.frozen;

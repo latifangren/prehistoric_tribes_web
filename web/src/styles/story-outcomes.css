@@ -1,0 +1,117 @@
+/* HD Outcome (Victory / Defeat) & Statistics cards in StoryHud.ts */
+.story-outcome-card,
+.story-stats-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(calc(100% - 32px), 380px);
+  box-sizing: border-box;
+  padding: 28px 22px 44px;
+  background: rgba(43, 29, 14, 0.9);
+  border: 2px solid #c9a350;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+  color: #fff3c4;
+  text-align: center;
+}
+
+.story-outcome-badge {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: rgba(201, 163, 80, 0.22);
+  border: 2px solid #c9a350;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-outcome-badge img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.story-outcome-title {
+  margin: 0 0 8px;
+  font: 800 24px/1.25 system-ui, sans-serif;
+  color: #ffd34d;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 #2b1d0e;
+}
+
+.story-outcome-card.lose .story-outcome-title {
+  color: #ff7b61;
+}
+
+.story-outcome-sub {
+  margin: 0;
+  font: 600 15px/1.4 system-ui, sans-serif;
+  color: #fff3c4;
+}
+
+.story-stat-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(201, 163, 80, 0.4);
+  font: 700 14px/1.2 system-ui, sans-serif;
+}
+
+.story-stat-head span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.story-stat-head img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.story-stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.story-stat-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 243, 196, 0.08);
+  font: 700 14px/1.2 system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.story-stat-row.total {
+  margin-top: 4px;
+  background: rgba(201, 163, 80, 0.25);
+  border: 1px solid #c9a350;
+  color: #ffd34d;
+  font-size: 16px;
+}
+
+.story-stat-row .val.player {
+  text-align: left;
+  color: #8ce965;
+}
+
+.story-stat-row .val.enemy {
+  text-align: right;
+  color: #ff8a70;
+}
+
+.story-stat-row .lbl {
+  text-align: center;
+  color: #fff3c4;
+  text-transform: capitalize;
+}
+

@@ -161,11 +161,28 @@ File web hasil kompilasi siap publikasi akan tersimpan di dalam folder `web/dist
 │       ├── ui/             # Pengelola alur permainan dan tampilan dialog
 │       ├── Alerts.ts       # Umpan peringatan bahaya di atas layar & getaran taktil
 │       ├── Bestiary.ts     # Ensiklopedia satwa prasejarah & musuh
-│       ├── Hud.ts          # Kontrol layar sentuh, panel aksi warga & bangunan
+│       ├── Achievements.ts # Definisi, progres, dan penyimpanan pencapaian
+│       ├── AchievementCabinet.ts # Dialog lemari trofi dan filternya
+│       ├── Hud.ts          # HUD layar sentuh, panel aksi warga & bangunan
 │       ├── Settings.ts     # Kotak dialog pengaturan multi-tab yang responsif
 │       ├── StartMenu.ts    # Menu awal, penjelajah bab kampanye, dan pemilih bahasa
 │       └── main.ts         # Titik masuk utama aplikasi (entry point)
 ```
+
+## 🧰 Pemeriksaan Pemeliharaan
+
+Jalankan pemeriksaan proyek dari root:
+
+```bash
+npm run lint
+npm run build
+npm test
+npm run test:browser --workspace=web
+npm run check:size
+```
+
+Size gate meratchet batas tiap file di `web/scripts/size-baseline.json`. Target akhir maksimal 800 baris efektif dan kurang dari 1.000 baris fisik per file sumber yang dipelihara. `LegacyGameState.ts` memiliki pengecualian baris fisik terdokumentasi untuk katalog field bytecode. `LegacyRuntimeState.ts` memiliki pengecualian facade yang disetujui; batas saat ini ditetapkan pada ukuran terukur dan tidak boleh bertambah.
+
 
 ---
 

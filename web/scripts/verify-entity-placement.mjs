@@ -5,7 +5,7 @@ import fs from "node:fs";
 import { denseRequire } from "./dense-layout-require.mjs";
 
 function compile(relativePath, dependencies = {}) {
-  const path = `${new URL(relativePath, import.meta.url).pathname}`;
+  const path = `${process.getBuiltinModule("node:url").fileURLToPath(new URL(relativePath, import.meta.url))}`;
   const output = ts.transpileModule(fs.readFileSync(path, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;

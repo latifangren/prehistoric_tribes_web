@@ -14,7 +14,7 @@ function loadModule(file) {
 }
 
 const { writeLegacyEntityLinkByte } = loadModule(
-  new URL("../src/sim/units/LegacyEntityLinkByte.ts", import.meta.url).pathname,
+  process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/units/LegacyEntityLinkByte.ts", import.meta.url)),
 );
 
 const state = new Int8Array(10000);

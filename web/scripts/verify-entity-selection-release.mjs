@@ -13,7 +13,7 @@ function loadModule(file) {
   return module.exports;
 }
 
-const { releaseLegacyEntitySelection, finalizeLegacyEntitySelection } = loadModule(new URL("../src/ui/LegacyEntitySelectionRelease.ts", import.meta.url).pathname);
+const { releaseLegacyEntitySelection, finalizeLegacyEntitySelection } = loadModule(process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/ui/LegacyEntitySelectionRelease.ts", import.meta.url)));
 const groups = Array.from({ length: 5 }, () => new Int8Array(50));
 groups[0].set([7]);
 const dense = new Int8Array(10000);

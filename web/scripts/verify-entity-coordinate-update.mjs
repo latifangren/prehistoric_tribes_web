@@ -13,7 +13,7 @@ function loadModule(file) {
   return module.exports;
 }
 
-const { stepLegacyEntityCoordinateUpdate } = loadModule(new URL("../src/ui/LegacyEntityCoordinateUpdate.ts", import.meta.url).pathname);
+const { stepLegacyEntityCoordinateUpdate } = loadModule(process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/ui/LegacyEntityCoordinateUpdate.ts", import.meta.url)));
 const dense = new Int8Array(10000);
 const packedBytes = new Int8Array(312);
 const packedOffsets = new Int16Array(312);

@@ -2,7 +2,7 @@ import { UNIT_HP } from "../core/DenseLayout";
 /**
  * Direct translation of `private void aj()` (bytecode/f-javap.txt offsets
  * 0..55, line 23466), NOT the unrelated UPPERCASE `f.aJ()` (constant-pool
- * #491, already ported as `stepLegacyAj` in `LegacyStateMachine.ts`) --
+ * #491, already ported as `stepLegacyAj` in `LegacyUnitSelection.ts`) --
  * a case-sensitive collision confirmed via direct bytecode read (different
  * constant-pool indices, #511 vs #491). This one is `af()`'s own
  * `r[as]===13` entry point: reset the selection cursor and scan `l:B`

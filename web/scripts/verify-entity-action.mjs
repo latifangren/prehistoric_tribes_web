@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { denseRequire } from "./dense-layout-require.mjs";
 
-const srcDir = new URL("../src/", import.meta.url).pathname;
+const srcDir = process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/", import.meta.url));
 
 function loadModule(file) {
   const module = { exports: {} };

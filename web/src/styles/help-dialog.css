@@ -1,0 +1,163 @@
+/* Modern multi-tab HD Help Dialog */
+.settings.help-dialog {
+  width: min(420px, 94vw);
+  max-height: 82dvh;
+  padding: 16px;
+}
+
+.help-dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(82dvh - 38px);
+}
+
+.help-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.help-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.settings .help-tab {
+  justify-self: stretch;
+  padding: 7px 4px;
+  font: 700 13px/1.1 system-ui, sans-serif;
+  border-radius: 6px;
+  background: #d9c88a;
+  color: #3c220c;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.settings .help-tab.active {
+  background: #5b4a2a;
+  color: #fff6d8;
+}
+
+.help-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  padding-right: 2px;
+}
+
+.help-lead {
+  margin: 0 0 10px;
+  font: 500 14px/1.45 system-ui, sans-serif;
+}
+
+.help-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.help-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(91, 74, 42, 0.12);
+}
+
+.help-item > img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  flex: none;
+}
+
+.help-item b {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.help-item p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.help-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.help-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(91, 74, 42, 0.12);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.help-chip img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex: none;
+}
+
+.help-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.help-skill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(91, 74, 42, 0.12);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.help-skill img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex: none;
+}
+
+.help-keys {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.help-keys > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(91, 74, 42, 0.12);
+  font-size: 13px;
+}
+
+.help-keys kbd {
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: #3c220c;
+  color: #ffe27a;
+  font: 700 12px/1.2 monospace;
+  white-space: nowrap;
+}
+

@@ -18,7 +18,7 @@ function loadModule(file) {
 }
 
 const { selectLegacyAuxiliaryCandidates, refreshLegacyAuxiliaryTag, restoreLegacyAuxiliary } = loadModule(
-  new URL("../src/sim/world/LegacyAuxiliaryQueue.ts", import.meta.url).pathname,
+  process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/world/LegacyAuxiliaryQueue.ts", import.meta.url)),
 );
 
 // REGRESSION (2026-08-31): `queueLegacyAuxiliary` was documented as

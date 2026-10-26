@@ -48,7 +48,7 @@ export type LegacyCameraFrameLetterboxState = {
 /**
  * Fields f.w() writes but never re-reads ITSELF (f.B:I/C:I/D:I/E:I,
  * #38/#40/#43/#48). NOT scratch-local to w(): confirmed (2026-08-14) these
- * are the SAME fields `LegacyStateMachine.ts`'s `stepLegacyAj` (the port
+ * are the SAME fields `LegacyUnitSelection.ts`'s `stepLegacyAj` (the port
  * of `f.aJ()`, capital J -- NOT `f.aj()`, a different, unrelated method)
  * reads as `state.B/C/D/E`, and the same fields `aF()`'s loop bounds read.
  * The runtime writes this output back to `game.BCounter/CCounter/

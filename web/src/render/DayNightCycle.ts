@@ -1,3 +1,4 @@
+import { readStorage, writeStorage } from "../platform/Storage";
 import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
 import { BLD_HP, BLD_KIND, BLD_X, BLD_Y, UNIT_HP } from "../core/DenseLayout";
 import type { WideScreen } from "../WideScreen";
@@ -6,7 +7,7 @@ const DAY_NIGHT_ENABLED_KEY = "pt.dayNight";
 
 export function isDayNightEnabled(): boolean {
   try {
-    const val = localStorage.getItem(DAY_NIGHT_ENABLED_KEY);
+    const val = readStorage(DAY_NIGHT_ENABLED_KEY);
     return val === null ? true : val === "on";
   } catch {
     return true;
@@ -15,7 +16,7 @@ export function isDayNightEnabled(): boolean {
 
 export function setDayNightEnabled(on: boolean): void {
   try {
-    localStorage.setItem(DAY_NIGHT_ENABLED_KEY, on ? "on" : "off");
+    void writeStorage(DAY_NIGHT_ENABLED_KEY, on ? "on" : "off");
   } catch {
     // ignore storage error
   }

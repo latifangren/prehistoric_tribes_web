@@ -10,7 +10,7 @@ import vm from "node:vm";
 import fs from "node:fs";
 
 function load(relativePath) {
-  const path = new URL(relativePath, import.meta.url).pathname;
+  const path = process.getBuiltinModule("node:url").fileURLToPath(new URL(relativePath, import.meta.url));
   const output = ts.transpileModule(fs.readFileSync(path, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;

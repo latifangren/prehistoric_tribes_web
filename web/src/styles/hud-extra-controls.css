@@ -1,0 +1,269 @@
+/* Game Speed Toggle (1x / 2x / 4x) */
+.hud .hud-speed-btn {
+  position: absolute;
+  z-index: 4;
+  top: calc(46px + var(--hud-bar-top, 0px));
+  right: 8px;
+  min-width: 44px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 2px solid #3c220c;
+  background: rgba(60, 34, 12, 0.85);
+  color: #f9ecc9;
+  font: 800 13px/1 system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.hud .hud-speed-btn[hidden] {
+  display: none;
+}
+
+.hud .hud-speed-btn.fast {
+  background: linear-gradient(180deg, #b86b14 0%, #864806 100%);
+  border-color: #ffd54f;
+  color: #fff8e1;
+}
+
+.hud .hud-speed-btn.ultra {
+  background: linear-gradient(180deg, #c62828 0%, #8e0000 100%);
+  border-color: #ffeb3b;
+  color: #fff;
+}
+
+.hud .hud-speed-btn:active {
+  transform: translateY(1px) scale(0.95);
+}
+
+/* Interactive HD Chief Succession Banner */
+.hud-chief-prompt.hud-chief-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  width: min(calc(100% - 24px), 380px);
+  box-sizing: border-box;
+  border-radius: 14px;
+  border: 2px solid #ffd54f;
+  background: linear-gradient(180deg, rgba(58, 34, 12, 0.95) 0%, rgba(36, 20, 6, 0.95) 100%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+}
+
+.hud-chief-prompt.hud-chief-banner[hidden] {
+  display: none;
+}
+
+.chief-banner-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.chief-banner-top img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  flex: none;
+}
+
+.chief-banner-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.chief-banner-meta b {
+  font: 800 14px/1.2 system-ui, sans-serif;
+  color: #ffe082;
+}
+
+.chief-banner-meta span {
+  font: 600 12px/1.3 system-ui, sans-serif;
+  color: #f9ecc9;
+}
+
+.chief-banner-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.chief-nav-btn,
+.chief-crown-btn {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 213, 79, 0.6);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff8e1;
+  font: 700 12px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.chief-crown-btn {
+  background: linear-gradient(180deg, #43a047 0%, #2e7d32 100%);
+  border-color: #a5d6a7;
+  color: #fff;
+}
+
+.chief-nav-btn:active,
+.chief-crown-btn:active {
+  transform: translateY(1px);
+}
+
+/* Multi-Slot Save Manager in Settings */
+.settings-slots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-slot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(92, 61, 28, 0.25);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.settings-slot-row.empty {
+  opacity: 0.82;
+}
+
+.slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.slot-info b {
+  font: 700 12px/1.25 system-ui, sans-serif;
+  color: #3a230a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-info span {
+  font: 600 11px/1.25 system-ui, sans-serif;
+  color: #6b4c2b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.settings form button.slot-btn {
+  margin-top: 0;
+  padding: 5px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(92, 61, 28, 0.35);
+  background: #e2d3b3;
+  color: #3a230a;
+  font: 700 11px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.settings form button.slot-btn.save {
+  background: #4e6b26;
+  border-color: #364c18;
+  color: #fff;
+}
+
+.settings form button.slot-btn.load {
+  background: #8c5828;
+  border-color: #5c3715;
+  color: #fff;
+}
+
+.settings form button.slot-btn.del {
+  padding: 5px 7px;
+  background: rgba(183, 28, 28, 0.14);
+  color: #8e1b1b;
+}
+
+
+/* Idle Villager Finder (💤) */
+.hud .hud-idle-btn {
+  position: absolute;
+  z-index: 4;
+  top: calc(46px + var(--hud-bar-top, 0px));
+  right: 58px;
+  min-width: 48px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 2px solid #5d4037;
+  background: rgba(45, 30, 16, 0.88);
+  color: #bcaaa4;
+  font: 800 13px/1 system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.hud .hud-idle-btn[hidden] {
+  display: none;
+}
+
+.hud .hud-idle-btn .hud-idle-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.hud .hud-idle-btn .hud-idle-count {
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.hud .hud-idle-btn.has-idle {
+  border-color: #ffb300;
+  background: linear-gradient(180deg, #5d4037 0%, #3e2723 100%);
+  color: #ffe082;
+  box-shadow: 0 0 10px rgba(255, 179, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.5);
+  animation: pulse-idle 2.4s infinite ease-in-out;
+}
+
+.hud .hud-idle-btn.has-idle .hud-idle-count {
+  color: #fff9c4;
+}
+
+.hud .hud-idle-btn:active {
+  transform: translateY(1px) scale(0.95);
+}
+
+@keyframes pulse-idle {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(255, 179, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.5);
+    border-color: #ffb300;
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(255, 213, 79, 0.7), 0 2px 6px rgba(0, 0, 0, 0.5);
+    border-color: #fff59d;
+  }
+}
+

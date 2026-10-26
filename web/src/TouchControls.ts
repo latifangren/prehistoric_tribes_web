@@ -601,7 +601,7 @@ export function attachTouchControls(
     runtime.stepAe();
     if (!game.boxSelecting) return;
     box = { x: gesture.sx, y: gesture.sy };
-    navigator.vibrate?.(30);
+    haptic.vibrate(30);
   }
 
   /** While boxing, the cursor (the box's far corner) is the tile under the finger. */

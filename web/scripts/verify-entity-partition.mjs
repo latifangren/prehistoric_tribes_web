@@ -3,7 +3,7 @@ import ts from "typescript";
 import vm from "node:vm";
 import fs from "node:fs";
 
-const path = `${new URL("../src/sim/world/LegacyEntityPartition.ts", import.meta.url).pathname}`;
+const path = `${process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/world/LegacyEntityPartition.ts", import.meta.url))}`;
 const source = fs.readFileSync(path, "utf8");
 const output = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },

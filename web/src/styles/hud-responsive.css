@@ -1,0 +1,304 @@
+/* Responsive Landscape & Desktop: Floating Compact Card */
+@media (min-width: 768px) {
+  .hud-sheet {
+    left: calc(env(safe-area-inset-left) + 16px);
+    right: auto;
+    width: min(calc(100% - 32px), 510px);
+    bottom: 12px;
+    border-radius: 18px;
+    border: 3px solid #3c220c;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), inset 0 2px 0 #d9cc6e;
+    overflow: visible;
+  }
+  .hud-sheet:has(.hud-sheet-list:not([hidden])) {
+    width: min(calc(100% - 32px), 680px);
+  }
+  .hud-sheet:has(.hud-sheet-list:not([hidden])) .hud-sheet-list {
+    padding: 0 42px;
+  }
+  .hud-sheet .deco.bottom {
+    border-radius: 0 0 15px 15px;
+    overflow: hidden;
+  }
+  .hud-sheet .deco.top {
+    width: 240px;
+    max-width: 55%;
+  }
+  .hud .hud-sheet-close {
+    right: 10px;
+    top: -18px;
+  }
+  .hud-cols {
+    gap: 12px;
+    justify-content: flex-start;
+  }
+  .hud .hud-sheet-nav {
+    display: flex;
+  }
+  .hud-sheet-list {
+    cursor: grab;
+  }
+  .hud-sheet-list:active {
+    cursor: grabbing;
+  }
+}
+
+
+.hud-sheet-list {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 100%;
+  height: 96px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 12px;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+  touch-action: pan-x;
+}
+
+.hud-sheet-list::-webkit-scrollbar {
+  display: none;
+}
+
+.hud .hud-card {
+  position: relative;
+  flex: none;
+  touch-action: pan-x; /* .hud button's none would stop the list's sideways scroll (BUG-015) */
+  width: 92px;
+  height: 98px;
+  scroll-snap-align: start;
+}
+
+.hud-card .pic img {
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  width: 80px;
+  height: 74px;
+  object-fit: contain;
+  object-position: center bottom;
+  transition: transform 0.12s ease-out;
+}
+
+.hud-card:hover .pic img {
+  transform: scale(1.06);
+}
+
+.hud-card-name {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 1px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  color: #fff9db;
+  text-shadow: 1px 1px 0 #3c220c, -1px 1px 0 #3c220c, 1px -1px 0 #3c220c, -1px -1px 0 #3c220c, 0 2px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud-card:active .pic {
+  display: block;
+  transform: translateY(1px);
+  filter: drop-shadow(2px 0 0 #fff2b0) drop-shadow(-2px 0 0 #fff2b0) drop-shadow(0 2px 0 #fff2b0) drop-shadow(0 -2px 0 #fff2b0);
+}
+
+/* Lower than the card's top (ported from upstream BOMBWCC 29e035f): the sheet's corner ✕ no
+   longer covers it; never red: being short does not stop the placing. */
+.hud-card .cost {
+  position: absolute;
+  right: 0;
+  top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  filter: drop-shadow(1px 0 0 #2b1a0a) drop-shadow(-1px 0 0 #2b1a0a) drop-shadow(0 1px 0 #2b1a0a) drop-shadow(0 -1px 0 #2b1a0a);
+}
+
+.hud-card .cost > span {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.hud-card .cost > span > img {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+}
+
+.hud-card .cost .n {
+  display: flex;
+}
+
+.hud-card .cost .n img {
+  height: 13px;
+  margin-right: -1px;
+}
+
+.hud-sheet-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 106px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.hud-sheet-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(60, 34, 12, 0.3);
+}
+
+.hud-sheet-dots i.on {
+  background: #3c220c;
+}
+
+/* The building panel in the bottom sheet (Hud.ts, round 3). */
+.hud-sheet-row,
+.hud-sheet-confirm {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 100%;
+  height: 104px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-sheet-row {
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.hud-sheet-row::-webkit-scrollbar {
+  display: none;
+}
+
+.hud-sheet-row[hidden],
+.hud-sheet-confirm[hidden],
+.hud-sheet-tick[hidden],
+.hud-sheet-list[hidden],
+.hud-sheet-dots[hidden] {
+  display: none;
+}
+
+.hud .hud-item {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: 56px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.hud-item img {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.hud-item:active img,
+.hud .hud-item.active img {
+  transform: translateY(1px);
+  filter: drop-shadow(2px 0 0 #fff2b0) drop-shadow(-2px 0 0 #fff2b0) drop-shadow(0 2px 0 #fff2b0) drop-shadow(0 -2px 0 #fff2b0);
+}
+
+.hud-item.nothing {
+  width: 92px;
+  opacity: 0.5;
+}
+
+.hud-item.nothing img {
+  width: 86px;
+}
+
+.hud-item .n {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  filter: drop-shadow(1px 0 0 #2b1a0a) drop-shadow(-1px 0 0 #2b1a0a) drop-shadow(0 1px 0 #2b1a0a) drop-shadow(0 -1px 0 #2b1a0a);
+}
+
+.hud-item .n img {
+  position: static;
+  width: auto;
+  height: 13px;
+  margin-right: -1px;
+  filter: none;
+  transform: none;
+}
+
+.hud-sep {
+  flex: none;
+  width: 2px;
+  height: 52px;
+  background: #8d7830;
+  border-right: 1px solid #d9cc6e;
+}
+
+.hud-sheet-confirm {
+  justify-content: center;
+  gap: 10px;
+}
+
+.hud-sheet-confirm img {
+  width: 40px;
+  height: 40px;
+}
+
+.hud-sheet-confirm span {
+  font: 800 20px/1 system-ui, sans-serif;
+  letter-spacing: 1px;
+  color: #3c220c;
+}
+
+.hud .hud-sheet-tick {
+  position: absolute;
+  right: 54px;
+  top: -20px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.hud-sheet-tick img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hud-sheet-tick:active {
+  transform: translateY(1px) scale(0.92);
+}
+
+
