@@ -1246,7 +1246,7 @@ export function attachHud(
   // ---- the villager panel (BUG-017; UI design "村民面板", user 2026-10-23: follow it): in the bottom
   // sheet, the portrait (hat by job, no name) and three aligned columns -- gender + age / mood + resting
   // / weapon + pouch; health, hunger, tiredness bars; the skills, two per row. What it shows is what
-  // the original's panel (frame command 4) drew, read back from runtime.villagerPanel (its composites
+  // the original's panel (frame command 4) drew, read back with WideView.villagerPanelOf (its composites
   // and numbers by frame position), the pictures swapped for the HD ones. Several villagers: their
   // portraits in a row, each with their weapon; a tap selects that one alone. ----
   /** Skill composites (docs/hd-art-handoff.md §8): 560 + n, 577 + n the highlighted ones. */
@@ -1267,7 +1267,7 @@ export function attachHud(
     `<span class="hud-stat">${cellImg(icon)}<span class="hud-meter"><i style="width:${Math.round(Math.max(0, Math.min(1, part)) * 100)}%"></i></span>${number ? `<span class="n">${digits(number)}</span>` : ""}</span>`;
   const cell = (icon: string, number = "", cls = "") => `<span class="hud-cell ${cls}">${icon ? cellImg(icon) : ""}${number ? `<span class="n">${digits(number)}</span>` : ""}</span>`;
   let shownVillager = "";
-  const drawVillager = (id: number, cells: typeof runtime.villagerPanel) => {
+  const drawVillager = (id: number, cells: typeof runtime.villagerPanelDraft) => {
     const e = runtime.denseState;
     const key = `${id}:${cells.map((c) => `${c.asset}${c.text}@${c.x},${c.y}`).join(" ")}:${e[UNIT_HP + id]}:${e[UNIT_FOOD + id]}:${e[UNIT_ENERGY + id]}`;
     if (key === shownVillager) return;
@@ -1299,11 +1299,13 @@ export function attachHud(
       <span class="hud-col bars">${statBar("heart", (e[UNIT_HP + id] ?? 0) / maxHp, String(e[UNIT_HP + id] ?? 0))}${statBar("hunger", (e[UNIT_FOOD + id] ?? 0) / 99)}${statBar("sleep", (e[UNIT_ENERGY + id] ?? 0) / 99)}</span>
       <span class="hud-col skills">${skills.join("")}</span></span>`;
   };
-  /** Our villagers selected together (f.e 909 + id set; f.k 0 then). */
+  /** Our villagers selected together: their group mark (f.e 909 + id) is the selection's group
+   *  (f.F, -1 for one villager; the marks stay after a selection ends, so only the current group). */
   const groupIds = () => {
     const e = runtime.denseState;
     const ids: number[] = [];
-    for (let id = 1; id <= 50; id += 1) if ((e[UNIT_SELECTION + id] ?? 0) > 0) ids.push(id);
+    if (game.selectionGroup < 0) return ids;
+    for (let id = 1; id <= 50; id += 1) if ((e[UNIT_SELECTION + id] ?? 0) === game.selectionGroup) ids.push(id);
     return ids;
   };
   let shownGroup = "";
@@ -1325,8 +1327,6 @@ export function attachHud(
           return;
         }
         viewing = id;
-        viewedCells = villagerPanelOf(runtime, id);
-        viewedAt = performance.now();
       });
       return entry;
     }));
@@ -1336,7 +1336,8 @@ export function attachHud(
   // selection stays as it is; their panel is the original's, drawn privately (villagerPanelOf),
   // again every few seconds while it shows; ✕ turns into back.
   let viewing = 0;
-  let viewedCells: typeof runtime.villagerPanel = [];
+  let viewedId = 0;
+  let viewedCells: typeof runtime.villagerPanelDraft = [];
   let viewedAt = 0;
   const VIEW_REFRESH_MS = 2000;
 
@@ -1606,9 +1607,9 @@ export function attachHud(
       const menu = onMap && screen.buildingMenuOpen;
       // The plain map (nothing open, at most villagers selected): build, commands, squads.
       const plain = onMap && (w === 0 || w === 1) && !picking && !menu;
-      const group = plain && w === 1 && game.selectedId === 0 ? groupIds() : [];
+      const group = plain && w === 1 ? groupIds() : [];
       if (!group.includes(viewing)) viewing = 0;
-      const single = plain && w === 1 && game.selectedId > 0 && !!game.selectionFlags[4] && runtime.villagerPanel.length > 0;
+      const single = plain && w === 1 && game.selectedId > 0 && !!game.selectionFlags[4] && group.length < 2;
       const inspectedId = choosing ? candidate : picking ? pickTarget : viewing;
       const villager = single || inspectedId > 0;
       const showGroupRow = (!choosing && group.length > 1 && !viewing) || (choosing && candidate === 0 && chiefList.length > 0);
@@ -1617,11 +1618,19 @@ export function attachHud(
       show(villagerBox, villager);
       show(groupRow, showGroupRow);
       show(pageDots, building || showGroupRow);
-      if (inspectedId > 0 && performance.now() - viewedAt > VIEW_REFRESH_MS) {
-        viewedCells = villagerPanelOf(runtime, inspectedId);
+      // The panel the original draws for them (all rows, drawn privately): on a new villager and every
+      // few seconds -- its own redraws are only the rows that changed. The fork keeps its inspected
+      // villager (chief candidate / pick target / group member) in inspectedId; a lone villager is
+      // the single selection. No stale snapshot is read anywhere: the old runtime.villagerPanel
+      // field is gone, every panel here comes from villagerPanelOf.
+      const shownId = inspectedId || (single ? game.selectedId : 0);
+      if (shownId && (shownId !== viewedId || performance.now() - viewedAt > VIEW_REFRESH_MS)) {
+        viewedId = shownId;
+        viewedCells = villagerPanelOf(runtime, shownId);
         viewedAt = performance.now();
       }
-      if (villager) drawVillager(inspectedId || game.selectedId, inspectedId ? viewedCells : runtime.villagerPanel); else shownVillager = "";
+      if (!shownId) viewedId = 0;
+      if (villager) drawVillager(shownId, viewedCells); else shownVillager = "";
       if (showGroupRow) { drawGroup(activeGroup); drawDots(groupRow, activeGroup.length, 66); } else shownGroup = "";
       const isBackIcon = viewing > 0 || (choosing && candidate > 0) || (picking && pickTarget > 0);
       const closeIcon = isBackIcon ? "back" : "btn-close";

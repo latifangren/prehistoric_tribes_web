@@ -420,8 +420,6 @@ export function drawImageHelper(rt: LegacyRuntimeState, resourceId: number, mode
  */
 export function drawFrameCommandPrimitive(rt: LegacyRuntimeState, command: number, x: number, y: number): void {
   rt.frameHelperCalls.push({ kind: "frame-command", resourceId: command, x, y });
-  // A draw that drew something replaces the last one (the HUD layer's redraw of it may draw nothing).
-  if (rt.drawingVillagerPanel && rt.villagerPanelDraft.length > 0) rt.villagerPanel = rt.villagerPanelDraft;
   rt.drawingVillagerPanel = command === 4;
   if (command === 4) rt.villagerPanelDraft = [];
   // command 4 (the selected-unit panel) is drawn like the others since

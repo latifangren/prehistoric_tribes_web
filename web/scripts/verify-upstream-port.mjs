@@ -39,6 +39,15 @@ assert(hud.includes("touchAction.icon"), "Hud must read the action icon from Ren
 const render = src("src/render/RenderRuntime.ts");
 assert(render.includes("export const touchAction"), "RenderRuntime must export touchAction for the HUD");
 
+const legacy = src("src/core/LegacyRuntimeState.ts");
+assert(!legacy.includes("villagerPanel: {"), "LegacyRuntimeState must not keep the stale villagerPanel snapshot (only villagerPanelDraft)");
+assert(!render.includes("rt.villagerPanel = rt.villagerPanelDraft"), "RenderRuntime must not copy the draft into a stale villagerPanel snapshot");
+assert(wideView.includes('LegacyRuntimeState["villagerPanelDraft"]'), "villagerPanelOf must return the draft form");
+assert(hud.includes("=== game.selectionGroup"), "Hud groupIds must match the current selection group exactly, not any stale mark");
+assert(hud.includes("group.length < 2"), "Hud single panel must follow group.length < 2, not the stale snapshot");
+assert(hud.includes("const shownId = inspectedId || (single ? game.selectedId : 0)"), "Hud must route every villager panel through the shownId refresh (inspected or single)");
+assert(hud.includes("viewedId = shownId"), "Hud must refresh the panel immediately when the shown villager changes");
+
 const css = src("src/styles.css");
 assert(css.includes(".hud-action-icon"), "styles.css must style the action icon");
 assert(css.includes(".hud-ghost") && css.includes(".hud-order"), "styles.css must style the ghost and order-spot UI");
