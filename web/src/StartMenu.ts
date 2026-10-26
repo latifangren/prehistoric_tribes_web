@@ -4,6 +4,7 @@ import { sfx } from "./platform/SoundEffects";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import type { TouchControls } from "./TouchControls";
 import { stepAs } from "./ui/UiRuntime";
+import { safeAssetPath } from "./platform/Html";
 import type { WideScreen } from "./WideScreen";
 
 const ART = "hd/menu/";
@@ -71,7 +72,7 @@ export function attachStartMenu(
     const code = read(LANGUAGE_KEY);
     return LANGUAGES.find((l) => l.code === code) ?? LANGUAGES[0];
   };
-  const picture = (name: string, cls: string) => `<img class="${cls}" src="${ART}${name}" alt="" draggable="false">`;
+  const picture = (name: string, cls: string) => `<img class="${cls}" src="${ART}${safeAssetPath(name)}" alt="" draggable="false">`;
 
   const button = (cls: string, label: string, html: string, onClick: () => void) => {
     const element = document.createElement("button");

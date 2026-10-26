@@ -1,6 +1,6 @@
 import "./styles.css";
 import { LogicalCanvas } from "./platform/Canvas";
-import { loadOriginalResources } from "./ResourceBootstrap";
+import { loadLanguageTables, loadOriginalResources } from "./ResourceBootstrap";
 import { FixedLoop } from "./platform/FixedLoop";
 import { attachOriginalKeyboard, KeyState } from "./platform/Input";
 import { LegacyRuntimeState } from "./core/LegacyRuntimeState";
@@ -120,9 +120,15 @@ const hud = attachHud(
 const menuHud = attachMenuHud(app, runtime, screen, touch);
 const startMenu = attachStartMenu(app, runtime, screen, touch, openSettings, () => hud.openHelp(), openAchievements);
 const storyHud = attachStoryHud(app, runtime, screen, touch);
-// Pinch and double-tap zoom on iOS Safari, which ignores the viewport's user-scalable=no.
+// Pinch and double-tap on the game screen only (branch
+// harden/audit-fixes): pinch is the map zoom and double-tap is
+// select-all in-game, so browser zoom must not hijack them there.
+// Previously this was registered on `document`, which also blocked
+// browser zoom over dialogs and menus; those are outside the screen
+// element, so they are now free to zoom. The viewport meta no longer
+// sets user-scalable=no either (see index.html).
 for (const type of ["gesturestart", "gesturechange", "dblclick"]) {
-  document.addEventListener(type, (event) => event.preventDefault(), { passive: false });
+  screen.element.addEventListener(type, (event) => event.preventDefault(), { passive: false });
 }
 
 // Set by debugBootWithoutSplash(): the normal boot() stops at its next await
@@ -271,6 +277,23 @@ const composeEveryFrame = () => {
 };
 requestAnimationFrame(composeEveryFrame);
 
+/**
+ * Background-fill the language sets boot skipped (ResourceBootstrap
+ * loads only the selected set). Runs after the loop starts, so the
+ * start-up questions are never blocked on it; by the time a player can
+ * reach the Q14 language choice, the sets are normally already in.
+ * A failed preload is silent -- selectLanguage() keeps the current
+ * language when its slot is still empty, as before.
+ */
+function preloadOtherLanguages(runtime: LegacyRuntimeState): void {
+  for (let index = 0; index < 5; index += 1) {
+    if (runtime.languageTables?.[index]) continue;
+    void loadLanguageTables(index, "0.1.28")
+      .then((table) => runtime.setLanguageTable(index, table))
+      .catch(() => undefined);
+  }
+}
+
 async function boot(): Promise<void> {
   bootStatus = "splash";
   refreshDebugOverlay();
@@ -305,6 +328,7 @@ async function boot(): Promise<void> {
   starting = true;
   touch.answerStartQuestions(savedLanguage(), savedMusic());
   loop.start();
+  preloadOtherLanguages(runtime);
 }
 
 /**
@@ -406,6 +430,7 @@ async function debugBootWithoutSplash(): Promise<void> {
     .loadOriginalStartupStores()
     .initializeOriginalLoop();
   touch.cancel();
+  preloadOtherLanguages(runtime);
   bootStatus = "debug: running (no rAF loop; use __prehistoricDebugTick/__prehistoricDebugRender)";
   refreshDebugOverlay();
 }

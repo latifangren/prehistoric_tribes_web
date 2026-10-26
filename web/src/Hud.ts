@@ -5,6 +5,7 @@ import { haptic } from "./platform/Haptic";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import { oldArt } from "./platform/OldArt";
 import { capitalise, originalText } from "./OriginalText";
+import { escapeHtml, safeAssetName } from "./platform/Html";
 import { T_BUILDING } from "./core/DataTables";
 import { BLD_KIND, UNIT_AGE, UNIT_ENERGY, UNIT_FOOD, UNIT_GENDER, UNIT_HELD_ITEM, UNIT_HP, UNIT_JOB_TYPE, UNIT_MAX_HP, UNIT_NAME, UNIT_SELECTION, UNIT_TYPE } from "./core/DenseLayout";
 import type { PauseItem, TouchControls } from "./TouchControls";
@@ -89,7 +90,7 @@ export function attachHud(
     const group = document.createElement("div");
     group.className = `hud-count ${icon}${idx === 0 ? " interactive" : ""}`;
     group.setAttribute("role", idx === 0 ? "button" : "img");
-    group.innerHTML = `<img src="${UI}icon-${icon}.png" alt="">`;
+    group.innerHTML = `<img src="${UI}icon-${safeAssetName(icon)}.png" alt="">`;
     const digits = document.createElement("span");
     group.append(digits);
     if (idx === 0) {
@@ -531,7 +532,7 @@ export function attachHud(
         <div class="help-head">
           <h2>${lang === "zh" ? "部落百科与帮助" : lang === "id" ? "Ensiklopedia & Panduan Suku" : "Tribe Guide & Encyclopedia"}</h2>
           <div class="help-tabs">
-            ${tabs.map((t) => `<button type="button" data-tab="${t.id}" class="help-tab${t.id === activeHelpTab ? " active" : ""}">${t.label}</button>`).join("")}
+            ${tabs.map((t) => `<button type="button" data-tab="${escapeHtml(t.id)}" class="help-tab${t.id === activeHelpTab ? " active" : ""}">${escapeHtml(t.label)}</button>`).join("")}
           </div>
         </div>
         <div class="help-body">${bodyHtml}</div>
@@ -654,7 +655,10 @@ export function attachHud(
     return () => held;
   };
 
-  const img = (name: string, cls = "") => `<img${cls ? ` class="${cls}"` : ""} src="${UI}${name}.png" alt="">`;
+  // Asset names are internal constants / numeric derivations, but they still
+  // pass through safeAssetName so a stray quote or path segment can never
+  // break out of the src attribute (it falls back to "nothing").
+  const img = (name: string, cls = "") => `<img${cls ? ` class="${escapeHtml(cls)}"` : ""} src="${UI}${safeAssetName(name)}.png" alt="">`;
   /** HD digits for a number badge. */
   const digits = (text: string) => Array.from(text, (c) => img(`digit-${c === "/" ? "slash" : c}`)).join("");
 
@@ -897,7 +901,7 @@ export function attachHud(
         entry.setAttribute("aria-label", name);
         entry.setAttribute("title", `${name}\n${desc}`);
         entry.dataset.kind = String(kind);
-        entry.innerHTML = `<span class="pic">${img(`ub-${BUILDING_ICONS[kind]}`)}</span><span class="cost"></span><span class="hud-card-name">${name}</span>`;
+        entry.innerHTML = `<span class="pic">${img(`ub-${BUILDING_ICONS[kind]}`)}</span><span class="cost"></span><span class="hud-card-name">${escapeHtml(name)}</span>`;
         entry.addEventListener("click", () => touch.pickInBar(index));
         attachHoverTip(entry, () => `${name} — ${desc}`, "top");
         return entry;
@@ -985,8 +989,8 @@ export function attachHud(
         <div class="chief-banner-top">
           <img src="${UI}pt-chief.png" alt="">
           <div class="chief-banner-meta">
-            <b>${title} (${idx + 1}/${list.length})</b>
-            <span>${cName} · ${zh ? `${cAge}岁` : isId ? `Usia ${cAge}` : `Age ${cAge}`} · ❤️ ${cHp}/${cMaxHp}</span>
+            <b>${escapeHtml(title)} (${idx + 1}/${list.length})</b>
+            <span>${escapeHtml(cName)} · ${zh ? `${cAge}岁` : isId ? `Usia ${cAge}` : `Age ${cAge}`} · ❤️ ${cHp}/${cMaxHp}</span>
           </div>
         </div>
         <div class="chief-banner-actions">
@@ -1000,7 +1004,7 @@ export function attachHud(
         <div class="chief-banner-top">
           <img src="${UI}pt-chief.png" alt="">
           <div class="chief-banner-meta">
-            <b>${title}</b>
+            <b>${escapeHtml(title)}</b>
             <span>${zh ? `点选下方或地图上的成年村民（共 ${list.length} 人）` : isId ? `Pilih penduduk dewasa di peta (tersedia ${list.length} orang)` : `Tap an adult villager below or on the map (${list.length} eligible)`}</span>
           </div>
         </div>

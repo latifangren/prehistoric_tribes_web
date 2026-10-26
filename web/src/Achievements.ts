@@ -17,6 +17,7 @@ import {
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { sfx } from "./platform/SoundEffects";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
+import { escapeHtml, safeAssetName } from "./platform/Html";
 
 const ACHIEVEMENTS_STORAGE_KEY = "pt.achievements";
 const STATS_STORAGE_KEY = "pt.achievement_stats";
@@ -545,16 +546,16 @@ class AchievementManager {
     const desc = def.desc[lang] ?? def.desc.en;
     const badgeText = lang === "zh" ? "🏆 达成史前成就！" : lang === "id" ? "🏆 PRESTASI TERBUKA!" : "🏆 ACHIEVEMENT UNLOCKED!";
     const iconHtml = def.assetIcon
-      ? `<img src="${UI_ART}${def.assetIcon}.png" alt="" class="toast-asset-icon">`
-      : `<span class="toast-glyph">${def.glyph}</span>`;
+      ? `<img src="${UI_ART}${safeAssetName(def.assetIcon)}.png" alt="" class="toast-asset-icon">`
+      : `<span class="toast-glyph">${escapeHtml(def.glyph)}</span>`;
 
     toast.innerHTML = `
       <div class="toast-glow"></div>
       <div class="toast-icon-wrap">${iconHtml}</div>
       <div class="toast-content">
-        <div class="toast-badge">${badgeText}</div>
-        <div class="toast-title">${title}</div>
-        <div class="toast-desc">${desc}</div>
+        <div class="toast-badge">${escapeHtml(badgeText)}</div>
+        <div class="toast-title">${escapeHtml(title)}</div>
+        <div class="toast-desc">${escapeHtml(desc)}</div>
       </div>
     `;
 
@@ -822,8 +823,8 @@ export function attachAchievements(app: HTMLElement, runtime: LegacyRuntimeState
         }
 
         const iconHtml = def.assetIcon
-          ? `<img src="${UI_ART}${def.assetIcon}.png" alt="" class="trophy-card-asset">`
-          : `<span class="trophy-card-glyph">${def.glyph}</span>`;
+          ? `<img src="${UI_ART}${safeAssetName(def.assetIcon)}.png" alt="" class="trophy-card-asset">`
+          : `<span class="trophy-card-glyph">${escapeHtml(def.glyph)}</span>`;
 
         return `
           <div class="trophy-card ${isDone ? "unlocked" : "locked"}">
@@ -835,12 +836,12 @@ export function attachAchievements(app: HTMLElement, runtime: LegacyRuntimeState
             </div>
             <div class="trophy-card-body">
               <div class="trophy-card-header">
-                <h3 class="trophy-card-title">${title}</h3>
+                <h3 class="trophy-card-title">${escapeHtml(title)}</h3>
                 <span class="trophy-card-tag ${isDone ? "tag-done" : "tag-pending"}">
                   ${isDone ? (lang === "zh" ? `已达成 · ${dateStr}` : lang === "id" ? `TERBUKA · ${dateStr}` : `UNLOCKED · ${dateStr}`) : (lang === "zh" ? "未达成" : lang === "id" ? "TERKUNCI" : "LOCKED")}
                 </span>
               </div>
-              <p class="trophy-card-desc">${isDone ? desc : hint}</p>
+              <p class="trophy-card-desc">${escapeHtml(isDone ? desc : hint)}</p>
               ${progressHtml}
             </div>
           </div>

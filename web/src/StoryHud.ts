@@ -3,6 +3,7 @@ import { OriginalKey } from "./platform/Input";
 import { sfx } from "./platform/SoundEffects";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import { capitalise, originalText } from "./OriginalText";
+import { escapeHtml } from "./platform/Html";
 import type { TouchControls } from "./TouchControls";
 import type { WideScreen } from "./WideScreen";
 
@@ -96,8 +97,8 @@ export function attachStoryHud(
       <div class="story-outcome-badge">
         <img src="hd/ui/${won ? "pt-chief" : "demolish"}.png" alt="">
       </div>
-      <h2 class="story-outcome-title">${title}</h2>
-      <p class="story-outcome-sub">${subtitle}</p>
+      <h2 class="story-outcome-title">${escapeHtml(title)}</h2>
+      <p class="story-outcome-sub">${escapeHtml(subtitle)}</p>
       <img class="story-tick" src="hd/ui/btn-tick.png" alt="">
     `;
     layer.append(card);
@@ -119,7 +120,7 @@ export function attachStoryHud(
       const isTotal = idx === statIndices.length - 1;
       return `<div class="story-stat-row${isTotal ? " total" : ""}">
         <span class="val player">${v0}</span>
-        <span class="lbl">${label}</span>
+        <span class="lbl">${escapeHtml(label)}</span>
         <span class="val enemy">${v1}</span>
       </div>`;
     }).join("");

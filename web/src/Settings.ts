@@ -15,6 +15,7 @@ import {
   type SaveSlotIndex,
 } from "./save/SaveSlotManager";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
+import { escapeHtml } from "./platform/Html";
 import type { TouchControls } from "./TouchControls";
 import { stepAs } from "./ui/UiRuntime";
 import type { WideScreen } from "./WideScreen";
@@ -230,8 +231,8 @@ export function attachSettings(
       return `
         <div class="settings-slot-row">
           <div class="slot-info">
-            <b>${zh ? `槽位 ${slotIdx}` : `Slot ${slotIdx}`} · ${title}</b>
-            <span>👥 ${snap.pop}/${snap.maxPop} · 🍖 ${snap.food} · 🪵 ${snap.wood} · 🪨 ${snap.stone} · ${dateStr}</span>
+            <b>${zh ? `槽位 ${slotIdx}` : `Slot ${slotIdx}`} · ${escapeHtml(title)}</b>
+            <span>👥 ${escapeHtml(snap.pop)}/${escapeHtml(snap.maxPop)} · 🍖 ${escapeHtml(snap.food)} · 🪵 ${escapeHtml(snap.wood)} · 🪨 ${escapeHtml(snap.stone)} · ${escapeHtml(dateStr)}</span>
           </div>
           <div class="slot-btns">
             ${canSave ? `<button type="button" class="slot-btn save" data-slot-save="${slotIdx}">${zh ? "覆盖" : "Save"}</button>` : ""}

@@ -1,6 +1,7 @@
 import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
 import { sfx } from "../platform/SoundEffects";
 import { ZH_LANGUAGE } from "../text/LegacyZhText";
+import { escapeHtml } from "../platform/Html";
 import {
   ANIMAL_HIT_BY,
   ANIMAL_HP,
@@ -305,13 +306,13 @@ export function attachMatchRecap(
           <div class="recap-outcome">
             <span class="recap-badge-icon">${stats.won ? "👑" : "💀"}</span>
             <div class="recap-outcome-text">
-              <h2>${outcomeTitle}</h2>
+              <h2>${escapeHtml(outcomeTitle)}</h2>
               <span class="recap-time">${durationLabel}: ${timeFormatted} · ${diffLabel}</span>
             </div>
           </div>
           <div class="recap-grade" style="border-color: ${evaluation.color}; color: ${evaluation.color};">
             <span class="grade-letter">${evaluation.grade}</span>
-            <span class="grade-title">${evaluation.title}</span>
+            <span class="grade-title">${escapeHtml(evaluation.title)}</span>
           </div>
         </div>
 

@@ -11,8 +11,16 @@ export type OriginalResources = {
   readonly languageS: DelimitedTable;
   readonly languageT: DelimitedTable;
   readonly languageD0: DelimitedTable;
-  /** All five original language table sets, in JAR language index order. */
-  readonly languageTables: readonly OriginalLanguageResources[];
+  /**
+   * The five original language table sets, in JAR language index order.
+   * Boot loads only the selected set (see loadOriginalResources); the
+   * other slots start undefined and are filled in the background by
+   * main.ts, so a Q14 language switch before that fill simply keeps the
+   * current language (selectLanguage's existing guard) instead of
+   * crashing. Total tables are only ~40 KB each, so this is about
+   * cutting the initial fetch burst (15 -> 3 files), not bytes.
+   */
+  readonly languageTables: readonly (OriginalLanguageResources | undefined)[];
   readonly ma: MaResource;
   readonly tableA: AResourceDiagnostic;
   readonly sa: MidiResource;
@@ -31,8 +39,13 @@ export async function loadOriginalResources(language = 0, version = "0.1.28"): P
   if (!Number.isInteger(language) || language < 0 || language >= 5) {
     throw new RangeError(`Original language index ${language} is outside 0..4`);
   }
-  const languageTables = await Promise.all(Array.from({ length: 5 }, (_, index) => loadLanguageTables(index, version)));
-  const selected = languageTables[language];
+  // Boot used to fetch all five language sets (15 files) before the first
+  // frame. Only the selected set is needed to answer the start-up
+  // questions; the rest are preloaded in the background by main.ts once
+  // the loop is running, via loadLanguageTables + setLanguageTable.
+  const selected = await loadLanguageTables(language, version);
+  const languageTables: (OriginalLanguageResources | undefined)[] = [undefined, undefined, undefined, undefined, undefined];
+  languageTables[language] = selected;
   const [pi0, pi9, pi8, ma, tableA, sa, pd0] = await Promise.all([
     ImagePack.load("assets/packs/pi0", 31),
     ImagePack.load("assets/packs/pi9", 6),
@@ -57,7 +70,7 @@ export async function loadOriginalResources(language = 0, version = "0.1.28"): P
   };
 }
 
-async function loadLanguageTables(language: number, version: string): Promise<OriginalLanguageResources> {
+export async function loadLanguageTables(language: number, version: string): Promise<OriginalLanguageResources> {
   const root = `assets/lang/${language}`;
   const [s, t, d0] = await Promise.all([
     loadDelimitedResource(`${root}/s`, version),

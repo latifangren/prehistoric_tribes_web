@@ -1,4 +1,5 @@
 import { ZH_LANGUAGE } from "./text/LegacyZhText";
+import { escapeHtml } from "./platform/Html";
 
 export type BestiaryEntry = {
   id: string;
@@ -183,26 +184,26 @@ export function renderBestiaryHtml(lang: "zh" | "id" | "en" | boolean = "en"): s
       <div class="bestiary-card">
         <div class="bestiary-card-top">
           <div class="bestiary-icon-wrap">
-            <span class="bestiary-emoji">${entry.icon}</span>
+            <span class="bestiary-emoji">${escapeHtml(entry.icon)}</span>
           </div>
           <div class="bestiary-header-text">
             <div class="bestiary-title-row">
-              <h3 class="bestiary-name">${name}</h3>
+              <h3 class="bestiary-name">${escapeHtml(name)}</h3>
               <span class="bestiary-danger">${entry.danger}</span>
             </div>
-            <span class="bestiary-cat">${cat}</span>
+            <span class="bestiary-cat">${escapeHtml(cat)}</span>
           </div>
         </div>
 
         <div class="bestiary-stats-row">
           <div class="bestiary-stat"><span>HP</span><b>${entry.hp}</b></div>
-          <div class="bestiary-stat"><span>${speedLabel}</span><b>${speed}</b></div>
-          <div class="bestiary-stat"><span>${lootLabel}</span><b>${drops}</b></div>
+          <div class="bestiary-stat"><span>${escapeHtml(speedLabel)}</span><b>${escapeHtml(speed)}</b></div>
+          <div class="bestiary-stat"><span>${escapeHtml(lootLabel)}</span><b>${escapeHtml(drops)}</b></div>
         </div>
 
-        <p class="bestiary-traits">${traits}</p>
+        <p class="bestiary-traits">${escapeHtml(traits)}</p>
         <div class="bestiary-tactics">
-          <b>${tacticsTitle}:</b> ${tactics}
+          <b>${escapeHtml(tacticsTitle)}:</b> ${escapeHtml(tactics)}
         </div>
       </div>
     `;

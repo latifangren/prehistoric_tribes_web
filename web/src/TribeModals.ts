@@ -22,6 +22,7 @@ import { capitalise, originalText } from "./OriginalText";
 import { sfx } from "./platform/SoundEffects";
 import { legacyMapOverviewColor } from "./render/LegacyMapOverview";
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
+import { escapeHtml, safeAssetName } from "./platform/Html";
 import type { TouchControls } from "./TouchControls";
 import type { WideScreen } from "./WideScreen";
 
@@ -356,7 +357,7 @@ export function attachTribeModals(
                   <span title="Energy"><img src="${UI}sleep.png" alt=""><i><b style="width:${energyPct}%"></b></i></span>
                 </div>
               </div>
-              <img class="roster-weapon" src="${UI}${weaponIcon}.png" alt="">
+              <img class="roster-weapon" src="${UI}${safeAssetName(weaponIcon)}.png" alt="">
             </button>
           `;
         }).join("");
@@ -366,7 +367,7 @@ export function attachTribeModals(
         <div class="help-head">
           <h2>${l === "zh" ? "部落村民名册" : l === "id" ? "Daftar Penduduk Suku" : "Tribe Villager Roster"}</h2>
           <div class="help-tabs">
-            ${tabs.map((t) => `<button type="button" data-filter="${t.id}" class="help-tab${t.id === activeFilter ? " active" : ""}">${t.label}</button>`).join("")}
+            ${tabs.map((t) => `<button type="button" data-filter="${escapeHtml(t.id)}" class="help-tab${t.id === activeFilter ? " active" : ""}">${escapeHtml(t.label)}</button>`).join("")}
           </div>
         </div>
         <div class="roster-list">${cardsHtml}</div>
