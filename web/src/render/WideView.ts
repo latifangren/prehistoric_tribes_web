@@ -102,12 +102,13 @@ export const TOP_BAR_SLOT = 0;
  * Draws `window` of the map and returns the image: tile (column, row) of the window is at
  * (11 + 22 * c, 8 + 16 * r), the same 11 / 8 margin as the original's offscreen.
  */
-export function renderWideView(rt: LegacyRuntimeState, window: WideWindow, touchCursor = false): LegacyOffscreenImage | null {
+export function renderWideView(rt: LegacyRuntimeState, window: WideWindow, touchCursor = false, targetScale?: number): LegacyOffscreenImage | null {
   const targets = rt.offscreenTargets;
   if (!targets || !rt.activeMap || !rt.packedData) return null;
   const width = window.columns * 22 + 22;
   const height = window.rows * 16 + 16;
-  const scale = hdArt.scale(rt);
+  const maxHdScale = hdArt.scale(rt);
+  const scale = targetScale ? Math.min(maxHdScale, Math.max(1, Math.ceil(targetScale))) : maxHdScale;
   if (!image || image.width !== width || image.height !== height || image.scale !== scale) {
     image = new LegacyOffscreenImage(width, height, scale);
     image.graphics.shown = true;

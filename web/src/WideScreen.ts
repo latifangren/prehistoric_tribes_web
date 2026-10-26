@@ -140,7 +140,7 @@ export class WideScreen {
 
   /** Matches the canvas to its CSS box in device pixels and picks the scale. */
   private resize(): void {
-    const ratio = window.devicePixelRatio || 1;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
     const w = Math.max(1, Math.round(this.cssSize.width * ratio));
     const h = Math.max(1, Math.round(this.cssSize.height * ratio));
     if (this.element.width !== w || this.element.height !== h) {
@@ -288,8 +288,13 @@ export class WideScreen {
     const mapH = g.mapHeight * TILE_H;
     // The map may run under the panels and the screen's bottom edge, never under the bar. A map
     // shorter than the screen (mission 1's 32 rows on a tall phone) starts right under the bar.
+    // When a bottom sheet is open (villager panel, building panel, or build list), give extra scroll
+    // headroom so bottom-most tiles can be panned completely above the panel.
+    const bottomPad = (this.villagerSheet || this.buildCardsOpen)
+      ? Math.round((112 * (window.devicePixelRatio || 1)) / this.scale)
+      : 0;
     this.viewX = mapW <= this.width ? (mapW - this.width) / 2 : Math.max(0, Math.min(mapW - this.width, this.viewX));
-    this.viewY = Math.max(-upper, Math.min(mapH - this.height, this.viewY));
+    this.viewY = Math.max(-upper, Math.min(mapH - this.height + bottomPad, this.viewY));
   }
 
   /** Moves the view so the camera's window is fully on screen. */
@@ -355,7 +360,7 @@ export class WideScreen {
     };
     const before = oldArt.where;
     oldArt.where = "地图";
-    const image = renderWideView(this.runtime, window, this.touchPlay || this.dialogue);
+    const image = renderWideView(this.runtime, window, this.touchPlay || this.dialogue, this.scale);
     oldArt.where = "HUD";
     this.wide = image ? { image, window } : null;
     // The HUD again, onto a clear layer, without the bars: both draws only read the game state.
@@ -403,7 +408,7 @@ export class WideScreen {
     const { image, window } = this.wide;
     // The HD wide view (image.scale > 1) is larger than the screen shows it: smooth when shrinking.
     c.imageSmoothingEnabled = image.scale > this.scale;
-    c.imageSmoothingQuality = "high";
+    c.imageSmoothingQuality = "low";
     c.drawImage(image.element, Math.round(window.column * TILE_W - this.viewX - 11), Math.round(window.row * TILE_H - this.viewY - 8), image.width, image.height);
     c.imageSmoothingEnabled = false;
     if (!this.dialogue) {

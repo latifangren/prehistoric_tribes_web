@@ -42,10 +42,17 @@ export function canPlaceLegacyFootprint(
       const cellY = y + yy;
       if (cellX < 0 || cellY < 0 || cellX >= input.mapWidth || cellY >= input.mapHeight) {
         available = false;
-      } else if (input.map[cellY][cellX] !== 0) {
-        available = false;
-      } else if (requireTerrainClass && input.occupancyClass(cellX, cellY) !== 0) {
-        available = false;
+      } else {
+        const cellValue = input.map[cellY][cellX];
+        // Friendly villagers (1..50) do not block placement; they will be auto-displaced when confirmed
+        const isFriendlyVillager = cellValue >= 1 && cellValue <= 50;
+        if (cellValue !== 0 && !isFriendlyVillager) {
+          available = false;
+        } else if (requireTerrainClass && input.occupancyClass(cellX, cellY) === 2) {
+          // Explored Area Build: only completely unexplored black fog (class 2) blocks building.
+          // Explored fog of war (class 1) and active line-of-sight (class 0) both allow placement!
+          available = false;
+        }
       }
     }
   }

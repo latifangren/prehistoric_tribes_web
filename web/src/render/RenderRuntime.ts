@@ -1623,6 +1623,24 @@ export function stepGameplayOuterLoop(rt: LegacyRuntimeState, graphics?: Graphic
     classifyOccupancy: (x, y) => rt.occupancyClass(x, y),
     onSpriteDraw: packed ? (record, x, y) => packed.drawSprite(record, x, y) : undefined,
   });
+  const bodyState: LegacyGameplayCellBodyState = {
+    dense: rt.denseState,
+    gridC: rt.gridC,
+    sFlag: rt.game.cameraSFlag,
+    ao: rt.game.ao,
+    columns: viewport.columns,
+    originColumn: rt.game.cameraColumn,
+    gridG: rt.gridG,
+    gridB: rt.gridB,
+    colorTable: rt.game.healthBarColorTable,
+    packedBytes: rt.packedBytes,
+    packedOffsets: rt.packedOffsets,
+    originRow: rt.game.cameraRow,
+    scrollA: rt.game.cursorRow,
+    scrollY: rt.game.cursorColumn,
+    phase: rt.game.animStep,
+    hCounter: rt.game.tailHCounter,
+  };
   stepLegacyGameplayOuterLoop(viewport, state, {
     classifyOccupancy: (x, y) => rt.occupancyClass(x, y),
     // Offsets 186..225: a tree/rock cell (b 180..231 or 243) in sight draws its detail through
@@ -1684,24 +1702,6 @@ export function stepGameplayOuterLoop(rt: LegacyRuntimeState, graphics?: Graphic
     onUnhandledCellBody: (columnTile, rowTile, columnPixelX, occupancyClass, gridCValue, gridBValue, rowPixelBase) => {
       const ah = columnPixelX / 22;
       const ai = rowPixelBase / 16;
-      const bodyState: LegacyGameplayCellBodyState = {
-        dense: rt.denseState,
-        gridC: rt.gridC,
-        sFlag: rt.game.cameraSFlag,
-        ao: rt.game.ao,
-        columns: viewport.columns,
-        originColumn: rt.game.cameraColumn,
-        gridG: rt.gridG,
-        gridB: rt.gridB,
-        colorTable: rt.game.healthBarColorTable,
-        packedBytes: rt.packedBytes,
-        packedOffsets: rt.packedOffsets,
-        originRow: rt.game.cameraRow,
-        scrollA: rt.game.cursorRow,
-        scrollY: rt.game.cursorColumn,
-        phase: rt.game.animStep,
-        hCounter: rt.game.tailHCounter,
-      };
       const result = dispatchLegacyGameplayCellBody(
         gridCValue, columnPixelX, rowTile, columnTile, ai, ah, occupancyClass, rowPixelBase,
         bodyState, graphics, {

@@ -2,6 +2,7 @@ import "./styles.css";
 import { LogicalCanvas } from "./platform/Canvas";
 import { loadLanguageTables, loadOriginalResources } from "./ResourceBootstrap";
 import { FixedLoop } from "./platform/FixedLoop";
+import { createPerfOverlay } from "./platform/PerfOverlay";
 import { attachOriginalKeyboard, KeyState } from "./platform/Input";
 import { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { stepLegacyPaintScreen } from "./render/LegacyPaintScreen";
@@ -70,6 +71,10 @@ function refreshDebugOverlay(): void {
   ].join("\n");
 }
 refreshDebugOverlay();
+// Diagnostic only: creates the bottom-right timing overlay only when the
+// page URL carries ?perf=1; otherwise null and every perf?. call below
+// is a no-op. Branch perf/tick-render-overlay, not for merging as-is.
+const perf = createPerfOverlay();
 const keys = new KeyState();
 const detachKeyboard = attachOriginalKeyboard(window, keys);
 window.addEventListener("beforeunload", detachKeyboard, { once: true });
@@ -195,7 +200,9 @@ function tick(): void {
 let renders = 0;
 let starting = false;
 function render(): void {
+  const endRender = perf?.start("render");
   oldArt.where = showsFrameAs();
+  const endPaint = perf?.start("paint");
   paint();
   // f.run offsets 161..215: if ad:I or ae:I is set after the first paint, both
   // are cleared and the frame is painted a second time (oracle 2026-10-08).
@@ -204,10 +211,20 @@ function render(): void {
     runtime.game.ae = 0;
     paint();
   }
+  endPaint?.();
   // The oracle runner sets __prehistoricWideEvery to draw the larger view on every Nth frame only.
   const every = (window as Window & { __prehistoricWideEvery?: number }).__prehistoricWideEvery ?? 1;
-  if (renders++ % every === 0) screen.renderWide();
-  screen.compose();
+  if (renders++ % every === 0) {
+    const endWide = perf?.start("renderWide");
+    screen.renderWide();
+    endWide?.();
+  }
+  if (typeof requestAnimationFrame === "undefined") {
+    const endCompose = perf?.start("compose");
+    screen.compose();
+    endCompose?.();
+  }
+  const endSystems = perf?.start("systems");
   if (runtime.game.loopMode === 1 && !screen.frozen) {
     const sw = screen.element.clientWidth || window.innerWidth;
     const sh = screen.element.clientHeight || window.innerHeight;
@@ -230,16 +247,23 @@ function render(): void {
     weatherSystem.resize(0, 0);
     emotionBubbles.resize(0, 0);
   }
+  endSystems?.();
+  const endHud = perf?.start("hud");
   hud.update();
   menuHud.update();
   startMenu.update();
   storyHud.update();
+  endHud?.();
   // Start-up: the splash stays until the answered questions have led to the main menu.
   if (starting && runtime.game.screen !== 14 && runtime.game.screen !== 16) {
     starting = false;
     screen.splash = false;
     screen.frozen = false;
   }
+  endRender?.();
+  perf?.refresh(
+    `Q=${runtime.game.screen} v=${runtime.game.loopMode} map=${runtime.game.mapWidth}x${runtime.game.mapHeight} css=${screen.element.clientWidth}x${screen.element.clientHeight}`,
+  );
 }
 
 function paint(): void {
@@ -267,10 +291,20 @@ function paint(): void {
   runtime.game.paintSyncFlag = false;
 }
 
-const loop = new FixedLoop({ tickMs: 120, update: tick, render });
+const loop = new FixedLoop({
+  tickMs: 120,
+  update: () => {
+    const endTick = perf?.start("tick");
+    tick();
+    endTick?.();
+  },
+  render,
+});
 // Between ticks the screen is only recomposed: a drag moves the view smoothly.
 const composeEveryFrame = () => {
+  const endFrameCompose = perf?.start("frameCompose");
   screen.compose();
+  endFrameCompose?.();
   hud.track();
   dangerIndicators.track();
   requestAnimationFrame(composeEveryFrame);

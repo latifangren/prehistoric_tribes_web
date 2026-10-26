@@ -72,7 +72,10 @@ export const hdArt = {
   },
   end(): void {
     for (const m of this.measuring.values()) {
-      if (m.upper || trims.has(m.boundsKey)) continue;
+      // Only map objects (key starts with 'o') can ever be ground-only.
+      // Buildings ('0-1'..'19-1') always have an upper structure (tent/roof/walls);
+      // if upper did not run in this pass, never cache a partial ground-only trim!
+      if (m.upper || trims.has(m.boundsKey) || !m.boundsKey.startsWith("o")) continue;
       const relative = measured(m);
       if (!relative) continue;
       trims.set(m.boundsKey, relative);
@@ -145,13 +148,19 @@ export const hdArt = {
     const runtime = this.runtime;
     const target = this.target;
     if (!runtime || !target) return null;
-    const key = building > 0 ? buildingKey(kind, level) : has.objects.has(1000 + resource) ? `o${1000 + resource}` : null;
+    const key = building > 0 ? buildingKey(kind, level) : resourceObjectKey(resource, look);
     if (!key) return null;
     const hd = picture(key.startsWith("o") ? `objects/${key.slice(1)}.png` : `buildings/${key}.png`);
     if (!hd) return null;
     const id = building > 0 ? `b${building}` : `${resource}@${x},${y}`;
     const boundsKey = `${key}:${resource}:${look}`;
-    const known = trims.get(boundsKey);
+    let known = trims.get(boundsKey);
+    // Sanity check: a building (not an object) must never be groundOnly or have a tiny peg-only bound
+    if (building > 0 && known && (groundOnly.has(boundsKey) || known.width < 32 || known.height < 32)) {
+      trims.delete(boundsKey);
+      groundOnly.delete(boundsKey);
+      known = undefined;
+    }
     const draw = (bounds: Bounds) => {
       if (this.drawn.has(id)) return;
       this.drawn.add(id);
@@ -163,7 +172,10 @@ export const hdArt = {
     // water edges) only ever get the ground call, so their picture goes on there.
     // Drawn before the original's calls, so what they still draw on the map (fire, smoke: the
     // sub-records, which have HD pictures of their own) stays on top.
-    if (known) return { packed: discard(runtime), original: !upper, before: () => { if (upper || groundOnly.has(boundsKey)) draw(known); }, after: () => {} };
+    if (known) {
+      const liveRenderer = upper && (kind === 6 || kind === 4) ? renderer(runtime, target) : discard(runtime);
+      return { packed: liveRenderer, original: !upper, before: () => { if (upper || groundOnly.has(boundsKey)) draw(known); }, after: () => {} };
+    }
     // The first time: the original's pieces are measured; end() learns whether an upper call came.
     let measure = this.measuring.get(id);
     if (!measure) {
@@ -245,6 +257,29 @@ function buildingKey(kind: number, level: number): string | null {
     return has.buildings.has(key) ? key : null;
   }
   for (let l = Math.max(1, level); l >= 1; l -= 1) if (has.buildings.has(`${kind}-${l}`)) return `${kind}-${l}`;
+  return null;
+}
+/**
+ * Selects the HD object picture taking resource depletion stage (`look`) into account.
+ * Stages: look=3 (full), look=2 (medium), look=1 (low), look=0 (depleted).
+ */
+function resourceObjectKey(resource: number, look: number): string | null {
+  // Berry / fruit bushes: 1027 (empty bare bush) to 1030 (full bright red berries)
+  if (resource >= 27 && resource <= 30) {
+    const stage = 1027 + Math.max(0, Math.min(3, look));
+    if (has.objects.has(stage)) return `o${stage}`;
+  }
+  // Cut wood / log piles: 1021 (full logs) vs 1022 (depleted twigs)
+  if (resource === 21 || resource === 22) {
+    const stage = look >= 2 ? 1021 : 1022;
+    if (has.objects.has(stage)) return `o${stage}`;
+  }
+  // Bone piles: 1032 (full skeleton) vs 1033 (depleted scattered bones)
+  if (resource === 32 || resource === 33) {
+    const stage = look >= 2 ? 1032 : 1033;
+    if (has.objects.has(stage)) return `o${stage}`;
+  }
+  if (has.objects.has(1000 + resource)) return `o${1000 + resource}`;
   return null;
 }
 

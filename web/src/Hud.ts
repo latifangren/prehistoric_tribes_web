@@ -910,7 +910,49 @@ export function attachHud(
   buildList.className = "hud-sheet-list";
   const pageDots = document.createElement("div");
   pageDots.className = "hud-sheet-dots";
-  sheet.append(buildList, pageDots, sheetClose);
+  const buildPrev = button("hud-sheet-nav prev", "◀", "Previous Buildings");
+  const buildNext = button("hud-sheet-nav next", "▶", "Next Buildings");
+  buildPrev.addEventListener("click", () => buildList.scrollBy({ left: -260, behavior: "smooth" }));
+  buildNext.addEventListener("click", () => buildList.scrollBy({ left: 260, behavior: "smooth" }));
+  sheet.append(buildList, pageDots, buildPrev, buildNext, sheetClose);
+
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragScrollStart = 0;
+  let dragDistance = 0;
+
+  buildList.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" && e.button === 0) {
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragScrollStart = buildList.scrollLeft;
+      dragDistance = 0;
+      buildList.setPointerCapture(e.pointerId);
+    }
+  });
+
+  buildList.addEventListener("pointermove", (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartX;
+    dragDistance += Math.abs(dx);
+    buildList.scrollLeft = dragScrollStart - dx;
+  });
+
+  const stopDrag = (e: PointerEvent) => {
+    if (isDragging) {
+      isDragging = false;
+      try { buildList.releasePointerCapture(e.pointerId); } catch {}
+    }
+  };
+  buildList.addEventListener("pointerup", stopDrag);
+  buildList.addEventListener("pointercancel", stopDrag);
+
+  buildList.addEventListener("wheel", (e) => {
+    if (e.deltaY !== 0 || e.deltaX !== 0) {
+      e.preventDefault();
+      buildList.scrollLeft += (e.deltaY || e.deltaX) * 1.5;
+    }
+  }, { passive: false });
   /** Level-1 price of a building kind: t138 rows 10 wood, 11 stone, 12 bones (hut 15 / 5). */
   const price = (kind: number) => {
     const table = runtime.packedOffsets[T_BUILDING] ?? 0;
@@ -937,7 +979,10 @@ export function attachHud(
         entry.setAttribute("title", `${name}\n${desc}`);
         entry.dataset.kind = String(kind);
         entry.innerHTML = `<span class="pic">${img(`ub-${BUILDING_ICONS[kind]}`)}</span><span class="cost"></span><span class="hud-card-name">${escapeHtml(name)}</span>`;
-        entry.addEventListener("click", () => touch.pickInBar(index));
+        entry.addEventListener("click", () => {
+          if (dragDistance > 6) return;
+          touch.pickInBar(index);
+        });
         attachHoverTip(entry, () => `${name} — ${desc}`, "top");
         return entry;
       }));
@@ -953,6 +998,9 @@ export function attachHud(
       }
     }
     drawDots(buildList, kinds.length, 97);
+    const maxScroll = buildList.scrollWidth - buildList.clientWidth - 4;
+    buildPrev.classList.toggle("disabled", buildList.scrollLeft <= 4);
+    buildNext.classList.toggle("disabled", buildList.scrollLeft >= maxScroll);
   };
   /** One dot per page of a sideways list of `count` items `step` pixels apart, the shown one lit. */
   const drawDots = (list: HTMLElement, count: number, step: number) => {
