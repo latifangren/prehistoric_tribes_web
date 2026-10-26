@@ -36,6 +36,19 @@ export function currentLanguageCode(): "en" | "zh" | "id" {
   if (code === "zh" || code === "id") return code;
   return "en";
 }
+const WORDS: Record<string, { en: string; id: string; zh: string }> = {
+  campaign: { en: "CAMPAIGN", id: "KAMPANYE", zh: "战役" },
+  custom: { en: "CUSTOM", id: "KUSTOM", zh: "自定义" },
+  settings: { en: "SETTINGS", id: "PENGATURAN", zh: "设置" },
+  extras: { en: "EXTRAS", id: "EKSTRA", zh: "附加内容" },
+  about: { en: "ABOUT", id: "TENTANG", zh: "关于" },
+  continue: { en: "CONTINUE", id: "LANJUT", zh: "继续" },
+  newgame: { en: "NEW GAME", id: "GAME BARU", zh: "新游戏" },
+  easy: { en: "EASY", id: "MUDAH", zh: "简单" },
+  hard: { en: "HARD", id: "SULIT", zh: "困难" },
+  yes: { en: "YES", id: "YA", zh: "确定" },
+  no: { en: "NO", id: "TIDAK", zh: "取消" },
+};
 
 /** The original's language list row of the saved language (English the first time). */
 export function savedLanguage(): number {
@@ -86,10 +99,12 @@ export function attachStartMenu(
     });
     return element;
   };
-  const word = (key: string, onClick: () => void) =>
-    button("start-item", key, picture(`words/${language().art}/${key}.png`, "start-word"), onClick);
-  const stoneWord = (label: string, onClick: () => void) =>
-    button("start-item", label, `<span class="start-word-stone">${escapeHtml(label)}</span>`, onClick);
+  const word = (key: string, onClick: () => void) => {
+    const trans = WORDS[key];
+    const lang = language().code;
+    const label = trans ? trans[lang] ?? trans.en : key.toUpperCase();
+    return button("start-item", label, `<span class="start-word-stone">${escapeHtml(label)}</span>`, onClick);
+  };
   const go = (next: Page) => { if (page) history.push(page); show(next); };
   const back = () => show(history.pop() ?? "main");
 
@@ -194,17 +209,15 @@ export function attachStartMenu(
     }
 
     if (next === "main") {
-      const settingsLabel = zh ? "设置" : id ? "PENGATURAN" : "SETTINGS";
-      const extraLabel = zh ? "附加内容" : id ? "EKSTRA" : "EXTRAS";
       const items: HTMLElement[] = [
         word("campaign", () => choose(false)),
         word("custom", () => choose(true)),
       ];
       if (openSettings) {
-        items.push(stoneWord(settingsLabel, openSettings));
+        items.push(word("settings", openSettings));
       }
       if (openAchievements || openHelp) {
-        items.push(stoneWord(extraLabel, () => go("extra")));
+        items.push(word("extras", () => go("extra")));
       }
       items.push(word("about", () => go("about")));
       layer.append(column(...items));
@@ -289,7 +302,7 @@ export function attachStartMenu(
       const aboutWrap = document.createElement("div");
       aboutWrap.className = "start-about";
       aboutWrap.innerHTML = `
-        ${picture(`words/${language().art}/about.png`, "start-word start-about-title")}
+        <div class="start-word-stone start-about-title">${escapeHtml(zh ? "关于" : id ? "TENTANG" : "ABOUT")}</div>
         <div class="start-about-card">
           <p class="start-about-highlight">${remakeNote}</p>
           ${paragraphs.map((p) => `<p>${p}</p>`).join("")}
