@@ -916,36 +916,7 @@ export function attachHud(
   buildNext.addEventListener("click", () => buildList.scrollBy({ left: 260, behavior: "smooth" }));
   sheet.append(buildList, pageDots, buildPrev, buildNext, sheetClose);
 
-  let isDragging = false;
-  let dragStartX = 0;
-  let dragScrollStart = 0;
-  let dragDistance = 0;
 
-  buildList.addEventListener("pointerdown", (e) => {
-    if (e.pointerType === "mouse" && e.button === 0) {
-      isDragging = true;
-      dragStartX = e.clientX;
-      dragScrollStart = buildList.scrollLeft;
-      dragDistance = 0;
-      buildList.setPointerCapture(e.pointerId);
-    }
-  });
-
-  buildList.addEventListener("pointermove", (e) => {
-    if (!isDragging) return;
-    const dx = e.clientX - dragStartX;
-    dragDistance += Math.abs(dx);
-    buildList.scrollLeft = dragScrollStart - dx;
-  });
-
-  const stopDrag = (e: PointerEvent) => {
-    if (isDragging) {
-      isDragging = false;
-      try { buildList.releasePointerCapture(e.pointerId); } catch {}
-    }
-  };
-  buildList.addEventListener("pointerup", stopDrag);
-  buildList.addEventListener("pointercancel", stopDrag);
 
   buildList.addEventListener("wheel", (e) => {
     if (e.deltaY !== 0 || e.deltaX !== 0) {
@@ -979,10 +950,7 @@ export function attachHud(
         entry.setAttribute("title", `${name}\n${desc}`);
         entry.dataset.kind = String(kind);
         entry.innerHTML = `<span class="pic">${img(`ub-${BUILDING_ICONS[kind]}`)}</span><span class="cost"></span><span class="hud-card-name">${escapeHtml(name)}</span>`;
-        entry.addEventListener("click", () => {
-          if (dragDistance > 6) return;
-          touch.pickInBar(index);
-        });
+        entry.addEventListener("click", () => touch.pickInBar(index));
         attachHoverTip(entry, () => `${name} — ${desc}`, "top");
         return entry;
       }));
