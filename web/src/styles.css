@@ -1482,6 +1482,36 @@ button.notice {
   transform: translateY(2px) scale(0.96);
   filter: brightness(0.82) drop-shadow(0 0 6px #ffe27a);
 }
+.start-word-stone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(10.3 * var(--unit));
+  font-family: "Titan One", system-ui, -apple-system, "Segoe UI", Roboto, "Arial Rounded MT Bold", sans-serif;
+  font-size: calc(7.0 * var(--unit));
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #f7e2a8;
+  background: linear-gradient(180deg, #fff7db 0%, #f0c976 40%, #c48c2e 80%, #834f0c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: calc(0.38 * var(--unit)) #241405;
+  filter: drop-shadow(0 calc(0.55 * var(--unit)) 0 #241405)
+          drop-shadow(0 calc(1.0 * var(--unit)) 0 #150901)
+          drop-shadow(0 calc(1.5 * var(--unit)) calc(0.6 * var(--unit)) rgba(0, 0, 0, 0.6));
+  line-height: 1;
+  user-select: none;
+  white-space: nowrap;
+  transition: transform 80ms, filter 80ms;
+}
+
+.start-item:active .start-word-stone {
+  transform: translateY(2px) scale(0.96);
+  filter: brightness(0.82)
+          drop-shadow(0 calc(0.4 * var(--unit)) 0 #241405)
+          drop-shadow(0 0 6px #ffe27a);
+}
 
 .start-text {
   margin: 0 calc(9 * var(--unit)) calc(2 * var(--unit));
@@ -1494,15 +1524,34 @@ button.notice {
 
 .start-corner {
   position: absolute;
-  right: calc(env(safe-area-inset-right) + 10px);
+  right: calc(env(safe-area-inset-right) + 12px);
   top: calc(env(safe-area-inset-top) + 12px);
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 10px;
+  z-index: 10;
+}
+
+.start-round {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 0;
+  border: 0;
+  background: none;
+  touch-action: manipulation;
 }
 
 .start-round img {
   width: 44px;
   height: 44px;
+  display: block;
 }
 
 .start-back {
@@ -1522,6 +1571,104 @@ button.notice {
   filter: brightness(0.85);
 }
 
+/* Extra Sub-Menu Page (StartMenu.ts) */
+.start-extra-wrap {
+  position: absolute;
+  left: 50%;
+  top: calc(env(safe-area-inset-top) + 6vh + 18 * var(--unit));
+  bottom: calc(env(safe-area-inset-bottom) + 96px);
+  width: min(calc(100% - 36px), 430px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 5;
+}
+
+.start-extra-heading {
+  margin-bottom: 6px;
+  filter: drop-shadow(0 calc(0.6 * var(--unit)) 0 #241609)
+          drop-shadow(0 calc(1.2 * var(--unit)) calc(0.8 * var(--unit)) rgba(0, 0, 0, 0.7));
+}
+
+.start-menu .start-extra-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(58, 38, 20, 0.96) 0%, rgba(32, 20, 10, 0.98) 100%);
+  border: 2px solid #8d6e43;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 240, 200, 0.2);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.12s ease, border-color 0.12s ease, filter 0.12s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  height: auto;
+}
+
+.start-menu .start-extra-card:active {
+  transform: scale(0.97);
+  border-color: #ffe27a;
+  filter: brightness(1.15);
+}
+
+.start-extra-icon {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: radial-gradient(circle at 35% 30%, #e0cfa9 0%, #b59866 70%, #7d6238 100%);
+  border: 2px solid #4a3216;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  user-select: none;
+}
+
+.start-extra-icon img {
+  width: 65%;
+  height: 65%;
+  object-fit: contain;
+  display: block;
+}
+
+.start-extra-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.start-extra-title {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffe27a;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.start-extra-desc {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #dfcfb9;
+  margin: 0;
+}
+
+.start-extra-arrow {
+  font-size: 20px;
+  color: #c9ab7b;
+  opacity: 0.8;
+  user-select: none;
+}
 .start-maps {
   position: absolute;
   left: 0;
@@ -3039,22 +3186,6 @@ button.notice {
   color: #8e1b1b;
 }
 
-/* StartMenu Help & Settings Round Utility Buttons */
-.start-round.start-util {
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #e0cfa9 0%, #b59866 70%, #7d6238 100%);
-  border: 2px solid #4a3216;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.start-round.start-util img {
-  width: 62%;
-  height: 62%;
-  object-fit: contain;
-}
 
 /* Idle Villager Finder (💤) */
 .hud .hud-idle-btn {
@@ -3196,16 +3327,6 @@ button.notice {
 /* =========================================================================
    Trophy Cabinet & Achievement System
    ========================================================================= */
-
-/* Start Menu Trophy Button */
-.start-util-trophy {
-  font-size: 22px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
-}
 
 /* In-game Pause Menu Trophy Glyph */
 .hud-glyph-trophy {
