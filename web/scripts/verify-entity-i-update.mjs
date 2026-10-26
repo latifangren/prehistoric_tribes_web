@@ -15,10 +15,10 @@ function loadModule(file) {
 }
 
 const { stepLegacyEntityIUpdate } = loadModule(
-  new URL("../src/sim/units/LegacyEntityIUpdate.ts", import.meta.url).pathname,
+  process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/units/LegacyEntityIUpdate.ts", import.meta.url)),
 );
 const { selectLegacyAuxiliaryCandidates } = loadModule(
-  new URL("../src/sim/world/LegacyAuxiliaryQueue.ts", import.meta.url).pathname,
+  process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/world/LegacyAuxiliaryQueue.ts", import.meta.url)),
 );
 
 const ID = 4;

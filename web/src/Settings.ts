@@ -4,8 +4,8 @@ import { isAmbienceEnabled, setAmbienceEnabled } from "./audio/AtmosphereAudio";
 import { weatherSystem } from "./render/WeatherSystem";
 import { dayNightCycle } from "./render/DayNightCycle";
 import { emotionBubbles } from "./render/EmotionBubbles";
+import { ALL_STORAGE_KEYS, readStorage, writeStorage } from "./platform/Storage";
 import {
-  ALL_STORAGE_KEYS,
   canSaveCurrentMatch,
   deleteSaveSlot,
   formatSlotTitle,
@@ -17,17 +17,13 @@ import {
 import { ID_LANGUAGE, ZH_LANGUAGE } from "./text/LegacyZhText";
 import { escapeHtml } from "./platform/Html";
 import type { TouchControls } from "./TouchControls";
-import { stepAs } from "./ui/UiRuntime";
+import { stepAs } from "./ui/UiStateRuntime";
 import type { WideScreen } from "./WideScreen";
 
 const ZOOM_KEY = "pt.zoomOut";
 
 function readZoom(): number {
-  try {
-    return Math.max(0, Number(localStorage.getItem(ZOOM_KEY)) || 0);
-  } catch {
-    return 0;
-  }
+  return Math.max(0, Number(readStorage(ZOOM_KEY)) || 0);
 }
 
 /** Adds the settings & multi-slot save panel; returns the function that opens it. */
@@ -162,7 +158,7 @@ export function attachSettings(
   music.addEventListener("change", () => {
     sfx.click();
     if (music.checked !== (game.eByte !== 0)) toggle(1);
-    try { localStorage.setItem("pt.music", game.eByte !== 0 ? "on" : "off"); } catch { /* ignore */ }
+    void writeStorage("pt.music", game.eByte !== 0 ? "on" : "off");
   });
   sfxToggle.addEventListener("change", () => {
     setSfxEnabled(sfxToggle.checked);
@@ -244,9 +240,9 @@ export function attachSettings(
     }).join("");
 
     for (const btn of Array.from(slotsBox.querySelectorAll<HTMLButtonElement>("[data-slot-save]"))) {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         const slotIdx = Number(btn.dataset.slotSave) as SaveSlotIndex;
-        const saved = saveToSlot(runtime, slotIdx);
+        const saved = await saveToSlot(runtime, slotIdx);
         if (saved) {
           sfx.build();
           renderSlots();
@@ -258,9 +254,9 @@ export function attachSettings(
     }
 
     for (const btn of Array.from(slotsBox.querySelectorAll<HTMLButtonElement>("[data-slot-load]"))) {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         const slotIdx = Number(btn.dataset.slotLoad) as SaveSlotIndex;
-        const staged = stageSlotForLoad(runtime, slotIdx);
+        const staged = await stageSlotForLoad(runtime, slotIdx);
         if (!staged) {
           setStatus(zh ? "✕ 存档槽读取失败" : "✕ Failed to load slot");
           return;
@@ -272,15 +268,9 @@ export function attachSettings(
           game.H = true;
           touch?.pauseMenu("load");
         } else if (game.screen === 0 && touch) {
-          touch.startGame({
-            custom: staged.isCustom,
-            resume: true,
-            difficulty: staged.difficulty === 2 ? 2 : 1,
-            map: Math.max(0, staged.mission - 7),
-          });
+          touch.startGame({ custom: staged.isCustom, resume: true, difficulty: staged.difficulty === 2 ? 2 : 1, map: Math.max(0, staged.mission - 7) });
         } else {
-          const rmsSlot = staged.isCustom ? 2 : 1;
-          runtime.loadGameplayFromStore(rmsSlot);
+          runtime.loadGameplayFromStore(staged.isCustom ? 2 : 1);
           game.loopMode = 1;
           game.screen = 28;
           game.AFlag = true;
@@ -290,19 +280,20 @@ export function attachSettings(
     }
 
     for (const btn of Array.from(slotsBox.querySelectorAll<HTMLButtonElement>("[data-slot-del]"))) {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         const slotIdx = Number(btn.dataset.slotDel) as SaveSlotIndex;
-        deleteSaveSlot(slotIdx);
+        const removed = await deleteSaveSlot(slotIdx);
         sfx.click();
         renderSlots();
-        const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
-        setStatus(lang === "zh" ? `已清空槽位 ${slotIdx}` : lang === "id" ? `Slot ${slotIdx} dikosongkan` : `Cleared Slot ${slotIdx}`);
+        const lang = runtime.language === ZH_LANGUAGE ? "zh" : readStorage("pt.language") === "id" ? "id" : "en";
+        const status = removed ? `Slot ${slotIdx} deleted` : `Could not delete Slot ${slotIdx}`;
+        setStatus(lang === "zh" ? (removed ? `已清空槽位 ${slotIdx}` : "✕ 无法删除存档槽") : lang === "id" ? (removed ? `Slot ${slotIdx} dikosongkan` : `Slot ${slotIdx} gagal dihapus`) : status);
       });
     }
   };
 
   const show = () => {
-    const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
+    const lang = runtime.language === ZH_LANGUAGE ? "zh" : readStorage("pt.language") === "id" ? "id" : "en";
     setText("title", lang === "zh" ? "设置与存档" : lang === "id" ? "Pengaturan & Penyimpanan" : "Settings & Saves");
     setText("tabGeneral", lang === "zh" ? "🔊 音频与画面" : lang === "id" ? "🔊 Audio & Tampilan" : "🔊 Audio & Display");
     setText("tabSaves", lang === "zh" ? "💾 存档管理" : lang === "id" ? "💾 Slot Simpanan" : "💾 Save Slots");
@@ -359,7 +350,7 @@ export function attachSettings(
 
   slider.addEventListener("input", () => {
     screen.zoomOut = Number(slider.value);
-    try { localStorage.setItem(ZOOM_KEY, slider.value); } catch { /* not saved */ }
+    void writeStorage(ZOOM_KEY, slider.value);
     show();
   });
 
@@ -369,7 +360,7 @@ export function attachSettings(
     game.progressV = 8;
     game.numericAf = true;
     runtime.saveOriginalResourceAction(0);
-    const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
+    const lang = runtime.language === ZH_LANGUAGE ? "zh" : readStorage("pt.language") === "id" ? "id" : "en";
     setStatus(lang === "zh" ? "✓ 已解锁全部 5 个战役章节与自定义模式" : lang === "id" ? "✓ Berhasil membuka semua 5 bab kampanye & mode kustom" : "✓ Unlocked all 5 Campaign chapters & Custom Mode");
   });
 
@@ -377,10 +368,8 @@ export function attachSettings(
     sfx.click();
     const payload: Record<string, string> = {};
     for (const key of ALL_STORAGE_KEYS) {
-      try {
-        const val = localStorage.getItem(key);
-        if (val !== null) payload[key] = val;
-      } catch { /* ignore */ }
+      const val = readStorage(key);
+      if (val !== null) payload[key] = val;
     }
     const blob = new Blob([JSON.stringify({ app: "PrehistoricTribesWeb", version: 2, data: payload }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -408,8 +397,7 @@ export function attachSettings(
       let count = 0;
       for (const key of ALL_STORAGE_KEYS) {
         if (typeof data[key] === "string") {
-          localStorage.setItem(key, data[key]!);
-          count += 1;
+          if (await writeStorage(key, data[key]!)) count += 1;
         }
       }
       if (count > 0) {

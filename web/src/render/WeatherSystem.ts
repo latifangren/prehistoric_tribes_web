@@ -1,3 +1,4 @@
+import { readStorage, writeStorage } from "../platform/Storage";
 import { ZH_LANGUAGE } from "../text/LegacyZhText";
 import { audioManager } from "../platform/AudioManager";
 import { getMasterVolume, isSfxEnabled } from "../platform/SoundEffects";
@@ -8,7 +9,7 @@ const WEATHER_ENABLED_KEY = "pt.weather";
 
 export function isWeatherEnabled(): boolean {
   try {
-    const val = localStorage.getItem(WEATHER_ENABLED_KEY);
+    const val = readStorage(WEATHER_ENABLED_KEY);
     return val === null ? true : val === "on";
   } catch {
     return true;
@@ -17,7 +18,7 @@ export function isWeatherEnabled(): boolean {
 
 export function setWeatherEnabled(on: boolean): void {
   try {
-    localStorage.setItem(WEATHER_ENABLED_KEY, on ? "on" : "off");
+    void writeStorage(WEATHER_ENABLED_KEY, on ? "on" : "off");
   } catch {
     // ignore quota error
   }

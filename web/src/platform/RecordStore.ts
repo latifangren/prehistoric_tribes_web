@@ -1,3 +1,4 @@
+import { readStorage, removeStorage, writeStorage } from "./Storage";
 export class RecordStore {
   private constructor(private readonly name: string) {}
 
@@ -33,11 +34,11 @@ export class RecordStore {
   close(): void {}
 
   delete(): void {
-    localStorage.removeItem(this.name);
+    void removeStorage(this.name);
   }
 
   private readRecords(): Uint8Array[] {
-    const encoded = localStorage.getItem(this.name);
+    const encoded = readStorage(this.name);
     if (encoded === null) return [];
 
     // Compatibility with the earlier Web scaffold, which stored record 1 as
@@ -53,7 +54,7 @@ export class RecordStore {
   }
 
   private writeRecords(records: readonly Uint8Array[]): void {
-    localStorage.setItem(this.name, JSON.stringify(records.map(encodeBase64)));
+    void writeStorage(this.name, JSON.stringify(records.map(encodeBase64)));
   }
 }
 

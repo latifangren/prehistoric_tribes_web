@@ -19,7 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..");
+const root = path.resolve(path.dirname(process.getBuiltinModule("node:url").fileURLToPath(import.meta.url)), "../..");
 const design = path.join(root, "design");
 const out = path.join(root, "web/public/hd");
 const BUILDINGS = { armoury: 0, gym: 1, hut: 2, "chiefs-hut": 3, kitchen: 4, range: 5, store: 6, disco: 7, sanctuary: 8, pia: 9, nursery: 10, tower: 11 };

@@ -14,7 +14,7 @@ function loadModule(file) {
 }
 
 const { stepLegacyEntityCoreUpdate } = loadModule(
-  new URL("../src/sim/units/LegacyEntityCoreUpdate.ts", import.meta.url).pathname,
+  process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/units/LegacyEntityCoreUpdate.ts", import.meta.url)),
 );
 
 const make = () => ({

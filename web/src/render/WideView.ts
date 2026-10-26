@@ -2,7 +2,7 @@ import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
 import { Graphics } from "../platform/Graphics";
 import { hdArt } from "./HdArt";
 import { LegacyOffscreenImage } from "./LegacyOffscreenTargets";
-import { drawFrameCommandPrimitive, drawImageHelper, renderMap, stepCameraFrame, stepGameplayOuterLoop, stepLegacyC2 } from "./RenderRuntime";
+import { drawImageHelper, stepLegacyC2 } from "./RenderRuntime"; import { drawFrameCommandPrimitive } from "./FrameCommandPrimitiveRuntime"; import { stepGameplayOuterLoop } from "./GameplayOuterLoopRuntime"; import { renderMap, stepCameraFrame } from "./CameraRuntime";
 
 /**
  * The larger view (phase 3, user 2026-10-17; not in the original). The game itself keeps its 11 x 18

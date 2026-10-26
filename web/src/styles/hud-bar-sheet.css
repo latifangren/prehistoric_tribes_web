@@ -1,0 +1,517 @@
+/* Round 3 (2026-10-20): the HD top bar, its counters, the stone-plate game menu (Hud.ts). */
+.hud-bar {
+  position: absolute;
+  z-index: 7;
+  top: var(--hud-bar-top, 0px);
+  left: 0;
+  right: 0;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 3px 50px 0 8px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  background: linear-gradient(#bfb04d, #bfb04d) top / 100% 18px no-repeat;
+  pointer-events: none;
+}
+
+.hud-bar[hidden],
+.hud-menu[hidden],
+.hud-menu-shade[hidden] {
+  display: none;
+}
+
+.hud-bar-bg {
+  position: absolute;
+  left: 0;
+  top: 15px;
+  width: 100%;
+}
+
+.hud-bar-deco {
+  position: absolute;
+  top: calc(-6px - var(--hud-bar-top, 0px));
+  width: 86px;
+}
+
+.hud-bar-deco.left {
+  left: 0;
+}
+
+.hud-bar-deco.right {
+  right: 0;
+  width: 83px;
+}
+
+.hud-count {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+}
+
+.hud-count > img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.hud-count.people > img {
+  height: 24px;
+}
+
+.hud-count span {
+  display: flex;
+  min-width: 40px;
+}
+
+.hud-count.people span {
+  min-width: 64px;
+}
+
+.hud-count span img {
+  height: 16px;
+  margin-right: -1px;
+}
+
+.hud .hud-menu-button,
+.hud .hud-menu-item {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.hud .hud-menu-button {
+  z-index: 26;
+  top: calc(2px + var(--hud-bar-top, 0px));
+  right: 6px;
+  width: 34px;
+  height: 34px;
+}
+
+.hud-menu-button img,
+.hud-menu-item img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hud-menu-button .glyph {
+  left: 6px;
+  top: 6px;
+  width: 22px;
+  height: 22px;
+}
+
+.hud-menu-button .down,
+.hud-menu-item .down {
+  display: none;
+}
+
+.hud-menu-button:active .up,
+.hud-menu-button.open .up,
+.hud-menu-item:active .up,
+.hud-menu-item:disabled .up {
+  display: none;
+}
+
+.hud-menu-button:active .down,
+.hud-menu-button.open .down,
+.hud-menu-item:active .down,
+.hud-menu-item:disabled .down {
+  display: block;
+}
+
+.hud-menu-button:active .glyph,
+.hud-menu-button.open .glyph {
+  transform: translateY(1.5px);
+}
+
+.hud-menu {
+  position: absolute;
+  z-index: 25;
+  top: calc(36px + var(--hud-bar-top, 0px));
+  right: 4px;
+  width: 58px;
+  box-sizing: border-box;
+  padding: 10px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 2px solid #3c220c;
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  background: #bfb04d;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+}
+
+.hud .hud-menu-item {
+  position: relative;
+  width: 46px;
+  height: 46px;
+}
+
+.hud-menu-item .glyph {
+  left: 8px;
+  top: 8px;
+  width: 30px;
+  height: 30px;
+}
+
+.hud-menu-item:active .glyph {
+  transform: translateY(2px);
+}
+
+.hud-menu-item:disabled .glyph {
+  transform: translateY(2px);
+  opacity: 0.4;
+  filter: grayscale(0.6);
+}
+
+/* Over the map and the other buttons; the bar and its menu stay above it. */
+.hud-menu-shade {
+  position: fixed;
+  z-index: 24;
+  inset: 0;
+  background: rgba(28, 16, 4, 0.45);
+  pointer-events: auto;
+}
+
+/* Round 3, bottom right (Hud.ts; mock-up "命令与小队"): build, commands, squads, ✓ / ✕. */
+.hud .hud-build-button,
+.hud .hud-fab,
+.hud .hud-cmd,
+.hud .hud-cmd-item,
+.hud .hud-squad,
+.hud .hud-squad-action,
+.hud .hud-sheet-close,
+.hud .hud-card {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.hud-build-button img,
+.hud-fab img,
+.hud-cmd img,
+.hud-cmd-item img,
+.hud-squad-action img,
+.hud-sheet-close img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hud .hud-build-button,
+.hud .hud-fab {
+  right: 16px;
+  bottom: calc(var(--hud-bottom, 0px) + 4px);
+  width: 72px;
+  height: 72px;
+}
+
+.hud-build-button .down,
+.hud-build-button:active .up,
+.hud-fab .tick,
+.hud-fab.is-tick .back {
+  display: none;
+}
+
+.hud-build-button:active .down,
+.hud-fab.is-tick .tick {
+  display: block;
+}
+
+.hud .hud-fab img {
+  left: 14%;
+  top: 14%;
+  width: 72%;
+  height: 72%;
+}
+
+.hud .hud-fab:disabled {
+  opacity: 0.45;
+}
+
+.hud .hud-cmd {
+  right: 25px;
+  bottom: calc(var(--hud-bottom, 0px) + 88px);
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+}
+
+.hud-cmd .glyph,
+.hud-cmd-item .glyph {
+  left: 18%;
+  top: 18%;
+  width: 64%;
+  height: 64%;
+}
+
+.hud .hud-cmd.lit {
+  box-shadow: 0 0 0 3px #ffe27a, 0 0 16px 6px rgba(255, 210, 60, 0.85);
+}
+
+.hud-cmd .badge {
+  left: -6px;
+  top: -6px;
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 0 2px #3c220c);
+}
+
+.hud-cmd .badge[hidden] {
+  display: none;
+}
+
+.hud-cmd-menu[hidden],
+.hud-cmd-shade[hidden],
+.hud-squads[hidden],
+.hud-squad[hidden],
+.hud-squad-pop[hidden],
+.hud-squad-action[hidden],
+.hud-sheet[hidden] {
+  display: none;
+}
+
+.hud .hud-cmd-item {
+  right: 29px;
+  bottom: calc(var(--hud-bottom, 0px) + 154px + var(--i) * 52px);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+}
+
+.hud .hud-cmd-item.active {
+  box-shadow: 0 0 0 3px #ffe27a, 0 0 10px 3px rgba(255, 210, 60, 0.8);
+}
+
+.hud-cmd-item:active,
+.hud-cmd:active,
+.hud-squad:active,
+.hud-squad-action:active,
+.hud-sheet-close:active {
+  transform: translateY(1px) scale(0.94);
+}
+
+.hud-cmd-shade {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 16, 4, 0.28);
+  pointer-events: auto;
+}
+
+.hud-squads {
+  position: absolute;
+  right: 8px;
+  top: 41%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.hud .hud-squad {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.hud-squad .head {
+  position: absolute;
+  left: 6px;
+  top: 5px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+}
+
+.hud-squad .count {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  height: 18px;
+  padding: 1px 3px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: #3c220c;
+  display: flex;
+  align-items: center;
+}
+
+.hud-squad .count img {
+  height: 14px;
+  margin-right: -1px;
+}
+
+.hud .hud-squad.active .head {
+  box-shadow: 0 0 0 3px #fff36a;
+}
+
+.hud .hud-squad.held {
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 6px #fff36a);
+}
+
+.hud .hud-squad.plus {
+  width: 46px;
+  height: 46px;
+  box-sizing: border-box;
+  border: 2px dashed #fff3c4;
+  border-radius: 50%;
+  background: rgba(60, 34, 12, 0.35);
+}
+
+.hud-squad.plus .head {
+  left: 4px;
+  top: 3px;
+  width: 34px;
+  height: 34px;
+  opacity: 0.45;
+  filter: grayscale(1) brightness(1.6);
+}
+
+.hud-squad.plus b {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: #5e9e2e;
+  border: 2px solid #3c220c;
+  color: #fff;
+  font: 700 17px/16px system-ui, sans-serif;
+  text-align: center;
+}
+
+.hud-squad-pop {
+  position: absolute;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: 24px;
+  background: rgba(60, 34, 12, 0.82);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+}
+
+.hud-squad-pop::after {
+  content: "";
+  position: absolute;
+  right: -9px;
+  top: 50%;
+  margin-top: -7px;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 9px solid rgba(60, 34, 12, 0.82);
+}
+
+.hud .hud-squad-action {
+  position: relative;
+  width: 44px;
+  height: 44px;
+}
+
+.hud-squad-action img {
+  left: 8px;
+  top: 8px;
+  width: 28px;
+  height: 28px;
+}
+
+/* The bottom sheet and its build list. */
+.hud-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * var(--hud-safe-bottom, 0px));
+  height: calc(112px + var(--hud-safe-bottom, 0px));
+  box-sizing: border-box;
+  border-top: 3px solid #3c220c;
+  border-radius: 16px 16px 0 0;
+  background: #bfb04d;
+  box-shadow: inset 0 3px 0 #d9cc6e, 0 -3px 0 rgba(60, 34, 12, 0.35);
+  pointer-events: auto;
+}
+
+.hud-sheet .deco {
+  position: absolute;
+  pointer-events: none;
+}
+
+.hud-sheet .deco.bottom {
+  left: 0;
+  top: 77px;
+  width: 100%;
+}
+
+.hud-sheet .deco.top {
+  left: -2px;
+  top: -22px;
+  width: 300px;
+}
+
+.hud .hud-sheet-close {
+  right: 10px;
+  top: -20px;
+  width: 36px;
+  height: 36px;
+}
+/* Build List Navigation Arrows on Desktop */
+.hud .hud-sheet-nav {
+  position: absolute;
+  top: 36px;
+  width: 30px;
+  height: 38px;
+  padding: 0;
+  border-radius: 8px;
+  border: 2px solid #5d4037;
+  background: rgba(45, 30, 16, 0.94);
+  color: #ffe27a;
+  font: 900 15px/1 system-ui, sans-serif;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.hud .hud-sheet-nav.prev {
+  left: 6px;
+}
+
+.hud .hud-sheet-nav.next {
+  right: 6px;
+}
+
+.hud .hud-sheet-nav:hover {
+  background: #5d4037;
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.hud .hud-sheet-nav:active {
+  transform: scale(0.94);
+}
+
+.hud .hud-sheet-nav.disabled {
+  opacity: 0.2;
+  pointer-events: none;
+}
+

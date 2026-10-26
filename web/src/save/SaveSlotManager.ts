@@ -1,4 +1,5 @@
 import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
+import { readStorage, removeStorage, writeStorage } from "../platform/Storage";
 import { capitalise, originalText } from "../OriginalText";
 import { ZH_LANGUAGE } from "../text/LegacyZhText";
 
@@ -22,19 +23,6 @@ export type SaveSlotSnapshot = {
   t2: string | null;
 };
 
-export const ALL_STORAGE_KEYS = [
-  "t0",
-  "t1",
-  "t2",
-  "pt.slot.1",
-  "pt.slot.2",
-  "pt.slot.3",
-  "pt.language",
-  "pt.music",
-  "pt.sfx",
-  "pt.volume",
-  "pt.zoomOut",
-] as const;
 
 function slotKey(slot: SaveSlotIndex): string {
   return `pt.slot.${slot}`;
@@ -42,7 +30,7 @@ function slotKey(slot: SaveSlotIndex): string {
 
 export function readSaveSlot(slot: SaveSlotIndex): SaveSlotSnapshot | null {
   try {
-    const raw = localStorage.getItem(slotKey(slot));
+    const raw = readStorage(slotKey(slot));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as SaveSlotSnapshot;
     if (!parsed || typeof parsed.mission !== "number") return null;
@@ -52,12 +40,8 @@ export function readSaveSlot(slot: SaveSlotIndex): SaveSlotSnapshot | null {
   }
 }
 
-export function deleteSaveSlot(slot: SaveSlotIndex): void {
-  try {
-    localStorage.removeItem(slotKey(slot));
-  } catch {
-    // ignore storage errors
-  }
+export async function deleteSaveSlot(slot: SaveSlotIndex): Promise<boolean> {
+  return removeStorage(slotKey(slot));
 }
 
 export function canSaveCurrentMatch(runtime: LegacyRuntimeState): boolean {
@@ -69,7 +53,7 @@ export function canSaveCurrentMatch(runtime: LegacyRuntimeState): boolean {
  * Saves the active match state immediately into the native RMS stores (`t0`, `t1`/`t2`)
  * and snapshots them into `pt.slot.<slot>`.
  */
-export function saveToSlot(runtime: LegacyRuntimeState, slot: SaveSlotIndex): SaveSlotSnapshot | null {
+export async function saveToSlot(runtime: LegacyRuntimeState, slot: SaveSlotIndex): Promise<SaveSlotSnapshot | null> {
   if (!canSaveCurrentMatch(runtime)) return null;
   const g = runtime.game;
   const isCustom = g.mission >= 7;
@@ -87,7 +71,6 @@ export function saveToSlot(runtime: LegacyRuntimeState, slot: SaveSlotIndex): Sa
   const savedProgress = runtime.saveOriginalResourceAction(0);
   if (!savedGameplay && !savedProgress) return null;
 
-  // If paused on Q=11 (no prior save), upgrade to Q=10 so native Load row is active.
   if (g.screen === 11) {
     g.screen = 10;
     g.H = true;
@@ -96,7 +79,6 @@ export function saveToSlot(runtime: LegacyRuntimeState, slot: SaveSlotIndex): Sa
   const row = runtime.mainArrays.aShort[0];
   const table = runtime.packedOffsets[146] ?? 0;
   const val = (i: number) => row?.[runtime.packedBytes[table + i] ?? 0] ?? 0;
-
   const snapshot: SaveSlotSnapshot = {
     version: 1,
     slot,
@@ -110,41 +92,28 @@ export function saveToSlot(runtime: LegacyRuntimeState, slot: SaveSlotIndex): Sa
     wood: Math.max(0, val(2)),
     stone: Math.max(0, val(3)),
     bones: Math.max(0, val(4)),
-    t0: localStorage.getItem("t0"),
-    t1: localStorage.getItem("t1"),
-    t2: localStorage.getItem("t2"),
+    t0: readStorage("t0"),
+    t1: readStorage("t1"),
+    t2: readStorage("t2"),
   };
 
-  try {
-    localStorage.setItem(slotKey(slot), JSON.stringify(snapshot));
-    return snapshot;
-  } catch {
-    return null;
-  }
+  return await writeStorage(slotKey(slot), JSON.stringify(snapshot)) ? snapshot : null;
 }
 
-/**
- * Restores a slot's RMS records (`t0`, `t1`, `t2`) into `localStorage` and syncs runtime progress flags.
- */
-export function stageSlotForLoad(runtime: LegacyRuntimeState, slot: SaveSlotIndex): SaveSlotSnapshot | null {
+/** Restore the saved RMS records and sync runtime progress flags before resuming the match. */
+export async function stageSlotForLoad(runtime: LegacyRuntimeState, slot: SaveSlotIndex): Promise<SaveSlotSnapshot | null> {
   const snap = readSaveSlot(slot);
   if (!snap) return null;
-  try {
-    if (snap.t0 !== null) localStorage.setItem("t0", snap.t0);
-    if (snap.t1 !== null) localStorage.setItem("t1", snap.t1);
-    if (snap.t2 !== null) localStorage.setItem("t2", snap.t2);
-  } catch {
-    return null;
-  }
+  const values = [["t0", snap.t0], ["t1", snap.t1], ["t2", snap.t2]] as const;
+  const writes = await Promise.all(values.filter((entry) => entry[1] !== null).map(([key, value]) => writeStorage(key, value!)));
+  if (writes.some((success) => !success)) return null;
   runtime.loadProgressFromStore();
   runtime.game.mission = snap.mission;
-  if (snap.isCustom) {
-    runtime.game.actionWFlag = true;
-  } else {
-    runtime.game.sByte = snap.mission;
-  }
+  if (snap.isCustom) runtime.game.actionWFlag = true;
+  else runtime.game.sByte = snap.mission;
   return snap;
 }
+
 
 export function formatSlotTitle(runtime: LegacyRuntimeState, snap: SaveSlotSnapshot): string {
   const zh = runtime.language === ZH_LANGUAGE;

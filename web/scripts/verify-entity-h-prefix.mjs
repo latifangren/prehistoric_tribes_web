@@ -4,7 +4,7 @@ import vm from "node:vm";
 import fs from "node:fs";
 import { denseRequire } from "./dense-layout-require.mjs";
 
-const path = `${new URL("../src/sim/units/LegacyEntityHPrefix.ts", import.meta.url).pathname}`;
+const path = `${process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/units/LegacyEntityHPrefix.ts", import.meta.url))}`;
 const output = ts.transpileModule(fs.readFileSync(path, "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText;

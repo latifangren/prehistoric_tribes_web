@@ -1,0 +1,18 @@
+/* Interactive Population counter on the top bar */
+.hud-count.people.interactive {
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: 8px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.hud-count.people.interactive:hover {
+  background: rgba(255, 243, 196, 0.25);
+}
+
+.hud-count.people.interactive:active {
+  transform: scale(0.95);
+}
+

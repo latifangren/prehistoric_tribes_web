@@ -13,7 +13,7 @@ function loadModule(file) {
   return module.exports;
 }
 
-const { finalizeLegacyEntity } = loadModule(new URL("../src/sim/world/LegacyEntityFinalize.ts", import.meta.url).pathname);
+const { finalizeLegacyEntity } = loadModule(process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/world/LegacyEntityFinalize.ts", import.meta.url)));
 
 function baseInput(overrides = {}) {
   const dense = new Int8Array(10000);

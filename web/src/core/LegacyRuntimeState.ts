@@ -266,15 +266,28 @@ import { setLegacyPathDirection, type LegacyPathDirectionState } from "../sim/wo
 import { stepLegacyPathE, type LegacyPathEInput } from "../sim/world/LegacyPathE";
 import { stepLegacyByteActionQueue } from "../ui/LegacyByteActionQueue";
 import { stepLegacySelectionFlags } from "../ui/LegacySelectionFlags";
-import { beginLegacyEntityAction, stepLegacyAk, stepLegacyAl, stepLegacyAm, stepLegacyAn, stepLegacyAo, stepLegacyAp, stepLegacyAq, stepLegacyAr, stepLegacyAs, stepLegacyAt, stepLegacyAu, stepLegacyAv, stepLegacyAw, stepLegacyAx, stepLegacyAy, stepLegacyAz, stepLegacyAA, stepLegacyAd, stepLegacyAB, stepLegacyAC, stepLegacyAe, stepLegacyAi, stepLegacyAf, stepLegacyAg, stepLegacyAh, stepLegacyAj, stepLegacyAKViewport, stepLegacyAL, resetLegacyAM, stepLegacyAOMap, stepLegacyMapEntry, stepLegacyAPPrefix, stepLegacyAQAudio, stepLegacyASAudioWait, type LegacyAkCallbacks, type LegacyAmInput, type LegacyAnInput, type LegacyAoInput, type LegacyAoState, type LegacyApInput, type LegacyApState, type LegacyAqState, type LegacyArInput, type LegacyAuInput, type LegacyAwState, type LegacyAdInput, type LegacyAbInput, type LegacyAcInput, type LegacyAbState, type LegacyAcState, type LegacyAeInput, type LegacyAeState, type LegacyAiInput, type LegacyAfState, type LegacyGroupKeyState, type LegacyAjState, type LegacyAKViewportState, type LegacyALState, type LegacyAmResetInput, type LegacyAOMapInput, type LegacyAOMapState, type LegacyAPPrefixInput, type LegacyAQAudioInput, type LegacyAdState, type LegacyAnState, type LegacyMapEntryCallbacks } from "../ui/LegacyStateMachine";
+import { beginLegacyEntityAction, stepLegacyAk, stepLegacyAl, stepLegacyAm, stepLegacyAn, stepLegacyAo, stepLegacyAp, stepLegacyAq, stepLegacyAr, stepLegacyAs, stepLegacyAt, stepLegacyAu, stepLegacyAv, stepLegacyAw, stepLegacyAx, stepLegacyAy, stepLegacyAz, stepLegacyAA, stepLegacyAd, stepLegacyAB, stepLegacyAC, stepLegacyAe, type LegacyAkCallbacks, type LegacyAmInput, type LegacyAnInput, type LegacyAoInput, type LegacyAoState, type LegacyApInput, type LegacyApState, type LegacyAqState, type LegacyArInput, type LegacyAuInput, type LegacyAwState, type LegacyAdInput, type LegacyAbInput, type LegacyAcInput, type LegacyAbState, type LegacyAcState, type LegacyAeInput, type LegacyAeState, type LegacyAdState, type LegacyAnState } from "../ui/LegacyStateMachine";
+import { stepLegacyAf, stepLegacyAg, stepLegacyAh, stepLegacyAi, stepLegacyAj, type LegacyAfInput, type LegacyAfState, type LegacyAgInput, type LegacyAhInput, type LegacyAiInput, type LegacyGroupKeyState, type LegacyAjState } from "../sim/units/LegacyUnitSelection";
+import { resetLegacyAM, stepLegacyAKViewport, stepLegacyAL, stepLegacyAOMap, stepLegacyMapEntry, stepLegacyAPPrefix, type LegacyAmResetInput, type LegacyAKViewportState, type LegacyALState, type LegacyAOMapInput, type LegacyAOMapState, type LegacyAPPrefixInput, type LegacyMapEntryCallbacks } from "../sim/world/LegacyMapEntryTransitions";
+import { stepLegacyAQAudio, stepLegacyASAudioWait, type LegacyAQAudioInput } from "../audio/LegacyAudioTransitions";
 import { ANIMAL_HP, ANIMAL_KIND, ANIMAL_X, ANIMAL_Y, BLD_HP, BLD_KIND, BLD_OWNER, BLD_WORK, BLD_WORKERS, BLD_WORKER_HEAD, BLD_X, BLD_Y, RES_KIND, RES_X, RES_Y, UNIT_AGE, UNIT_CARRY_AMOUNT, UNIT_CARRY_KIND, UNIT_DIRECTION, UNIT_FLAGS, UNIT_HAPPINESS, UNIT_HELD_ITEM, UNIT_HP, UNIT_JOB_TYPE, UNIT_MELEE_SKILL, UNIT_MODE, UNIT_NEXT_WORKER, UNIT_ORDER, UNIT_RANGED_SKILL, UNIT_RECORD, UNIT_SCOUT_SKILL, UNIT_SLOT, UNIT_SPEED, UNIT_TARGET_X, UNIT_TARGET_Y, UNIT_TIMER, UNIT_TYPE, UNIT_VISION, UNIT_WORK_TARGET, UNIT_Y } from "./DenseLayout";
-import { runSubsystemEntityLoop, runSubsystemJ, runSubsystemN, runSubsystemPrepass, stepSubsystemAnFor, stepSubsystemFrame, stepSubsystemN, stepSubsystemOLower, stepSubsystemP, stepSubsystemStateCommand, subsystemB, subsystemBActionSelector, subsystemBActivityPrefix, subsystemBBoolean, subsystemBC, subsystemBDecision, subsystemBEntryGate, subsystemBFinalPrefix, subsystemBTeamSweep, subsystemBVoid, subsystemD, subsystemDecision, subsystemEntityAAlert, subsystemEntityJTrigger, subsystemEntityLoopTail, subsystemEntityTransform, subsystemG, subsystemH, subsystemK, subsystemMarkerRescan, subsystemMarkerScan, subsystemNDecision, subsystemNGate, subsystemNOrchestrator, subsystemPrivateO, subsystemRecordRecovery, subsystemT, subsystemTeamOneAiMuster, subsystemTenSlotAllocate, subsystemTenSlotRelease, subsystemTenSlotReleaseEntity, subsystemU, subsystemUnitTraining } from "../sim/tribe/TribeRuntime";
-import { changeEntityType, entityActionPrompt, entityAp, entityCourtship, entityDeathCleanup, entityHealthDelta, entityModeValue, entityMove, entityMoveCancel, entityPartition, entityProduceItem, entityRecordLifecycleInput, entityStrikeGate, entityTypeReaction, finalizeEntity, gainEntitySkill, gainEntitySlotSkills, placeEntity, selectEntityTypeAfterQ, selectEntityUpdateCandidates, stepEntityAction, stepEntityActionConfirmation, stepEntityCoordinateUpdate, stepEntityCoreUpdate, stepEntityDecisionCheck, stepEntityIUpdate, stepEntityKPredicate, stepEntityRemoval, stepEntityTarget, stepEntityWUpdate } from "../sim/units/UnitRuntime";
-import { drawFrameCommandPrimitive, drawImageHelper, drawMapMarker, drawPackedComposite, drawPackedSpritePrimitive, renderCRow, renderGameplayTo, renderMap, stepCameraCursor, stepCameraFollow, stepCameraFrame, stepCameraScroll, stepGameplayFramePrep, stepGameplayOuterLoop, stepGameplayPaintComposite, stepGameplayPaintHud, stepLegacyC2, stepZSubrecordDraw } from "../render/RenderRuntime";
-import { acceptNumericSequence, normalizeEntityViewport, projectRawKeyPressed, projectRawKeyReleased, runByteActionQueue, runSelectionFlagsRefresh, stepDefaultAo, stepFrame, stepFrameDispatch, stepFrameSelectionTransition, stepFrameSelectionTransitionInner, stepGameplayFrame, stepGameplayZAe, stepGameplayZAf, stepLegacyA2, stepLegacyBL, stepLegacyBM, stepLegacyC, stepLegacyD, stepLegacyD3, stepLegacyE, stepLegacyE3, stepLegacyExitPreparation, stepLegacyF, stepLegacyL, stepLegacyO, stepLegacySceneAnimatedSlotClear, stepLegacyX, stepStateAOMap, stepStateAPPrefix, stepStateAQAudio, stepStateAi, stepStateAm, stepStateMachine, stepStateMapEntry, stepStateS, stepStateT, stepStateTransitionCommand, stepStateU } from "../ui/UiRuntime";
+import { stepSubsystemFrame } from "../sim/tribe/TribeFrameRuntime";
+import { runSubsystemJ, runSubsystemN, stepSubsystemN, stepSubsystemOLower, stepSubsystemP, subsystemB, subsystemBActionSelector, subsystemBActivityPrefix, subsystemBBoolean, subsystemBC, subsystemBDecision, subsystemBEntryGate, subsystemBFinalPrefix, subsystemBTeamSweep, subsystemBVoid, subsystemD, subsystemDecision, subsystemEntityTransform, subsystemG, subsystemH, subsystemK, subsystemNDecision, subsystemNGate, subsystemNOrchestrator, subsystemPrivateO, subsystemRecordRecovery, subsystemT, subsystemTenSlotAllocate, subsystemTenSlotRelease, subsystemTenSlotReleaseEntity, subsystemU } from "../sim/tribe/TribeRuntime";
+import { stepSubsystemStateCommand } from "../sim/tribe/TribeStateCommandRuntime";
+import { subsystemEntityAAlert, subsystemEntityJTrigger } from "../sim/tribe/TribeSignalRuntime";
+import { changeEntityType, entityCourtship, entityDeathCleanup, entityHealthDelta, entityModeValue, entityMove, entityPartition, entityRecordLifecycleInput, entityTypeReaction, finalizeEntity, gainEntitySkill, gainEntitySlotSkills, placeEntity, selectEntityTypeAfterQ, selectEntityUpdateCandidates, stepEntityCoreUpdate, stepEntityDecisionCheck, stepEntityIUpdate, stepEntityKPredicate, stepEntityRemoval, stepEntityTarget, stepEntityWUpdate } from "../sim/units/UnitRuntime";
+import { entityActionPrompt, entityAp, entityMoveCancel, entityProduceItem, entityStrikeGate, stepEntityAction, stepEntityActionConfirmation, stepEntityCoordinateUpdate } from "../sim/units/EntityActionRuntime";
+import { drawImageHelper, drawPackedComposite, drawPackedSpritePrimitive, renderCRow, renderGameplayTo, stepGameplayFramePrep, stepGameplayPaintComposite, stepGameplayPaintHud, stepLegacyC2, stepZSubrecordDraw } from "../render/RenderRuntime"; import { drawFrameCommandPrimitive } from "../render/FrameCommandPrimitiveRuntime"; import { stepGameplayOuterLoop } from "../render/GameplayOuterLoopRuntime";
+import { drawMapMarker, renderMap, stepCameraCursor, stepCameraFollow, stepCameraFrame, stepCameraScroll } from "../render/CameraRuntime";
+import { acceptNumericSequence, normalizeEntityViewport, projectRawKeyPressed, projectRawKeyReleased, runSelectionFlagsRefresh, stepFrame, stepFrameSelectionTransition, stepFrameSelectionTransitionInner, stepGameplayFrame, stepGameplayZAe, stepGameplayZAf, stepLegacyC, stepLegacyExitPreparation } from "../ui/UiRuntime"; import { runByteActionQueue, stepLegacyA2, stepLegacyBL, stepLegacyBM, stepLegacyD, stepLegacyD3, stepLegacyE, stepLegacyE3, stepLegacyF, stepLegacyL, stepLegacyO, stepLegacySceneAnimatedSlotClear, stepLegacyX } from "../ui/UiGameplayCommandRuntime"; import { stepDefaultAo, stepStateAOMap, stepStateAPPrefix, stepStateAQAudio, stepStateAi, stepStateAm, stepStateMachine, stepStateMapEntry, stepStateS, stepStateT, stepStateTransitionCommand, stepStateU } from "../ui/UiStateRuntime";
+import { stepFrameDispatch } from "../ui/UiFrameDispatchRuntime";
 import { animalRoam, batchAllocate, buildingPlacementOptions, canPlaceFootprint, checkEntityNeeds, clearEntityRecordTarget, completeEntityRecord, decodeMap, loadMap, mapOverviewInput, nearestCandidate, payEntityCost, preparePathTables, rebuildGridAfterLoad, resetMapEntryAllocation, runAuxiliaryPlacement, runPathTables, runProjectionLifecycle, runSpatialPass, stepAuxiliaryMode4, stepBuildingEconomy, stepMapEntry, vacateEntity } from "../sim/world/WorldRuntime";
 import { hydrateGameplayRecord, loadGameplayFromStore, recordOptions, saveGameplayToStore, saveOriginalResourceAction, snapshotGameplayRecord } from "../save/SaveRuntime";
 import { T_MAP_SIZE } from "./DataTables";
+import { applyZFiveIntGeometry as runtimeApplyZFiveIntGeometry, applyZSevenIntGeometry as runtimeApplyZSevenIntGeometry, cRenderExtras as runtimeCRenderExtras, composeC as runtimeComposeC, consumeFrameCommand as runtimeConsumeFrameCommand, debugSnapshot as runtimeDebugSnapshot, dispatchZCommand as runtimeDispatchZCommand, drawCScan as runtimeDrawCScan, occupancyClass as runtimeOccupancyClass, queueGeometryText as runtimeQueueGeometryText, randomRemainder as runtimeRandomRemainder, repaintRect as runtimeRepaintRect, scanZElement as runtimeScanZElement, spotAlertScratch as runtimeSpotAlertScratch, stepZKText as runtimeStepZKText, stepZKind3 as runtimeStepZKind3, stepZKind4 as runtimeStepZKind4, stepZSubrecordDraw as runtimeStepZSubrecordDraw } from "./LegacyRuntimeRenderWiring";
+import { allocateEffectSlot as runtimeAllocateEffectSlot, allocateRecord as runtimeAllocateRecord, allocateSubsystemRecord as runtimeAllocateSubsystemRecord, aiFlagCallbacks as runtimeAiFlagCallbacks, applyAuxiliaryModeWrites as runtimeApplyAuxiliaryModeWrites, calculateEntityM as runtimeCalculateEntityM, checkSpiralPlacementGate as runtimeCheckSpiralPlacementGate, cleanupEntityUpdate as runtimeCleanupEntityUpdate, entityCostInput as runtimeEntityCostInput, filterEntityLifecycle as runtimeFilterEntityLifecycle, legacySubsystemScoreInput as runtimeLegacySubsystemScoreInput, missionScriptU as runtimeMissionScriptU, missionScriptV as runtimeMissionScriptV, occupancyCheck as runtimeOccupancyCheck, pathCellPredicate as runtimePathCellPredicate, pickAdults as runtimePickAdults, placeGroundSlot as runtimePlaceGroundSlot, preparePath as runtimePreparePath, preparePathDirection as runtimePreparePathDirection, preparePathLive as runtimePreparePathLive, promoteEntityMode as runtimePromoteEntityMode, releaseEntitySelection as runtimeReleaseEntitySelection, removeAnimal as runtimeRemoveAnimal, runAjUpper as runtimeRunAjUpper, runAP as runtimeRunAP, scanEntityTargets as runtimeScanEntityTargets, setEntityMode as runtimeSetEntityMode, stepAuxiliaryModes67 as runtimeStepAuxiliaryModes67 } from "./LegacyRuntimeEntityWiring";
+import { initializeOriginalLoop as runtimeInitializeOriginalLoop, loadLanguageResource as runtimeLoadLanguageResource, loadOriginalStartupStores as runtimeLoadOriginalStartupStores, loadProgressFromStore as runtimeLoadProgressFromStore, selectLanguage as runtimeSelectLanguage, setLanguageTable as runtimeSetLanguageTable, withImageGroups as runtimeWithImageGroups, withLanguageResources as runtimeWithLanguageResources, withLanguageTables as runtimeWithLanguageTables, withMaResource as runtimeWithMaResource, withMidiResource as runtimeWithMidiResource, withPackedData as runtimeWithPackedData, withTableA as runtimeWithTableA, withZhTranslation as runtimeWithZhTranslation, zhPaintBase as runtimeZhPaintBase } from "./LegacyRuntimeBootstrapWiring";
+import { applyMFrameCommand as runtimeApplyMFrameCommand, beginEntityAction as runtimeBeginEntityAction, decodeRawMap as runtimeDecodeRawMap, letterboxState as runtimeLetterboxState, runSceneDispatch as runtimeRunSceneDispatch, selectResourceSection as runtimeSelectResourceSection, selectWindowUnits as runtimeSelectWindowUnits, startOriginalAudio as runtimeStartOriginalAudio, stepAe as runtimeStepAe, stepByteActionQueueMaintenance as runtimeStepByteActionQueueMaintenance, stepDefaultAd as runtimeStepDefaultAd, stepDefaultAm as runtimeStepDefaultAm, stepDefaultAn as runtimeStepDefaultAn, stepDefaultArFromAo as runtimeStepDefaultArFromAo, stepFPairCommand as runtimeStepFPairCommand, stepGroupKey as runtimeStepGroupKey, stepOriginalJ as runtimeStepOriginalJ, stepOriginalWaitPhase as runtimeStepOriginalWaitPhase, stepSelectionE as runtimeStepSelectionE, stepZAh as runtimeStepZAh, stepZAj as runtimeStepZAj } from "./LegacyRuntimeGameplayWiring";
 
 /**
  * b.S:B (#50, byte) -- the layer selector `markLegacySpatialRecord`
@@ -708,31 +721,12 @@ export class LegacyRuntimeState {
 
   /** Read-only raw state snapshot for development parity inspection. */
   debugSnapshot(): Readonly<Record<string, unknown>> {
-    return {
-      Q: this.game.screen,
-      vByte: this.game.loopMode,
-      vInt: this.game.vInt,
-      H: this.game.H,
-      U: this.game.U,
-      R: this.game.R,
-      S: this.game.S,
-      c: this.game.missionFrame,
-      b: this.game.b,
-      aOffsets: {
-        149: this.packedOffsets[T_MAP_SIZE],
-        153: this.packedOffsets[153],
-        197: this.packedOffsets[197],
-        248: this.packedOffsets[248],
-        280: this.packedOffsets[280],
-      },
-      map: { width: this.game.mapWidth, height: this.game.mapHeight },
-      framePrimitiveCount: this.framePrimitives.length,
-    };
+    return runtimeDebugSnapshot(this);
   }
 
   /** Raw f.a(int,int) class lookup over the two confirmed bit planes. */
   occupancyClass(x: number, y: number): number {
-    return legacyOccupancyClass(this.mainArrays.aInt, x, y);
+    return runtimeOccupancyClass(this, x, y);
   }
 
   /**
@@ -740,27 +734,22 @@ export class LegacyRuntimeState {
    * The arguments remain raw until f.a(byte,int,int) is mapped.
    */
   applyZFiveIntGeometry(x: number, mode: number, width: number, record: number, value: number): number {
-    return applyLegacyZFiveIntGeometry(this.geometry, x, mode, width, record, value);
+    return runtimeApplyZFiveIntGeometry(this, x, mode, width, record, value);
   }
 
   /** Execute the proven c.a(IIIIIII) segmented geometry call from Z. */
   applyZSevenIntGeometry(x: number, mode: number, width: number, first: number, second: number, third: number, value: number): void {
-    applyLegacyZSevenIntGeometry(this.geometry, x, mode, width, first, second, third, value);
+    return runtimeApplyZSevenIntGeometry(this, x, mode, width, first, second, third, value);
   }
 
   /** Expand one localized c.a[1]/c.b[1] record through c.b(IIIIIII). */
   composeC(x: number, y: number, width: number, height: number, record: number, align: number, value: number): void {
-    composeLegacyC(this.cComposition, this.packedBytes, this.packedOffsets, this.resourceTables.byteViews, this.resourceTables.offsetViews, x, y, width, height, record, align, value, this.resourceTables.sectionArg, this.zhCompose);
+    return runtimeComposeC(this, x, y, width, height, record, align, value);
   }
 
   /** c.a(Graphics,int)'s stats numbers, RNG and icons. */
   cRenderExtras(): LegacyCRenderExtras {
-    return {
-      onNumber: (x, y, width, text, value) => { this.geometry.queueTextWithWidth(x, y, width, text, value); },
-      random: (mask, divisor) => this.randomRemainder(mask, divisor),
-      pools: this.mainArrays.aShort,
-      onIcon: (record, x, y) => drawPackedComposite(this, record, x, y),
-    };
+    return runtimeCRenderExtras(this);
   }
 
 
@@ -777,29 +766,7 @@ export class LegacyRuntimeState {
     onDraw?: (command: LegacyCDrawCommand) => void,
     zCommandCallbacks: LegacyZCommandConsumerCallbacks = {},
   ): boolean {
-    const data = this.packedData;
-    if (!data) throw new Error("Packed /pd0 data is not loaded");
-    return scanLegacyZElementPrefix({
-      ...state,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      byteRows: data.byteTables,
-      shortRows: data.shortTables,
-    }, aD, xOffset, yOffset, {
-      ...callbacks,
-      onDispatch: (subtype, entry) => {
-        callbacks.onDispatch?.(subtype, entry);
-        this.dispatchZCommand(subtype, entry, zCommandCallbacks);
-      },
-      onSelectionCompose: (x, y, width, height, value, style, mode) => {
-        callbacks.onSelectionCompose?.(x, y, width, height, value, style, mode);
-        this.composeC(x, y, width, height, value, style, mode);
-      },
-      onSelectionRender: (rowStart) => {
-        callbacks.onSelectionRender?.(rowStart);
-        renderCRow(this, rowStart, onDraw);
-      },
-    });
+    return runtimeScanZElement(this, state, aD, xOffset, yOffset, callbacks, onDraw, zCommandCallbacks);
   }
 
   /**
@@ -808,70 +775,26 @@ export class LegacyRuntimeState {
    * remaining kind-2 branch stays explicit through the caller callback.
    */
   dispatchZCommand(kind: number, command: number, callbacks: LegacyZCommandConsumerCallbacks & LegacyZDispatchCallbacks = {}): void {
-    dispatchLegacyZ({
-      aI: this.game.frameCommandAI,
-      aJ: this.game.frameCommandAJ,
-      aK: this.game.frameCommandAK,
-      aG: this.game.frameCommandAG,
-      aH: this.game.frameCommandAH,
-    }, kind, command, {
-      onComposite: (index, x, y) => {
-        callbacks.onComposite?.(index, x, y);
-        this.game.frameCommandAG = x;
-        this.game.frameCommandAH = y;
-      },
-      onCommand: (value) => {
-        callbacks.onCommand?.(value);
-        this.consumeFrameCommand(value, callbacks);
-      },
-      onUnportedBranch: callbacks.onUnportedBranch,
-    });
+    return runtimeDispatchZCommand(this, kind, command, callbacks);
   }
 
   /** Run f.k(int) with the proven /a offset and dense-state sources. */
   stepZKText(state: LegacyZKTextState, command: number, callbacks: Omit<LegacyZKTextCallbacks, "readAdvance" | "readMode" | "languageBase" | "commandStyle"> = {}): void {
-    const data = this.packedData;
-    if (!data) throw new Error("Packed /pd0 data is not loaded");
-    stepLegacyZKText(state, command, {
-      ...callbacks,
-      // a_s[126] / a_s[127] are packedOffsets (#138), the category's field
-      // base is b:[S (#245, saveOffsets). Was read from saveOffsets[126/127].
-      readAdvance: (aF, language) => {
-        const category = this.packedBytes[(this.packedOffsets[126] ?? 0) + aF] ?? -1;
-        if (category === -1) return undefined;
-        return (this.denseState[(this.saveOffsets[category] ?? 0) + language] ?? 0)
-          + (this.packedBytes[(this.packedOffsets[127] ?? 0) + aF] ?? 0);
-      },
-      readMode: (language) => this.denseState[UNIT_CARRY_KIND + language] ?? 0,
-      languageBase: () => this.mainArrays.aShort[0]?.[16] ?? 0,
-      commandStyle: (value) => ((data.byteTables[3]?.[value] ?? 0) & 0xff) >> 6,
-    });
+    return runtimeStepZKText(this, state, command, callbacks);
   }
 
   /** Run f.d(3,command), binding its proven aI<=2 branch to f.k(int). */
   stepZKind3(state: LegacyZKind3State, command: number, language: number, callbacks: LegacyZKind3Callbacks = {}, onKText?: LegacyZKTextCallbacks["onText"]): void {
-    stepLegacyZKind3(state, command, {
-      ...callbacks,
-      onK: (value) => {
-        callbacks.onK?.(value);
-        const textState = { aF: state.aF, aI: state.aI, aJ: state.aJ, aK: state.aK, l: language };
-        this.stepZKText(textState, value, { onText: onKText });
-        state.aF = textState.aF;
-      },
-    });
+    return runtimeStepZKind3(this, state, command, language, callbacks, onKText);
   }
 
   /** f.d(4,row): a command row's clip rect (LegacyZKind4.ts). */
   stepZKind4(state: Omit<LegacyZKind4State, "byteRows">, callbacks: LegacyZKind4Callbacks = {}): void {
-    const data = this.packedData;
-    if (!data) throw new Error("Packed /pd0 data is not loaded");
-    stepLegacyZKind4({ ...state, byteRows: data.byteTables }, callbacks);
+    return runtimeStepZKind4(this, state, callbacks);
   }
 
   stepZSubrecordDraw(...args: RtArgs<typeof stepZSubrecordDraw>): ReturnType<typeof stepZSubrecordDraw> {
-    // The HD wide view (render/HdArt.ts): a sub-record frame with an HD picture draws that.
-    if (hdArt.active && hdArt.drawEffect(this, args[0], args[1], args[2], args[3])) return;
-    return stepZSubrecordDraw(this, ...args);
+    return runtimeStepZSubrecordDraw(this, ...args);
   }
 
 
@@ -883,29 +806,7 @@ export class LegacyRuntimeState {
    * producers of `as/ad/q/aJ/aK`.
    */
   consumeFrameCommand(command: number, callbacks: LegacyZCommandConsumerCallbacks = {}): void {
-    consumeLegacyZCommand({
-      r: this.mainArrays.r,
-      // CORRECTED (2026-09-14): f.j(int) reads `as:B` #219, `ad:B` #186 and
-      // `q:I` #356 -- the same instance fields Z()/ae() (frameLayoutAS),
-      // a(ZZZZZZZZZ) (selectionAd, its only writer) and qCounter already model.
-      // The old frameCommandAs/Ad/Q placeholders had no writer at all, so
-      // `ad != 6` always held and the Build cost float read column r-6+20.
-      as: this.game.menuCursor,
-      ad: this.game.selectionAd,
-      q: this.game.qCounter,
-      e: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      jTables: Array.from(this.packedData?.byteTables ?? []),
-      // f.d:[I (#275, offsets 443/482): the HUD slot y table, oElementRecordInts -- 1107 sets
-      // d[8] = -20 to lift the cost panel. CORRECTED 2026-10-15 (pixel comparison, play26 frame
-      // 40000): this passed gGeometry[0], so the panel never moved up.
-      d: this.game.oElementRecordInts,
-      aF: this.game.frameCommandAF,
-      aI: this.game.frameCommandAI,
-      aJ: this.game.frameCommandAJ,
-      aK: this.game.frameCommandAK,
-    }, command, callbacks);
+    return runtimeConsumeFrameCommand(this, command, callbacks);
   }
 
   projectRawKeyPressed(...args: RtArgs<typeof projectRawKeyPressed>): ReturnType<typeof projectRawKeyPressed> { return projectRawKeyPressed(this, ...args); }
@@ -914,7 +815,7 @@ export class LegacyRuntimeState {
 
   /** Raw c.a(x,y,mode,String,style) text-to-geometry entry point. */
   queueGeometryText(x: number, mode: number, text: string, style: number): number {
-    return this.geometry.queueText(x, mode, text, style);
+    return runtimeQueueGeometryText(this, x, mode, text, style);
   }
 
   canPlaceFootprint(...args: RtArgs<typeof canPlaceFootprint>): ReturnType<typeof canPlaceFootprint> { return canPlaceFootprint(this, ...args); }
@@ -928,44 +829,12 @@ export class LegacyRuntimeState {
     counterIndex: number,
     input: Omit<LegacySubsystemRecordInput, "state" | "map" | "packedBytes" | "packedOffsets">,
   ): number {
-    return allocateLegacySubsystemRecord({
-      ...input,
-      state: this.denseState,
-      map,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-    }, first, x, y, counterIndex);
+    return runtimeAllocateSubsystemRecord(this, map, first, x, y, counterIndex, input);
   }
 
   /** f.aP() (#497): the q-selected placement table, with the live wiring. */
   runAP(placementCallbacks: Omit<LegacyAPPrefixInput, "state" | "packedBytes" | "packedOffsets" | "shortRows"> = {}): void {
-    stepStateAPPrefix(this, {
-      ...placementCallbacks,
-      // Live: aP() writes aw itself (the old inline snapshot dropped it).
-    state: liveView<LegacyAPPrefixInput["state"]>(this.game, { q: "mission", bByte: "difficulty", awByte: "levelAwByte" }),
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      shortRows: this.mainArrays.aShort,
-      onDenseWrite: placementCallbacks.onDenseWrite ?? ((index, value) => {
-        if (index >= 0 && index < this.denseState.length) this.denseState[index] = value;
-      }),
-      onPlaceFive: placementCallbacks.onPlaceFive ?? ((team, type, x, y, flags, specialPlacement, existingId) => {
-        this.placeEntity(this.gridC, team, type, x, y, flags, specialPlacement, existingId, this.buildingPlacementOptions());
-      }),
-      onCreateRecord: placementCallbacks.onCreateRecord ?? ((team, x, y, type, flags) => {
-        this.allocateRecord(this.gridC, team, x, y, type, flags, this.recordOptions());
-      }),
-      // Offset 328 of aP() is `invokevirtual #540`, f's own b(IIII)V -- the 22-slot animal
-      // record -- as b(1, row2, row3, row0). FIXED 2026-10-14 (oracle run 15, play20 frame
-      // 62619, mission 4's 14 animals): this ran b.b(IIII), the mission-script step.
-      onAuxRecord: placementCallbacks.onAuxRecord ?? ((first, x, y, counterIndex) => {
-        this.allocateSubsystemRecord(this.gridC, first, x, y, counterIndex, {
-          randomRemainder: (mask, divisor) => this.randomRemainder(mask, divisor),
-          counters: this.game.subsystemT,
-          q: this.game.mission,
-        });
-      }),
-    });
+    return runtimeRunAP(this, placementCallbacks);
   }
 
   stepLegacyC(...args: RtArgs<typeof stepLegacyC>): ReturnType<typeof stepLegacyC> { return stepLegacyC(this, ...args); }
@@ -980,13 +849,7 @@ export class LegacyRuntimeState {
     associationIndex: number,
     callbacks: Omit<LegacyEntityUpdateCleanupInput, "state" | "subsystemG" | "id" | "associationIndex"> = {},
   ): void {
-    cleanupLegacyEntityUpdate({
-      ...callbacks,
-      state: this.denseState,
-      subsystemG: this.subsystemArrays.gRows,
-      id,
-      associationIndex,
-    });
+    return runtimeCleanupEntityUpdate(this, id, associationIndex, callbacks);
   }
 
 
@@ -1021,60 +884,7 @@ export class LegacyRuntimeState {
     id: number,
     onOccupantCheck?: (cellValue: number) => boolean,
   ): boolean {
-    const game = this.game;
-    const queue = this.auxiliaryQueueState;
-    return checkLegacySpiralPlacementGate({
-      mode,
-      scanLimit,
-      originX,
-      originY,
-      dense: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      saveOffsets: this.saveOffsets,
-      gridC: this.gridC,
-      gridB: this.gridB,
-      cRows: this.subsystemArrays.cRows,
-      mapWidth: this.game.mapWidth,
-      mapHeight: this.game.mapHeight,
-      id,
-      entityB: this.subsystemArrays.bField8,
-      ae: this.subsystemArrays.bField105,
-      onOccupantCheck,
-      onO: () => stepLegacySubsystemBVoidO({
-        state: this.denseState,
-        id,
-        localFlags: this.game.subsystemBLocalFlags,
-        // b.b(int,int,int,int):byte (#332), o()'s offset-100 tail. Ported
-        // 2026-09-04 as stepLegacySubsystemScore; it used to be inlined here
-        // as a literal 0 on a retracted premise. Its own two callees (#267/
-        // #268) are now ported for real too (2026-09-08,
-        // LegacySubsystemScore.ts) -- see that file's own docblock. #264/
-        // #366 (onPairSetup/onDCall) are ALSO now real calls (2026-09-08,
-        // LegacySubsystemPairSetup.ts) -- #264 is the only writer of the
-        // shared loop bound `c:B`/bField144, so the #267/#268 loops are no
-        // longer a guaranteed no-op. #265/#380 (onFlagToggle/onFCall) remain
-        // callbacks (a separate, concurrent port owns those two methods).
-        onScore: (a, b, c, d) => stepLegacySubsystemScore(this.legacySubsystemScoreInput(id), a, b, c, d),
-      }),
-      onOccupancyCheck: (x, y, arg3) => this.occupancyCheck(id, x, y, arg3),
-      onGroupMode: (entityId, argument) => this.subsystemG(entityId, argument),
-      bScalars: this.subsystemArrays,
-      scratchB: { get value() { return game.subsystemB; }, set value(v: number) { game.subsystemB = v; } },
-      team: game.bTeam,
-      // mode 6 (af()'s animal scan): `id` is the animal slot.
-      onHitReaction: (x, y, target, arg4) => stepLegacyAnimalHitReaction({
-        state: this.denseState,
-        packedBytes: this.packedBytes,
-        packedOffsets: this.packedOffsets,
-        slot: id,
-        onFlee: (flag) => this.animalRoam(id, flag),
-      }, x, y, target, arg4),
-      onRepaint: (x, y, w, h) => this.repaintRect(x, y, w, h),
-      rByte: { get value() { return game.subsystemRByte; }, set value(v: number) { game.subsystemRByte = v; } },
-      fP: this.auxiliaryScratch,
-      oCounter: { get value() { return queue.O; }, set value(v: number) { queue.O = v; } },
-    });
+    return runtimeCheckSpiralPlacementGate(this, mode, scanLimit, originX, originY, id, onOccupantCheck);
   }
 
   stepEntityIUpdate(...args: RtArgs<typeof stepEntityIUpdate>): ReturnType<typeof stepEntityIUpdate> { return stepEntityIUpdate(this, ...args); }
@@ -1086,32 +896,19 @@ export class LegacyRuntimeState {
     partition: number,
     onBestTarget?: LegacyEntityTargetScanInput["onBestTarget"],
   ): LegacyEntityTargetScanResult {
-    return scanLegacyEntityTargets({
-      state: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      partition,
-      entityId: id,
-      targetType,
-      onBestTarget,
-    });
+    return runtimeScanEntityTargets(this, id, targetType, partition, onBestTarget);
   }
 
   /** Proven b.P() mode write against the live entity bank. */
   promoteEntityMode(id: number, status: number): number {
-    return promoteLegacyEntityMode(this.denseState, id, status);
+    return runtimePromoteEntityMode(this, id, status);
   }
 
   selectEntityTypeAfterQ(...args: RtArgs<typeof selectEntityTypeAfterQ>): ReturnType<typeof selectEntityTypeAfterQ> { return selectEntityTypeAfterQ(this, ...args); }
 
   /** Proven b.m calculation core; callers supply the original k[] snapshot. */
   calculateEntityM(input: Omit<LegacyEntityMCalculationInput, "state" | "packedBytes" | "packedOffsets">): number {
-    return calculateLegacyEntityM({
-      ...input,
-      state: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-    });
+    return runtimeCalculateEntityM(this, input);
   }
 
   clearEntityRecordTarget(...args: RtArgs<typeof clearEntityRecordTarget>): ReturnType<typeof clearEntityRecordTarget> { return clearEntityRecordTarget(this, ...args); }
@@ -1126,25 +923,7 @@ export class LegacyRuntimeState {
       readonly onLifecycleReset?: (record: number, enabled: boolean) => void;
     } = {},
   ): void {
-    filterLegacyEntityLifecycle({
-      state: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      entityId: id,
-      enabled,
-      onAction: (record, entityId, first, second) => {
-        transferLegacyEntityAction({
-          state: this.denseState,
-          entityId: record,
-          record: entityId,
-          moveFlag: first !== 0,
-          resetFlag: second !== 0,
-          readEntityCell,
-          onRecordCompletion: callbacks.onRecordCompletion,
-          onLifecycleReset: callbacks.onLifecycleReset,
-        });
-      },
-    });
+    return runtimeFilterEntityLifecycle(this, id, enabled, readEntityCell, callbacks);
   }
 
   finalizeEntity(...args: RtArgs<typeof finalizeEntity>): ReturnType<typeof finalizeEntity> { return finalizeEntity(this, ...args); }
@@ -1155,55 +934,34 @@ export class LegacyRuntimeState {
 
   /** Exact f.a(int,int) RNG helper; caller supplies the original mask/divisor. */
   randomRemainder(mask: number, divisor: number): number {
-    return legacyRandomRemainder(this.random, mask, divisor);
+    return runtimeRandomRemainder(this, mask, divisor);
   }
 
   /** Raw mode 1..4 coordinate-write segment of b.a(IIII). */
   applyAuxiliaryModeWrites(input: Omit<Parameters<typeof applyLegacyAuxiliaryModeWrites>[0], "dense" | "packedOffsets">): LegacyAuxiliaryModeWriteResult {
-    return applyLegacyAuxiliaryModeWrites({
-      ...input,
-      dense: this.denseState,
-      packedOffsets: this.packedOffsets,
-    });
+    return runtimeApplyAuxiliaryModeWrites(this, input);
   }
 
   /** Raw mode 6/7 gate segment of b.a(IIII), with opaque owners as callbacks. */
   stepAuxiliaryModes67(input: Omit<LegacyAuxiliaryModes67Input, "dense" | "packedBytes" | "packedOffsets">): boolean {
-    return stepLegacyAuxiliaryModes67({
-      ...input,
-      dense: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-    });
+    return runtimeStepAuxiliaryModes67(this, input);
   }
 
 
 
   /** Full raw b.a(IIIII) path preparation; a(II) and a(III)B stay callbacks. */
   preparePath(input: Omit<LegacyPathPreparationInput, "f" | "g">): void {
-    prepareLegacyPath({
-      ...input,
-      f: this.subsystemArrays.fByte,
-      g: this.subsystemArrays.g,
-    });
+    return runtimePreparePath(this, input);
   }
 
   /** Raw b.a(II) direction mask/delta helper. */
   preparePathDirection(state: LegacyPathDirectionState, dx: number, dy: number): void {
-    setLegacyPathDirection(state, dx, dy);
+    return runtimePreparePathDirection(this, state, dx, dy);
   }
 
   /** Raw b.a(III):byte path-cell predicate; u/v remain explicit raw fields. */
   pathCellPredicate(x: number, y: number, mode: number, u: number, v: number): number {
-    return legacyPathCellPredicate({
-      map: this.gridC,
-      packedBytes: this.packedBytes,
-      shortOffsets: this.packedOffsets,
-      state: this.denseState,
-      u,
-      v,
-      occupancyBits: this.mainArrays.aInt,
-    }, x, y, mode);
+    return runtimePathCellPredicate(this, x, y, mode, u, v);
   }
 
 
@@ -1221,41 +979,7 @@ export class LegacyRuntimeState {
     readonly readPackedDelta: (offset: number) => number;
     readonly onCellValue: (x: number, y: number, mode: number) => number;
   }): { readonly directionMask: number; readonly directionDeltas: Int8Array; readonly transitionCount: number } {
-    const direction = { a: 0, c: new Int8Array(2) };
-    const pathState = { d: 0, c: 0, b: 0, e: 0 };
-    const tableState = { a: 0, b: 0, e: 0, f: 0, g: 0, cCursor: 0 };
-    prepareLegacyPath({
-      ...input,
-      pathData: this.subsystemArrays.d,
-      eRows: this.subsystemArrays.e,
-      eValues: this.subsystemArrays.eByte,
-      f: this.subsystemArrays.fByte,
-      g: this.subsystemArrays.g,
-      h: this.subsystemArrays.h,
-      map: this.gridC,
-      mapMirror: this.gridB,
-      state: pathState,
-      onRelativePreparation: (dx, dy) => setLegacyPathDirection(direction, dx, dy),
-      onE: (mode) => stepLegacyPathE({
-        mode,
-        directionMask: direction.a,
-        deltas: this.subsystemArrays.fByte,
-        c: direction.c,
-        dScratch: this.subsystemArrays.dByte,
-        pathData: this.subsystemArrays.d,
-        eCounts: this.subsystemArrays.eByte,
-        map: this.gridC,
-        readPackedDelta: input.readPackedDelta,
-        onCellValue: input.onCellValue,
-        state: tableState,
-      }),
-      onCellValue: input.onCellValue,
-    });
-    return {
-      directionMask: direction.a,
-      directionDeltas: new Int8Array(direction.c),
-      transitionCount: pathState.c,
-    };
+    return runtimePreparePathLive(this, input);
   }
 
   recordOptions(...args: RtArgs<typeof recordOptions>): ReturnType<typeof recordOptions> { return recordOptions(this, ...args); }
@@ -1269,15 +993,7 @@ export class LegacyRuntimeState {
     flags: number,
     options: Omit<LegacyRecordAllocatorInput, "state" | "map" | "packedBytes" | "packedOffsets" | "counters" | "randomRemainder">,
   ): number {
-    return allocateLegacyRecord({
-      ...options,
-      state: this.denseState,
-      map,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      counters: this.mainArrays.aShort,
-      randomRemainder: (mask, divisor) => this.randomRemainder(mask, divisor),
-    }, team, x, y, type, flags);
+    return runtimeAllocateRecord(this, map, team, x, y, type, flags, options);
   }
 
   stepFrame(...args: RtArgs<typeof stepFrame>): ReturnType<typeof stepFrame> { return stepFrame(this, ...args); }
@@ -1288,39 +1004,7 @@ export class LegacyRuntimeState {
    * behind a dialogue. Shared by both call sites since 2026-10-08 (oracle).
    */
   stepOriginalJ(): void {
-    this.stepFrame({
-      map: this.gridC,
-      // f.j() offset 134: f.c(int,int,int,int), the repaint of a cleared
-      // -114..-116 cell. Wired 2026-09-27.
-      repairCell: (x, y, width, height) => this.repaintRect(x, y, width, height),
-      // f.j() offsets 143..167: `if (P && w != 4 && w != 3) Z();`
-      // (invokespecial #428). WIRED 2026-09-14: LegacyFrameStep already
-      // called `flushPending?.()` and cleared P afterwards, but no caller
-      // ever supplied it, so Z() never ran from here. That is what kept the
-      // Build submenu empty: af()'s `r[as] == 10` branch only sets flag 6
-      // and P, relying on this call to rebuild r[] from table 137.
-      flushPending: () => { this.stepFrameSelectionTransition(); },
-      // b.g()/b.e()/b.h()/b.i(), all four originally wrapped in ONE
-      // shared try/catch inside f.j() itself (confirmed via direct
-      // bytecode read, f-javap.txt offsets 0..28 -> 31, pop) -- which
-      // is exactly this stepFrame() call's own try/catch around
-      // updateSubsystem(), so it doesn't need a second one here.
-      // b.g() (LegacySubsystemBuildingEconomy.ts) calls b.n()
-      // (LegacySubsystemVoidN.ts) whenever game.missionFrame%10===0.
-      // RETRACTED (2026-09-04/05): n() is NOT a guaranteed throw (its
-      // own c:[[[B]#151 field is not permanently null -- see that
-      // file's own docblock); it now runs its real spatial-hash
-      // rebuild every 10th tick instead of skipping e()/h()/i()
-      // (stepSubsystemFrame()) for that tick. RETRACTED (2026-09-07):
-      // the line that used to be here ("every other tick, g() absorbs
-      // its own separate b.ax() throw internally") is also gone --
-      // ax() is not a guaranteed throw (see LegacySubsystemAx.ts) and
-      // now runs for real every tick.
-      updateSubsystem: () => {
-        stepBuildingEconomy(this);
-        this.stepSubsystemFrame();
-      },
-    });
+    return runtimeStepOriginalJ(this);
   }
 
   stepGameplayFrame(...args: RtArgs<typeof stepGameplayFrame>): ReturnType<typeof stepGameplayFrame> { return stepGameplayFrame(this, ...args); }
@@ -1329,19 +1013,7 @@ export class LegacyRuntimeState {
 
   /** `f.aJ():V` (UPPERCASE, constant-pool #491, `stepLegacyAj`), reused by `af()`'s several branches. */
   runAjUpper(): void {
-    const g = this.game;
-    const ajState = {
-      uFlag: g.boxSelecting, F: g.selectionGroup, k: g.kByte,
-      E: g.ECounter, D: g.DCounter, C: g.CCounter, B: g.BCounter,
-    };
-    stepLegacyAj(ajState);
-    g.boxSelecting = ajState.uFlag;
-    g.selectionGroup = ajState.F;
-    g.kByte = ajState.k;
-    g.ECounter = ajState.E;
-    g.DCounter = ajState.D;
-    g.CCounter = ajState.C;
-    g.BCounter = ajState.B;
+    return runtimeRunAjUpper(this);
   }
 
   subsystemBC(...args: RtArgs<typeof subsystemBC>): ReturnType<typeof subsystemBC> { return subsystemBC(this, ...args); }
@@ -1374,11 +1046,7 @@ export class LegacyRuntimeState {
    * the browsed villager's panel.
    */
   aiFlagCallbacks() {
-    return {
-      onNineFlagReset: (a: boolean, b: boolean, c: boolean, d: boolean, e: boolean, f: boolean, h: boolean, i: boolean, j: boolean) =>
-        this.runSelectionFlagsRefresh(a, b, c, d, e, f, h, i, j),
-      onFourFlagReset: (a: boolean, b: boolean, c: boolean, d: boolean) => this.runSelectionFlagsRefresh(a, b, c, d),
-    };
+    return runtimeAiFlagCallbacks(this);
   }
 
   runSelectionFlagsRefresh(...args: RtArgs<typeof runSelectionFlagsRefresh>): ReturnType<typeof runSelectionFlagsRefresh> { return runSelectionFlagsRefresh(this, ...args); }
@@ -1433,7 +1101,7 @@ export class LegacyRuntimeState {
    * `ao()`'s own onB(-1) is unaffected (same underlying function either way).
    */
   runSceneDispatch(value: number): void {
-    this.stepSubsystemStateCommand(value);
+    return runtimeRunSceneDispatch(this, value);
   }
 
 
@@ -1458,7 +1126,7 @@ export class LegacyRuntimeState {
 
   /** Exact f.h() maintenance call: f.a(100,0,0,0). */
   stepByteActionQueueMaintenance(): void {
-    this.runByteActionQueue(100, 0, 0, 0);
+    return runtimeStepByteActionQueueMaintenance(this);
   }
 
   runByteActionQueue(...args: RtArgs<typeof runByteActionQueue>): ReturnType<typeof runByteActionQueue> { return runByteActionQueue(this, ...args); }
@@ -1501,19 +1169,7 @@ export class LegacyRuntimeState {
    * are read inside one call, so each call gets fresh ones.
    */
   entityCostInput(v: number) {
-    return {
-      state: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      gridC: this.gridC,
-      team: this.game.bTeam,
-      v,
-      pool: this.mainArrays.aShort,
-      dShort: this.subsystemArrays.dShort,
-      scratch: { V: 0, W: 0 },
-      onNotify: () => this.runByteActionQueue(9, 0, 0, 0),
-      R: (() => { const g = this.game; return { get value() { return g.subsystemR; }, set value(v: number) { g.subsystemR = v; } }; })(),
-    };
+    return runtimeEntityCostInput(this, v);
   }
 
   payEntityCost(...args: RtArgs<typeof payEntityCost>): ReturnType<typeof payEntityCost> { return payEntityCost(this, ...args); }
@@ -1532,24 +1188,7 @@ export class LegacyRuntimeState {
    * Offset 20 compares e[9623+a] unmasked (the load rebuild masks it).
    */
   removeAnimal(a: number): void {
-    const e = this.denseState;
-    const t = (row: number, index: number) => this.packedBytes[(this.packedOffsets[row] ?? 0) + index] ?? 0;
-    const c = this.gridC;
-    const dir = e[9491 + a] ?? 0;
-    if (((e[9557 + a] ?? 0) & 255) <= 7 &&
-        (e[9623 + a] ?? 0) < Math.trunc((t(15, (dir & 1) * 9 + t(179, e[ANIMAL_KIND + a] ?? 0)) + 1) / 2)) {
-      const ny = (e[ANIMAL_Y + a] ?? 0) + t(1, 8 + dir);
-      const nx = (e[ANIMAL_X + a] ?? 0) + t(1, dir);
-      if (c[ny]?.[nx] === -128) c[ny]![nx] = 0;
-    }
-    const row = c[e[ANIMAL_Y + a] ?? 0];
-    if (row) row[e[ANIMAL_X + a] ?? 0] = 0;
-    e[ANIMAL_HP + a] = 0;
-    const species = e[9469 + a] ?? 0;
-    if (species < t(202, this.game.mission)) {
-      const counts = this.game.subsystemT; // f.t:[B (#368)
-      counts[species] = counts[species]! - 1;
-    }
+    return runtimeRemoveAnimal(this, a);
   }
 
   /**
@@ -1557,9 +1196,7 @@ export class LegacyRuntimeState {
    * its q:B/r:B (#212/#215) writes landing in subsystemArrays for d(int).
    */
   occupancyCheck(id: number, x: number, y: number, arg3: number): number {
-    return stepLegacySubsystemEntityOccupancyCheck(
-      this.denseState, this.packedBytes, this.packedOffsets, this.saveOffsets, id, x, y, arg3, this.subsystemArrays,
-    );
+    return runtimeOccupancyCheck(this, id, x, y, arg3);
   }
 
   /**
@@ -1569,24 +1206,12 @@ export class LegacyRuntimeState {
    * f.r() (LegacyAnimatedSlotScan.ts) animates and draws it. Full: nothing.
    */
   allocateEffectSlot(target: number, kind: number, offset: number, frame: number): void {
-    const d = this.mainArrays.d;
-    for (let slot = 0; slot < 40; slot += 1) {
-      if ((d[0]![slot] ?? 0) !== 0) continue;
-      d[1]![slot] = 0;
-      d[0]![slot] = toJavaByte(frame);
-      d[2]![slot] = toJavaByte(offset);
-      d[6]![slot] = toJavaByte(kind);
-      d[5]![slot] = toJavaByte(target);
-      return;
-    }
+    return runtimeAllocateEffectSlot(this, target, kind, offset, frame);
   }
 
   /** f.a(int,int,int,byte) (#299) on the live grid -- LegacySpecialTileAllocator.ts. */
   placeGroundSlot(kind: number, x: number, y: number, amount: number): number {
-    return allocateLegacySpecialTile(this.denseState, (cx, cy, value) => {
-      const row = this.gridC[cy];
-      if (row && cx >= 0 && cx < row.length) row[cx] = value;
-    }, { type: kind, x, y, parameter: amount });
+    return runtimePlaceGroundSlot(this, kind, x, y, amount);
   }
 
   vacateEntity(...args: RtArgs<typeof vacateEntity>): ReturnType<typeof vacateEntity> { return vacateEntity(this, ...args); }
@@ -1628,13 +1253,7 @@ export class LegacyRuntimeState {
 
   /** b.B:B (#9) / b.z:B (#235) / b.A:B (#6), live, for `h()`'s own writes. */
   spotAlertScratch(): { B: number; z: number; A: number } {
-    const game = this.game;
-    const arrays = this.subsystemArrays;
-    return {
-      get B() { return game.subsystemB; }, set B(value: number) { game.subsystemB = value; },
-      get z() { return arrays.bField235; }, set z(value: number) { arrays.bField235 = value; },
-      get A() { return arrays.bField6; }, set A(value: number) { arrays.bField6 = value; },
-    };
+    return runtimeSpotAlertScratch(this);
   }
 
   entityRecordLifecycleInput(...args: RtArgs<typeof entityRecordLifecycleInput>): ReturnType<typeof entityRecordLifecycleInput> { return entityRecordLifecycleInput(this, ...args); }
@@ -1649,25 +1268,12 @@ export class LegacyRuntimeState {
    * rectangle inside the viewport for redraw and set B:Z.
    */
   repaintRect(x: number, y: number, width: number, height: number): void {
-    const g = this.game;
-    const bounds = { originColumn: g.cameraColumn, originRow: g.cameraRow, columns: g.viewColumns, rows: g.viewRows };
-    const rectState = { boolGrid: this.effectRectBoolGrid, originColumn: g.cameraColumn, originRow: g.cameraRow, B: g.cameraBFlag };
-    stepLegacyCRect(x, y, width, height, rectState, {
-      isBlocked: (bx, by) => isLegacyWithinViewport(bounds, bx, by),
-    });
-    g.cameraBFlag = rectState.B;
+    return runtimeRepaintRect(this, x, y, width, height);
   }
 
   /** b's `private void c(boolean)` (#361): pick team 0's best adults into e[1..3]. */
   pickAdults(flag: boolean): void {
-    refreshLegacyAuxiliaryTag({
-      dense: this.denseState,
-      shortRows: this.mainArrays.aShort,
-      auxiliaryRows: this.subsystemArrays.eRows,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      saveOffsets: this.saveOffsets,
-    }, this.auxiliaryQueueState, flag);
+    return runtimePickAdults(this, flag);
   }
 
   /** b's `private void b(int,int,int)` (#342). */
@@ -1681,65 +1287,12 @@ export class LegacyRuntimeState {
 
   /** b's `private boolean u()` (#419) -- mission 4's script, LegacySubsystemU.ts. */
   missionScriptU(): boolean {
-    const game = this.game;
-    const arrays = this.subsystemArrays;
-    const queue = this.auxiliaryQueueState;
-    return stepLegacySubsystemU({
-      state: this.denseState,
-      aShort: this.mainArrays.aShort,
-      aInt: this.mainArrays.aInt,
-      eRows: arrays.eRows,
-      fP: this.auxiliaryScratch,
-      frame: game.missionFrame,
-      bField28: arrays.bField28,
-      fields: {
-        get R() { return game.subsystemRByte; }, set R(v: number) { game.subsystemRByte = v; },
-        get f() { return game.subsystemGFFlagByte; }, set f(v: number) { game.subsystemGFFlagByte = v; },
-        get N() { return queue.N; }, set N(v: number) { queue.N = v; },
-      },
-      onAuxiliary: (first, second, third) => this.auxiliaryCandidates(first, second, third),
-      onScene: (value) => this.runSceneDispatch(value),
-      onPickAdults: (flag) => this.pickAdults(flag),
-    });
+    return runtimeMissionScriptU(this);
   }
 
   /** b's `private boolean v()` (#421) -- the mission script step, LegacySubsystemV.ts. */
   missionScriptV(): boolean {
-    const game = this.game;
-    const arrays = this.subsystemArrays;
-    const queue = this.auxiliaryQueueState;
-    return stepLegacySubsystemV({
-      state: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      aShort: this.mainArrays.aShort,
-      eRows: arrays.eRows,
-      fP: this.auxiliaryScratch,
-      q: game.mission,
-      frame: game.missionFrame,
-      bField28: arrays.bField28,
-      fields: {
-        get f() { return game.subsystemGFFlagByte; }, set f(v: number) { game.subsystemGFFlagByte = v; },
-        get F() { return arrays.bField16; }, set F(v: number) { arrays.bField16 = v; },
-        get N() { return queue.N; }, set N(v: number) { queue.N = v; },
-        get I() { return game.subsystemGCurrentI; }, set I(v: number) { game.subsystemGCurrentI = v; },
-        get aw() { return game.levelAwByte; }, set aw(v: number) { game.levelAwByte = v; },
-      },
-      onPlaceStep: (first, second, x, y) => this.runAuxiliaryPlacement(first, second, x, y, game.bUnit),
-      onCoordinateSync: (id, flag) => syncLegacySubsystemBCoordinate({
-        dense: this.denseState, packedBytes: this.packedBytes, packedOffsets: this.packedOffsets,
-        // a(int,boolean) offset 286: a(id, 69) (#275), wired 2026-09-27.
-        onSpawnMark: (unit) => this.changeEntityType(unit, 69),
-      }, id, flag),
-      onFPair: (x, y) => this.stepFPairCommand({}, x, y),
-      onSpawn: (count, x, y, team, value) => this.batchAllocate(count, x, y, team, value),
-      onRecord: (team, x, y, type, flags) => {
-        this.allocateRecord(this.gridC, team, x, y, type, flags, this.recordOptions());
-      },
-      onAuxiliary: (first, second, third) => this.auxiliaryCandidates(first, second, third),
-      onPickAdults: (flag) => this.pickAdults(flag),
-      onScene: (value) => this.runSceneDispatch(value),
-    });
+    return runtimeMissionScriptV(this);
   }
 
   entityMove(...args: RtArgs<typeof entityMove>): ReturnType<typeof entityMove> { return entityMove(this, ...args); }
@@ -1772,49 +1325,7 @@ export class LegacyRuntimeState {
    * `LegacySubsystemP.ts`'s own wiring already does.
    */
   legacySubsystemScoreInput(id: number): LegacySubsystemScoreInput {
-    return {
-      dRows: this.subsystemArrays.dRows,
-      localFlags: this.game.subsystemBLocalFlags,
-      q: this.game.mission,
-      dCube: this.subsystemArrays.d,
-      eCube: this.subsystemArrays.e,
-      aCube: this.subsystemArrays.a,
-      bCube: this.subsystemArrays.b,
-      gridB: this.gridB,
-      gridC: this.gridC,
-      gArr: this.subsystemArrays.g,
-      hArr: this.subsystemArrays.h,
-      fByte: this.subsystemArrays.fByte,
-      eByte: this.subsystemArrays.eByte,
-      dByte: this.subsystemArrays.dByte,
-      dense: this.denseState,
-      entityId: id,
-      bThreshold: this.subsystemArrays.bField8,
-      bScalars: this.subsystemArrays,
-      // #380 (stepLegacySubsystemFCall)'s own needs -- see
-      // LegacySubsystemFlagPass.ts, and the identical checkLegacyCellCompatibility
-      // wiring already used by stepSubsystemP's onNearestCandidate below.
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      saveOffsets: this.saveOffsets,
-      visibilityBits: this.mainArrays.aInt,
-      mapWidth: this.game.mapWidth,
-      mapHeight: this.game.mapHeight,
-      team: this.game.bTeam,
-      // #264's own two callees, WIRED 2026-09-10. Both had been ported for
-      // weeks and left as unsupplied `?.()` optionals, which is why
-      // `eByte`/`fByte` were still all zeros in live play: with `onE` inert,
-      // #264 fell straight out at its `if (eByte[g[0]] <= 0) return;` (offset
-      // 188..199), so `c:B`(bField144) stayed 0, #332 returned 0, and
-      // `dense[808 + id]` -- the step direction `b.u()` gates every move on --
-      // was never written. See docs/unknowns.md's 2026-09-10 entry.
-      onRelativePreparation: (dx, dy) => setLegacyPathDirection(this.pathDirection, dx, dy),
-      onE: (mode) => runPathTables(this, mode, id),
-      // d(int) (#366)'s a(int,int,int) (#266) calls, offsets 28 and 434.
-      // Wired 2026-09-28: unwired, q:B/r:B stayed 0 and every path candidate
-      // was scored by its distance to (0,0).
-      onComputeQR: (x, y, arg3) => this.occupancyCheck(id, x, y, arg3),
-    };
+    return runtimeLegacySubsystemScoreInput(this, id);
   }
 
 
@@ -1838,29 +1349,7 @@ export class LegacyRuntimeState {
    */
   /** f.h(int) (#390): `f(id); e(id);` -- clear the unit from the player's selection. */
   releaseEntitySelection(entityId: number): void {
-    const result = finalizeLegacyEntitySelection({
-      id: entityId,
-      k: this.game.kByte,
-      w: this.game.barMode,
-      l: this.game.selectedId,
-      q: this.game.qCounter,
-      dense: this.denseState,
-      onSelectionReset: () => { this.runSelectionFlagsRefresh(true, true, false, false); },
-    });
-    this.game.kByte = result.k;
-    this.game.barMode = result.w;
-    this.game.selectedId = result.l;
-    releaseLegacyEntitySelection({
-      groups: this.mainArrays.aByte,
-      dense: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      id: entityId,
-      F: this.game.selectionGroup,
-      w: this.game.barMode,
-      onModeReset: () => { this.game.barMode = 0; },
-      onFReset: () => { this.game.selectionGroup = -1; },
-    });
+    return runtimeReleaseEntitySelection(this, entityId);
   }
 
   entityMoveCancel(...args: RtArgs<typeof entityMoveCancel>): ReturnType<typeof entityMoveCancel> { return entityMoveCancel(this, ...args); }
@@ -1894,34 +1383,12 @@ export class LegacyRuntimeState {
     enabled: boolean,
     callbacks: Omit<LegacyEntityModeInput, "state" | "packedBytes" | "packedOffsets"> = {},
   ): void {
-    setLegacyEntityMode({
-      ...callbacks,
-      state: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-    }, id, enabled);
+    return runtimeSetEntityMode(this, id, enabled, callbacks);
   }
 
   /** Keep the decoded /pd0 archive available without flattening unrelated tables. */
   withPackedData(data: PackedData): LegacyRuntimeState {
-    if (data.shortTables.length !== 11 || data.byteTables.length !== 25) {
-      throw new RangeError("/pd0 table count does not match the confirmed f.g layout");
-    }
-    // e.c() offsets 6..110, the frame-geometry block. Applied here because
-    // this is the first call in both boot chains, which matches the real
-    // ordering: f.run() offset 1 calls f.f(), f.f() offset 17 does
-    // `new e(this)`, and e's constructor calls e.c() at its offset 310 --
-    // so e.c() is the very first thing run() causes to happen, ahead of
-    // f.g() (offset 5) and the d(0)/d(1)/d(2) record loads (offsets 16..35)
-    // that this chain's loadOriginalStartupStores() mirrors. Until
-    // 2026-09-09 this block was never ported at all, so `viewportO`/
-    // `viewportP` (f.O:B/f.P:B) sat at 0 -- see applyLegacyFrameGeometry's
-    // own docblock for why grepping class f alone never turns up a writer.
-    applyLegacyFrameGeometry(this.game);
-    const layout = deriveLegacyFrameLayout(data.shortTables, data.byteTables);
-    this.game.frameLayoutAV = layout.aV;
-    this.game.frameLayoutAU = layout.aU;
-    return Object.assign(this, { packedData: data });
+    return runtimeWithPackedData(this, data);
   }
 
   hydrateGameplayRecord(...args: RtArgs<typeof hydrateGameplayRecord>): ReturnType<typeof hydrateGameplayRecord> { return hydrateGameplayRecord(this, ...args); }
@@ -1938,59 +1405,34 @@ export class LegacyRuntimeState {
 
   /** Replay the confirmed private f.d(0) slot-0 load performed by f.run(). */
   loadProgressFromStore(): LegacyRuntimeState {
-    const record = this.progressStore.load();
-    this.progressStoreLoaded = record !== undefined;
-    if (!record) return this;
-    // l:I (#334) is the hint toggle game.lInt; s/t/p:B are sByte/tByte/
-    // persistedPByte (their progressL/S/T/P/W mirrors were removed 2026-09-24:
-    // the save below wrote those never-updated copies back).
-    this.game.lInt = record.l;
-    this.game.progressR = record.r;
-    this.game.progressV = record.V;
-    this.game.progressC = record.c;
-    // f.d(0) writes these same decoded values into the live fields used by
-    // ao()/au(), not into a detached persistence DTO.
-    this.game.actionWFlag = record.W;
-    this.game.sByte = record.s;
-    this.game.tByte = record.t;
-    this.game.persistedPByte = record.p;
-    return this;
+    return runtimeLoadProgressFromStore(this);
   }
 
   /** Mirror f.run(): d(1) only after a missing d(0), then always d(2). */
   loadOriginalStartupStores(): LegacyRuntimeState {
-    if (!this.progressStoreLoaded) this.loadGameplayFromStore(1);
-    this.loadGameplayFromStore(2);
-    return this;
+    return runtimeLoadOriginalStartupStores(this);
   }
 
   withImageGroups(pi0: ImagePack, pi9: ImagePack, pi8: ImagePack): LegacyRuntimeState {
-    this.imageGroups[0] = pi0;
-    this.imageGroups[1] = pi9;
-    this.imageGroups[2] = pi8;
-    return this;
+    return runtimeWithImageGroups(this, pi0, pi9, pi8);
   }
 
   withMaResource(resource: MaResource): LegacyRuntimeState {
-    this.maResource = resource;
-    return this;
+    return runtimeWithMaResource(this, resource);
   }
 
   withMidiResource(resource: MidiResource): LegacyRuntimeState {
-    this.midiResource = resource;
-    return this;
+    return runtimeWithMidiResource(this, resource);
   }
 
   /** Keep the original c.b(0/1/2) sources available without flattening them. */
   withLanguageResources(s: DelimitedTable, t: DelimitedTable, d0: DelimitedTable): LegacyRuntimeState {
-    this.languageResources = { s, t, d0 };
-    return this;
+    return runtimeWithLanguageResources(this, s, t, d0);
   }
 
   /** Every JAR language set, so the Q14 choice (f.a:B) can switch c.b()'s source. */
   withLanguageTables(tables: readonly ({ readonly s: DelimitedTable; readonly t: DelimitedTable; readonly d0: DelimitedTable } | undefined)[]): LegacyRuntimeState {
-    this.languageTables = tables;
-    return this;
+    return runtimeWithLanguageTables(this, tables);
   }
 
   /**
@@ -2000,22 +1442,12 @@ export class LegacyRuntimeState {
    * new set on its next call. Out-of-range indices are ignored.
    */
   setLanguageTable(index: number, table: { readonly s: DelimitedTable; readonly t: DelimitedTable; readonly d0: DelimitedTable }): void {
-    if (!Number.isInteger(index) || index < 0 || index >= 5) return;
-    const current = this.languageTables ?? [];
-    const next = [...current];
-    while (next.length < 5) next.push(undefined);
-    next[index] = table;
-    this.languageTables = next;
+    return runtimeSetLanguageTable(this, index, table);
   }
 
   /** The Chinese strings (docs/translation-zh-CN.json); enables Q14's sixth row. */
   withZhTranslation(file: ZhTranslationFile): LegacyRuntimeState {
-    this.zhStrings = new ZhStrings(file);
-    // Widths and painting are always available (Q14 shows 中文 in every language); selectLanguage()
-    // decides whether records are replaced.
-    this.geometry.zh = { tokens: () => null, width: (tokens, font) => tokensWidth(this, font, tokens, (text) => this.zhPainter.measure(text)) };
-    this.geometryRenderer.zhPaint = (graphics, imageGroup0, font, tokens, m, n) => paintZhLine(graphics, this.zhPaintBase(imageGroup0), font, tokens, m, n);
-    return this;
+    return runtimeWithZhTranslation(this, file);
   }
 
   /**
@@ -2023,42 +1455,16 @@ export class LegacyRuntimeState {
    * ZH_LANGUAGE keeps language 0's English bytes underneath and draws the Chinese strings.
    */
   selectLanguage(language: number): void {
-    this.language = language;
-    const zh = language === ZH_LANGUAGE && this.zhStrings ? this.zhStrings : null;
-    const tables = this.languageTables?.[language >= 5 ? 0 : language];
-    if (tables) this.languageResources = tables;
-    const translate = (code: number) => this.packedBytes[this.packedOffsets[280] + code] ?? 0;
-    if (this.geometry.zh) {
-      this.geometry.zh = {
-        ...this.geometry.zh,
-        tokens: zh ? (record) => { const text = zh.label(record); return text === null ? null : tokenizeZh(text, translate); } : () => null,
-      };
-    }
-    this.zhCompose = zh ? {
-      tokens: (record) => { const text = zh.paragraph(record); return text === null ? null : tokenizeZh(text, translate); },
-      wrap: (tokens, lineWidth, font) => wrapZh(this, font, tokens, lineWidth, (text) => this.zhPainter.measure(text)),
-    } : null;
+    return runtimeSelectLanguage(this, language);
   }
 
   zhPaintBase(imageGroup0: ImagePack): ZhPaint {
-    return { packedBytes: this.packedBytes, packedOffsets: this.packedOffsets, imageGroup0, painter: this.zhPainter };
+    return runtimeZhPaintBase(this, imageGroup0);
   }
 
   /** Replay one original c.b(index) load through /a[280]'s byte translation table. */
   loadLanguageResource(index: 0 | 1 | 2): LegacyRuntimeState {
-    if (!this.languageResources) throw new Error("language resources have not been attached");
-    const translationOffset = this.packedOffsets[280];
-    // c.b(int) catches both IOException and the broader Exception boundary.
-    // With the raw /a[280] value, its version/data copy can exceed c's byte
-    // buffer; that failure is swallowed by the original and does not abort f.run().
-    try {
-      if (index === 0) this.resourceTables.loadTranslatedRecords(0, this.languageResources.s, this.packedBytes, translationOffset, 0);
-      else if (index === 1) this.resourceTables.loadTranslatedRecords(1, this.languageResources.t, this.packedBytes, translationOffset, 0);
-      else this.resourceTables.loadTranslatedRecords(2, this.languageResources.d0, this.packedBytes, translationOffset, 71);
-    } catch {
-      // Preserve the original partial writes and continue the bootstrap.
-    }
-    return this;
+    return runtimeLoadLanguageResource(this, index);
   }
 
   /** Attach only the bytes e.f() provably copies before /a's invalid read. */
@@ -2070,10 +1476,7 @@ export class LegacyRuntimeState {
 
   /** Attach the complete `/a` loader result, including f.b[S]'s 570 shorts. */
   withTableA(table: AResourceDiagnostic): LegacyRuntimeState {
-    this.withTableAPrefix(table.prefix);
-    this.saveOffsets.set(table.shortTableB);
-    this.sectionOffsets.set(table.shortTableBOffsets);
-    return this;
+    return runtimeWithTableA(this, table);
   }
 
   /**
@@ -2086,9 +1489,7 @@ export class LegacyRuntimeState {
    * canonical resetLegacyZI directly.
    */
   initializeOriginalLoop(): LegacyRuntimeState {
-    this.game.initializeOriginalLoop();
-    resetLegacyZI(this.game);
-    return this;
+    return runtimeInitializeOriginalLoop(this);
   }
 
   stepStateMachine(...args: RtArgs<typeof stepStateMachine>): ReturnType<typeof stepStateMachine> { return stepStateMachine(this, ...args); }
@@ -2100,41 +1501,7 @@ export class LegacyRuntimeState {
    * resource semantics.
    */
   stepDefaultAm(): void {
-    // Live, not a snapshot (2026-09-23): onBByte's scene dispatch and
-    // onWReset write these same fields mid-method.
-    const state = liveView<LegacyAmInput["state"]>(this.game, {
-      Q: "screen", R: "R", H: "H", T: "actionT", q: "mission", uCounter: "uByte", tByte: "tByte",
-      W: "actionWFlag", vInt: "vInt", A: "AFlag", vByte: "loopMode", mByte: "mByte",
-    });
-    stepStateAm(this, {
-      state,
-      onGByte: () => false,
-      onMapEntry: (q) => this.stepMapEntry(q),
-      onResourceAction: (slot) => this.saveOriginalResourceAction(slot),
-      onWReset: () => { this.game.actionWFlag = false; },
-      // am() offset 240: n().
-      onN: () => this.stepCameraScroll(),
-      // f.am()'s own onU (f.u()), wired 2026-08-14, same
-      // stepGameplayOuterLoop() as R()'s onGameplayDraw and K()'s onU.
-      // Unlike R() (which sets targetSlot=0 itself before calling), am()'s
-      // bytecode reaches u() with whatever N:B (#79) currently holds --
-      // no local write of its own -- so this reads the live game.targetSlot
-      // instead of assuming 0 (second pass, 2026-08-14: entity draws now
-      // reachable here too, not just classification).
-      onU: () => this.stepGameplayOuterLoop(this.offscreenTargets?.graphics[this.game.targetSlot]),
-      // f.b(int), wired 2026-08-18: am()'s T===0 branch, when it lands on
-      // Q===18, calls f.b(packedBytes[packedOffsets[303]+q]) -- this is
-      // T()'s only real caller, and T()'s ai===37 branch is what actually
-      // triggers finalizeEntity() automatically (via b.l()). See
-      // docs/unknowns.md for the full traced chain.
-      onBByte: (value) => { this.runSceneDispatch(value); },
-      // T == 0 landing on Q == 18: a(ZZZZ) (#434) at offset 42; wired 2026-09-27.
-      onSelectionSync: (a, b, c, d) => { this.runSelectionFlagsRefresh(a, b, c, d); },
-      // T == 2 (set by aD()'s Q == 31 branch): f.d(int), load the saved
-      // game from slot 1 (q < 7) or 2. WIRED 2026-09-24 -- it was missing, so
-      // a saved game could never be loaded back from the menu.
-      onD: (slot) => this.loadGameplayFromStore(slot as 1 | 2),
-    });
+    return runtimeStepDefaultAm(this);
   }
 
   saveOriginalResourceAction(...args: RtArgs<typeof saveOriginalResourceAction>): ReturnType<typeof saveOriginalResourceAction> { return saveOriginalResourceAction(this, ...args); }
@@ -2144,56 +1511,12 @@ export class LegacyRuntimeState {
    * replaces Thread.yield/sleep; all bytecode-visible state writes remain.
    */
   stepOriginalWaitPhase(): void {
-    const fields = this.game.audioWaitFields();
-    stepLegacyASAudioWait({
-      state: fields,
-      onStopWait: () => { /* repaint/yield is supplied by the browser loop */ },
-      onAQ: () => this.startOriginalAudio(),
-      onSleep: () => { /* fixed loop owns pacing */ },
-    });
-    this.game.applyAudioWaitFields(fields);
+    return runtimeStepOriginalWaitPhase(this);
   }
 
   /** Runtime bridge for the confirmed f.aQ() MIDI track/player lifecycle. */
   startOriginalAudio(): void {
-    if (!this.midiResource) return;
-    const state = {
-      h: this.game.audioH,
-      e: this.game.eByte,
-      currentTrack: this.game.audioCurrentTrack,
-      currentPlayerReady: this.game.playerExists ? 101 : 0,
-      currentPlayerTrack: this.game.audioCurrentTrack,
-    };
-    stepStateAQAudio(this, {
-      state,
-      // aQ() offset 4: b.k() (#618) sets f.h:B, the track pair aQ() picks
-      // from. Ported but never called until 2026-09-27, so h never changed.
-      onSubsystemDecision: () => {
-        const g = this.game;
-        g.audioH = subsystemDecision(this, {
-          fV: g.loopMode, fN: g.callToArmsActive, fL: g.formUpActive,
-          bO: this.subsystemArrays.bO, bK: this.subsystemArrays.bField28, bN: this.subsystemArrays.bN,
-          fQ: g.mission,
-        });
-        state.h = g.audioH;
-      },
-      audioTable: this.audioTable,
-      randomRemainder: (mask, divisor) => this.randomRemainder(mask, divisor),
-      onStop: () => {
-        this.midiPlayer?.stop();
-        this.midiPlayer = undefined;
-        this.game.playerExists = false;
-      },
-      onCreate: (path, type) => {
-        const track = Number(path.slice(2));
-        if (!Number.isInteger(track) || track < 0 || track >= this.audioTable.length) return;
-        this.game.audioCurrentTrack = track;
-        this.midiPlayer = new OriginalMidiPlayer(this.midiResource!, type, track);
-        this.midiPlayer.start();
-        this.game.playerExists = true;
-      },
-      onSetMode: (value) => { this.game.eByte = value; },
-    });
+    return runtimeStartOriginalAudio(this);
   }
 
   /**
@@ -2211,16 +1534,7 @@ export class LegacyRuntimeState {
    * pattern.
    */
   selectResourceSection(value: number): void {
-    selectLegacyResourceSection(
-      this.resourceTables,
-      this.packedBytes,
-      this.packedOffsets,
-      value,
-      () => { this.game.resourceSectionW = -1; },
-      // c.b(2) skips a missing resource (null stream, offset 96), which is
-      // also what a runtime without language files attached gets.
-      () => { if (this.languageResources) this.loadLanguageResource(2); },
-    );
+    return runtimeSelectResourceSection(this, value);
   }
 
   /** aB()/aC(): Q, Z, ab and the dialogue scroll y:I with its Q:Z/R:Z edges. */
@@ -2241,23 +1555,7 @@ export class LegacyRuntimeState {
   stepFrameDispatch(...args: RtArgs<typeof stepFrameDispatch>): ReturnType<typeof stepFrameDispatch> { return stepFrameDispatch(this, ...args); }
 
   applyMFrameCommand(command: LegacyMFrameCommand): void {
-    if (command.kind === "primitive") {
-      this.framePrimitives.push([command.index, command.x, command.y]);
-      this.drawFrameCommandPrimitive(command.index, command.x, command.y);
-      return;
-    }
-    if (!this.offscreenTargets) return;
-    if (command.kind === "drawImage") {
-      this.offscreenTargets.graphics[command.graphicsIndex].drawImage(
-        this.offscreenTargets.images[command.imageIndex], command.x, command.y, command.anchor,
-      );
-    } else if (command.kind === "drawRegion") {
-      this.offscreenTargets.graphics[command.graphicsIndex].drawRegion(
-        this.offscreenTargets.images[command.imageIndex],
-        command.sx, command.sy, command.width, command.height,
-        command.transform, command.x, command.y, command.anchor,
-      );
-    }
+    return runtimeApplyMFrameCommand(this, command);
   }
 
   /**
@@ -2296,25 +1594,7 @@ export class LegacyRuntimeState {
    * `a:[Z`#123=`selectionFlags`.
    */
   stepDefaultAd(): void {
-    stepLegacyAd({
-      state: this.adState,
-      // f.aD()'s own call to private void i() (#610, offset 232 -- CORRECTION
-      // 2026-08-22: was wired to the unrelated resetInputTransientState(),
-      // whose own 17+ fields don't match #610's real 13 at all; see
-      // docs/unknowns.md).
-      onInputReset: () => resetLegacyZI(this.game),
-      onY: () => stepCameraFollow(this),
-      // Offset 181, `invokespecial #464 // Method a:(ZZZZZZZZZ)V` -- the
-      // same 9-arg method `runSelectionFlagsRefresh` already wraps.
-      onSelection: (v) => this.runSelectionFlagsRefresh(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]),
-      // Offset 295, `invokespecial #434 // Method a:(ZZZZ)V` -- confirmed
-      // (see runSelectionFlagsRefresh's own docblock) to be a trivial
-      // wrapper that calls #464 with the last five arguments hardcoded
-      // false, which is exactly this default-parameter call.
-      onFourFlags: (v) => this.runSelectionFlagsRefresh(v[0], v[1], v[2], v[3]),
-      // Offset 250, `invokespecial #407 // Method E:()V`.
-      onE: () => this.stepLegacyExitPreparation(),
-    });
+    return runtimeStepDefaultAd(this);
   }
 
 
@@ -2342,123 +1622,30 @@ export class LegacyRuntimeState {
    * offset 83) wired 2026-09-27; both were ported but left inert.
    */
   stepAe(): void {
-    this.aeState.F = this.game.aeTimerF;
-    this.aeState.byteF = this.game.selectionGroup;
-    this.aeState.uFlag = this.game.boxSelecting;
-    this.aeState.tFlag = this.game.inputT;
-    this.aeState.k = this.game.kByte;
-    this.aeState.q = this.game.qCounter;
-    this.aeState.y = this.game.cursorColumn;
-    this.aeState.I = this.game.cameraColumn;
-    this.aeState.A = this.game.cursorRow;
-    this.aeState.K = this.game.cameraRow;
-    this.aeState.G = this.game.boxAnchorColumn;
-    this.aeState.HCoord = this.game.boxAnchorRow;
-    stepLegacyAe({
-      state: this.aeState,
-      onFourFlags: (v) => { this.runSelectionFlagsRefresh(v[0], v[1], v[2], v[3]); },
-      onAI: () => stepLegacyAi({ a4: this.mainArrays.aByte[4]!, dense: this.denseState }),
-    });
-    this.game.aeTimerF = this.aeState.F;
-    this.game.selectionGroup = this.aeState.byteF;
-    this.game.boxSelecting = this.aeState.uFlag;
-    this.game.inputT = this.aeState.tFlag;
-    this.game.kByte = this.aeState.k;
-    this.game.qCounter = this.aeState.q;
-    this.game.boxAnchorColumn = this.aeState.G;
-    this.game.boxAnchorRow = this.aeState.HCoord;
+    return runtimeStepAe(this);
   }
   stepCameraScroll(...args: RtArgs<typeof stepCameraScroll>): ReturnType<typeof stepCameraScroll> { return stepCameraScroll(this, ...args); }
 
   /** Apply the proven f.an() table/state branches with unresolved callbacks inert. */
   stepDefaultAn(): void {
-    this.anState.selection = this.stateCommandState.dFlags; // f.d:[Z] (#267)
-    stepLegacyAn({
-      state: this.anState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      onDestroy: () => { this.game.b = false; },
-      // Wired 2026-09-27 (declared but never passed): l(-1) at Q=25, e(0) at
-      // Q=12, and a(ZZZZZZZZZ) restoring the selection at Q=20 -- the same
-      // targets ap() uses.
-      onRelease: (value) => this.stepLegacyL(value),
-      onEZero: () => { this.saveOriginalResourceAction(0); },
-      onSelectionSync: (v) => this.runSelectionFlagsRefresh(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]),
-    });
+    return runtimeStepDefaultAn(this);
   }
 
   stepDefaultAo(...args: RtArgs<typeof stepDefaultAo>): ReturnType<typeof stepDefaultAo> { return stepDefaultAo(this, ...args); }
 
   /** Execute f.ar() against the live f.ao() field bank. */
   stepDefaultArFromAo(): void {
-    // Live (2026-09-23): onAM's aM() writes these fields itself.
-    const state = Object.assign(
-      liveView<Omit<Parameters<typeof stepLegacyAr>[0]["state"], "g">>(this.game, {
-        vInt: "vInt", Q: "screen", U: "U", Z: "Z", c: "missionFrame", T: "actionT", q: "mission", R: "R", eByte: "eByte",
-        ac: "acFlag", pByte: "persistedPByte", s: "sByte", t: "tByte", H: "H",
-      }),
-      { g: 0 },
-    );
-    stepLegacyAr({
-      state,
-      onDestroy: () => { this.game.b = false; },
-      onAM: () => this.resetMapEntryAllocation(this.game.mission),
-      onAQ: () => { this.startOriginalAudio(); },
-      // v=62 (new game over a saved one: s = -1, t = -2) ends with e(0)
-      // (#589, offset 260) -- the progress save, not a map load as this
-      // used to say. Wired 2026-09-27, so the reset progress is written.
-      onGByte: (slot) => this.saveOriginalResourceAction(slot),
-    });
+    return runtimeStepDefaultArFromAo(this);
   }
 
   /** Enter the confirmed f.a(byte,byte,byte) prefix from the live W() path. */
   beginEntityAction(ap: number, am: number, an: number): void {
-    const state = this.entityActionState;
-    // Body from offset 43 on. The 0..42 entry gate is in
-    // entityActionPrompt(); f.W() calls this directly with 20, which the
-    // gate always passes. RETRACTED 2026-09-23: f.W() is not the only
-    // caller -- b.a(byte,int,int) (#274) and b.t() (#417) call it too.
-    // MERGED (2026-08-31): was `this.game.zInt = 0`, a second name for this
-    // same real field (#120) -- see `game.Z`'s own docblock.
-    this.game.Z = 0; // Z:I (#120), offset 43..45
-    this.game.oInt = 0; // o:I (#348), offset 48..50
-    beginLegacyEntityAction({
-      state,
-      ap,
-      am,
-      an,
-      selection: this.game.selectionFlags,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      // final void a(byte,byte,byte)'s own call to private void i() (#610,
-      // offset 54), immediately followed (offset 62..83, no branch between
-      // them) by v:B=0/H:Z=true/v:I=12+arg1 -- all bundled into this one
-      // callback since they're one unbroken run of bytecode.
-      onTransientReset: () => {
-        resetLegacyZI(this.game);
-        this.game.loopMode = 0; // v:B (#376)
-        this.game.H = true; // H:Z (#57)
-        this.game.vInt = 12 + ap; // v:I (#375)
-      },
-      onSelectionCopy: (values) => { this.stateCommandState.dFlags.splice(0, 9, ...values); },
-      onSelectionApply: (a, b, c, d) => this.runSelectionFlagsRefresh(a, b, c, d),
-      onAFlag: () => { this.game.AFlag = true; },
-    });
+    return runtimeBeginEntityAction(this, ap, am, an);
   }
 
   /** f.e(int) (#590): take one unit out of the selection groups. */
   stepSelectionE(id: number): void {
-    releaseLegacyEntitySelection({
-      groups: this.mainArrays.aByte,
-      dense: this.denseState,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      id,
-      F: this.game.selectionGroup,
-      w: this.game.barMode,
-      onModeReset: () => { this.game.barMode = 0; },
-      onFReset: () => { this.game.selectionGroup = -1; },
-    });
+    return runtimeStepSelectionE(this, id);
   }
 
   /**
@@ -2466,71 +1653,22 @@ export class LegacyRuntimeState {
    * double-tap sets it to the viewport). WIRED 2026-09-23.
    */
   selectWindowUnits(): void {
-    const a4 = this.mainArrays.aByte[4]!;
-    stepLegacyAf({
-      state: liveView<LegacyAfState>(this.game, {
-        uFlag: "boxSelecting", tFlag: "inputT", F: "selectionGroup", k: "kByte", w: "barMode",
-        B: "BCounter", C: "CCounter", D: "DCounter", E: "ECounter",
-      }),
-      map: this.gridC,
-      dense: this.denseState,
-      a4,
-      onAI: () => stepLegacyAi({ a4, dense: this.denseState }),
-      onD: (id) => this.stepLegacyD(id),
-    });
+    return runtimeSelectWindowUnits(this);
   }
 
   /** f.aG()/f.aH() (#488/#489): keys 7/9 held store the selection as group 2/3, tapped recall it. WIRED 2026-09-23. */
   stepGroupKey(store: boolean): void {
-    const state = liveView<LegacyGroupKeyState>(this.game, {
-      wFlag: "wFlag", I: "inputI", i: "digitKey", F: "selectionGroup", k: "kByte", w: "barMode",
-    });
-    const common = {
-      state,
-      a: this.mainArrays.aByte,
-      dense: this.denseState,
-      onFourFlags: (v: boolean[]) => this.runSelectionFlagsRefresh(v[0]!, v[1]!, v[2]!, v[3]!),
-    };
-    if (store) {
-      stepLegacyAg({ ...common, onEntityTick: (id) => this.stepSelectionE(id) });
-    } else {
-      stepLegacyAh({
-        ...common,
-        onAI: () => stepLegacyAi({ a4: this.mainArrays.aByte[4]!, dense: this.denseState }),
-        onJump: (id, offset) => this.stepEntityCoordinateUpdate(id, offset),
-      });
-    }
+    return runtimeStepGroupKey(this, store);
   }
 
   /** f.ah() (#509), LegacyZAh.ts, on the live game fields. */
   stepZAh(): void {
-    const g = this.game;
-    // Live: the w == 4 path's l(-1) writes P and w itself.
-    const ahState = liveView<Parameters<typeof stepLegacyZAh>[0]>(g, {
-      K: "choosingChief", P: "pendingP", w: "barMode", k: "kByte", fByte: "selectionGroup",
-      l: "selectedId", q: "qCounter", entityFocusFlag: "entityFocusFlag", V: "zAfCursorVFlag",
-    });
-    stepLegacyZAh(ahState, {
-      onL: (value) => this.stepLegacyL(value),
-      onSelectionReset: (a, b, c, d) => this.runSelectionFlagsRefresh(a, b, c, d),
-      onI: () => resetLegacyZI(g),
-    });
+    return runtimeStepZAh(this);
   }
 
   /** f.aj() (#511), LegacyZAj.ts: park the selection cursor on the next living unit. */
   stepZAj(): void {
-    const g = this.game;
-    const ajState = {
-      entityFocusFlag: g.entityFocusFlag, as: g.menuCursor, frameLayoutAX: g.frameLayoutAX,
-      kByte: g.kByte, frameLayoutL: g.selectedId, pendingP: g.pendingP, dense: this.denseState,
-    };
-    stepLegacyZAj(ajState);
-    g.entityFocusFlag = ajState.entityFocusFlag;
-    g.menuCursor = ajState.as;
-    g.frameLayoutAX = ajState.frameLayoutAX;
-    g.kByte = ajState.kByte;
-    g.selectedId = ajState.frameLayoutL;
-    g.pendingP = ajState.pendingP;
+    return runtimeStepZAj(this);
   }
 
 
@@ -2565,28 +1703,7 @@ export class LegacyRuntimeState {
     x: number,
     y: number,
   ): void {
-    const subsystem = { v: this.game.bUnit };
-    stepLegacyFPairCommand({
-      // b.a(IIII)Z (#270) as b.a(1, 127, x, y) with b.v = 0 (offsets 85..102), so the gate
-      // writes the shared dense[3131]/[3232]. CORRECTED 2026-10-14: mode 0 and the record id.
-      onFootprintProbe: (mode, value, px, py) => this.checkSpiralPlacementGate(mode, value, px, py, 0),
-      // Offset 562: b.a(int,int,int) (#473) = markLegacySpatialRecord, the
-      // vision mark for each gathered unit. Wired 2026-09-27.
-      onRecordAction: (rx, ry, span) => markLegacySpatialRecord({
-        packedBytes: this.packedBytes,
-        packedOffsets: this.packedOffsets,
-        layers: this.mainArrays.aInt,
-        layerIndex: LEGACY_SPATIAL_LAYER_INDEX,
-        mapHeight: this.game.mapHeight,
-      }, rx, ry, span),
-      ...input,
-      dense: this.denseState,
-      map: this.gridC,
-      subsystem,
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-    }, x, y);
-    this.game.bUnit = subsystem.v;
+    return runtimeStepFPairCommand(this, input, x, y);
   }
 
 
@@ -2600,13 +1717,7 @@ export class LegacyRuntimeState {
 
   /** Decode the confirmed raw `/ma` tile stream for a numeric original map index. */
   decodeRawMap(mapIndex: number): LegacyRawMap {
-    if (!this.maResource) throw new Error("/ma resource has not been attached to runtime state");
-    return decodeLegacyMapTiles({
-      packedBytes: this.packedBytes,
-      packedOffsets: this.packedOffsets,
-      maBytes: this.maResource.bytes,
-      maOffsets: this.maResource.offsets,
-    }, mapIndex);
+    return runtimeDecodeRawMap(this, mapIndex);
   }
 
 
@@ -2621,15 +1732,7 @@ export class LegacyRuntimeState {
 
 
   letterboxState(): LegacyCameraFrameLetterboxState {
-    return {
-      letterboxFlag: this.game.boxSelecting,
-      boxAnchorColumn: this.game.boxAnchorColumn,
-      boxAnchorRow: this.game.boxAnchorRow,
-      viewportOriginI: this.game.cameraColumn,
-      viewportOriginK: this.game.cameraRow,
-      scrollY: this.game.cursorColumn,
-      scrollA: this.game.cursorRow,
-    };
+    return runtimeLetterboxState(this);
   }
 
 
@@ -2637,22 +1740,7 @@ export class LegacyRuntimeState {
 
   /** class c's final void a(int,int,int) (#445), f.q()'s own scan/draw call. */
   drawCScan(arg1: number, x: number, y: number): void {
-    const t = this.resourceTables;
-    drawLegacyCScan({
-      k: 0, l: 0, m: 0, n: 0, o: 0, b: t.cBByte, c: t.cCByte,
-      rowFShort: t.rowFShort, rowDShort: t.rowDShort, rowEShort: t.rowEShort,
-      rowDByte: t.rowDByte, rowEByte: t.rowEByte,
-      geometryB: t.geometryB, geometryC: t.geometryC,
-    }, this.packedBytes, this.packedOffsets, arg1, x, y, {
-      onRandomRemainder: (mask, divisor) => this.randomRemainder(mask, divisor),
-      onDrawIcon: (sourceX, sourceY, width, height, dx, dy, anchor) => {
-        const image = this.imageGroups[0]?.get(26)?.image;
-        const target = this.offscreenTargets?.graphics[1];
-        if (!image || !target) return;
-        try { target.drawRegion(image, sourceX, sourceY, width, height, 0, dx, dy, anchor); }
-        catch { /* the #435 helper's own try/catch */ }
-      },
-    });
+    return runtimeDrawCScan(this, arg1, x, y);
   }
 
   stepGameplayFramePrep(...args: RtArgs<typeof stepGameplayFramePrep>): ReturnType<typeof stepGameplayFramePrep> { return stepGameplayFramePrep(this, ...args); }

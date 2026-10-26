@@ -1,3 +1,4 @@
+import { readStorage } from "../platform/Storage";
 import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
 import { sfx } from "../platform/SoundEffects";
 import { ZH_LANGUAGE } from "../text/LegacyZhText";
@@ -287,7 +288,7 @@ export function attachMatchRecap(
   };
 
   const render = () => {
-    const lang: "zh" | "id" | "en" = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
+    const lang: "zh" | "id" | "en" = runtime.language === ZH_LANGUAGE ? "zh" : (readStorage("pt.language") === "id" ? "id" : "en");
     const stats = matchStatsTracker.getStats();
     const evaluation = matchStatsTracker.calculateGrade(stats, lang);
 

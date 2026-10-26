@@ -40,12 +40,12 @@ import { clearLegacyEntityRecordTarget } from "../units/LegacyEntityRecordTarget
 import { markLegacySpatialRecord, markLegacySpatialRect } from "./LegacySpatialRecordUpdate";
 import { stepLegacyAuxiliaryMode4 } from "./LegacyAuxiliaryMode4";
 import { stepLegacyPathE, type LegacyPathEInput } from "./LegacyPathE";
-import { resetLegacyAM, stepLegacyAOMap, stepLegacyMapEntry, type LegacyAOMapState, type LegacyAPPrefixInput } from "../../ui/LegacyStateMachine";
+import { resetLegacyAM, stepLegacyAOMap, stepLegacyMapEntry, type LegacyAOMapState, type LegacyAPPrefixInput } from "./LegacyMapEntryTransitions";
 import { ANIMAL_HP, ANIMAL_KIND, ANIMAL_X, ANIMAL_Y, BLD_HP, BLD_KIND, BLD_X, BLD_Y, RES_KIND, RES_X, RES_Y, UNIT_DIRECTION, UNIT_HP, UNIT_MODE, UNIT_SLOT, UNIT_SPEED, UNIT_Y } from "../../core/DenseLayout";
 import { LEGACY_SPATIAL_LAYER_INDEX, toJavaByte } from "../../core/LegacyRuntimeState";
 import { runSubsystemN, stepSubsystemOLower, subsystemB, subsystemG, subsystemNOrchestrator, subsystemPrivateO, subsystemTenSlotAllocate, subsystemTenSlotReleaseEntity } from "../tribe/TribeRuntime";
-import { changeEntityType, entityCourtship, placeEntity, selectEntityTypeAfterQ, stepEntityCoordinateUpdate } from "../units/UnitRuntime";
-import { stepStateMapEntry } from "../../ui/UiRuntime";
+import { changeEntityType, entityCourtship, placeEntity, selectEntityTypeAfterQ } from "../units/UnitRuntime"; import { stepEntityCoordinateUpdate } from "../units/EntityActionRuntime";
+import { stepStateMapEntry } from "../../ui/UiStateRuntime";
 
 /**
  * LegacyRuntimeState wiring moved out of the class (phase 2 step 3): each function is the former

@@ -1,3 +1,4 @@
+import { readStorage, writeStorage } from "./Storage";
 /**
  * Shared, robust AudioContext singleton for Prehistoric Tribes Web.
  * Ensures a single hardware context across all sound sub-systems:
@@ -12,7 +13,7 @@ const VOLUME_KEY = "pt.volume";
 
 export function isSfxEnabled(): boolean {
   try {
-    const val = localStorage.getItem(SFX_KEY);
+    const val = readStorage(SFX_KEY);
     return val === null ? true : val === "on";
   } catch {
     return true;
@@ -21,7 +22,7 @@ export function isSfxEnabled(): boolean {
 
 export function setSfxEnabled(on: boolean): void {
   try {
-    localStorage.setItem(SFX_KEY, on ? "on" : "off");
+    void writeStorage(SFX_KEY, on ? "on" : "off");
   } catch {
     // ignore storage errors
   }
@@ -29,7 +30,7 @@ export function setSfxEnabled(on: boolean): void {
 
 export function getMasterVolume(): number {
   try {
-    const raw = localStorage.getItem(VOLUME_KEY);
+    const raw = readStorage(VOLUME_KEY);
     if (raw === null) return 0.75;
     const parsed = Number(raw);
     return Number.isFinite(parsed) ? Math.max(0, Math.min(1, parsed)) : 0.75;
@@ -41,7 +42,7 @@ export function getMasterVolume(): number {
 export function setMasterVolume(vol: number): void {
   const clamped = Math.max(0, Math.min(1, vol));
   try {
-    localStorage.setItem(VOLUME_KEY, String(clamped));
+    void writeStorage(VOLUME_KEY, String(clamped));
   } catch {
     // ignore storage errors
   }
@@ -154,6 +155,12 @@ class AudioManager {
   resume(): void {
     if (this.ctx && this.ctx.state === "suspended") {
       void this.ctx.resume().catch(() => {});
+    }
+  }
+
+  suspend(): void {
+    if (this.ctx && this.ctx.state === "running") {
+      void this.ctx.suspend().catch(() => {});
     }
   }
 

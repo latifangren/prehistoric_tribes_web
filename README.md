@@ -153,11 +153,28 @@ The compiled, production-ready static assets will be output to the `web/dist/` d
 │       ├── ui/             # Game states, flow controller, and menu screens
 │       ├── Alerts.ts       # Danger notification banner feed and tactical haptics
 │       ├── Bestiary.ts     # Prehistoric fauna & enemy stats registry
+│       ├── Achievements.ts # Achievement definitions, progress tracking, and persistence
+│       ├── AchievementCabinet.ts # Trophy cabinet dialog and filters
 │       ├── Hud.ts          # Touch control HUD, action sheets, and building controls
 │       ├── Settings.ts     # Multi-tab responsive settings modal
 │       ├── StartMenu.ts    # Main menu, campaign browser, and language selector
 │       └── main.ts         # Application entry point and loop bootstrap
 ```
+
+## 🧰 Maintenance Checks
+
+Run the repository checks from the root:
+
+```bash
+npm run lint
+npm run build
+npm test
+npm run test:browser --workspace=web
+npm run check:size
+```
+
+The size gate ratchets the per-file ceilings in `web/scripts/size-baseline.json`. The final target is at most 800 effective lines and fewer than 1,000 physical lines per maintained source file. `LegacyGameState.ts` has a documented physical-line exception for its bytecode field catalog. `LegacyRuntimeState.ts` has an approved facade exception; its current ceiling is fixed to the measured size and must not grow.
+
 
 ---
 

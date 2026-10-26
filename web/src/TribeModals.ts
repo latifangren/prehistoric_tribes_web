@@ -1,3 +1,4 @@
+import { readStorage } from "./platform/Storage";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import {
   BLD_HP,
@@ -50,7 +51,7 @@ export function attachTribeModals(
 ): { openMinimap(): void; openRoster(): void; update(): void } {
   const game = runtime.game;
   const lang = (): "zh" | "id" | "en" =>
-    runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
+    runtime.language === ZH_LANGUAGE ? "zh" : (readStorage("pt.language") === "id" ? "id" : "en");
   const isZh = () => runtime.language === ZH_LANGUAGE;
   // ============================================================================
   // 1. INTERACTIVE HD MINIMAP MODAL

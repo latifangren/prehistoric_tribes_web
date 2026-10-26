@@ -1,3 +1,4 @@
+import { readStorage } from "./platform/Storage";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { OriginalKey } from "./platform/Input";
 import { sfx } from "./platform/SoundEffects";
@@ -89,7 +90,7 @@ export function attachStoryHud(
     const won = game.vInt === 57;
     sfx.outcome(won);
     const zh = runtime.language === ZH_LANGUAGE;
-    const isId = typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id";
+    const isId = readStorage("pt.language") === "id";
     const title = capitalise(originalText(runtime, "s", game.vInt || (won ? 57 : 56)));
     const subtitle = won
       ? (zh ? "你的部落取得了辉煌胜利！" : isId ? "Sukumu meraih kemenangan gemilang!" : "Your tribe has triumphed!")

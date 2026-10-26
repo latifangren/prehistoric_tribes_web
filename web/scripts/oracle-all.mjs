@@ -17,7 +17,7 @@ import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
 
-const webDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const webDir = path.resolve(path.dirname(process.getBuiltinModule("node:url").fileURLToPath(import.meta.url)), "..");
 const oracleDir = path.join(webDir, "public/__oracle");
 const outDir = path.join(oracleDir, "_out");
 
@@ -68,6 +68,13 @@ const exists = (rel) => rel && fs.existsSync(path.join(oracleDir, rel));
 const selected = CASES.filter((c) => (only.length === 0 || only.includes(c.name)) && exists(c.keys));
 const unknown = only.filter((n) => !CASES.some((c) => c.name === n));
 if (unknown.length) console.log(`unknown case(s): ${unknown.join(", ")}`);
+if (selected.length === 0) {
+  const reason = only.length
+    ? `none of the requested cases has fixture files: ${only.join(", ")}`
+    : `no fixture files were found in ${oracleDir}`;
+  console.error(`Oracle unavailable: ${reason}`);
+  process.exit(2);
+}
 
 function shotFrames(c) {
   if (!withShots || !c.shots || !exists(c.shots)) return [];

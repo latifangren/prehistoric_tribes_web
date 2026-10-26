@@ -5,7 +5,7 @@ import ts from "typescript";
 import { denseRequire } from "./dense-layout-require.mjs";
 
 const hoverModule = { exports: {} };
-vm.runInNewContext(ts.transpileModule(fs.readFileSync(new URL("../src/ui/LegacyCursorHover.ts", import.meta.url).pathname, "utf8"), {
+vm.runInNewContext(ts.transpileModule(fs.readFileSync(process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/ui/LegacyCursorHover.ts", import.meta.url)), "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText, { require: denseRequire, module: hoverModule, exports: hoverModule.exports });
 const { stepLegacyCursorHover } = hoverModule.exports;

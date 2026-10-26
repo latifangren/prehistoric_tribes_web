@@ -1,3 +1,4 @@
+import { readStorage, writeStorage } from "../platform/Storage";
 import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
 import {
   UNIT_ENERGY,
@@ -15,7 +16,7 @@ const EMOTES_ENABLED_KEY = "pt.emotes";
 
 export function isEmotesEnabled(): boolean {
   try {
-    const val = localStorage.getItem(EMOTES_ENABLED_KEY);
+    const val = readStorage(EMOTES_ENABLED_KEY);
     return val === null ? true : val === "on";
   } catch {
     return true;
@@ -24,7 +25,7 @@ export function isEmotesEnabled(): boolean {
 
 export function setEmotesEnabled(on: boolean): void {
   try {
-    localStorage.setItem(EMOTES_ENABLED_KEY, on ? "on" : "off");
+    void writeStorage(EMOTES_ENABLED_KEY, on ? "on" : "off");
   } catch {
     // ignore quota error
   }

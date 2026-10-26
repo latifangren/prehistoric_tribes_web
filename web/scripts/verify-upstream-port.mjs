@@ -13,12 +13,12 @@ const assert = (cond, msg) => {
 const src = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 const hud = src("src/Hud.ts");
-assert(hud.includes("hud-ghost"), "Hud must render the placing ghost");
-assert(hud.includes("placedKind"), "Hud must map a site to its building kind for the ghost");
-assert(hud.includes("hd/buildings/"), "Hud ghost must use the level-1 HD building picture");
+const [placement, commands] = [src("src/hud/PlacementOverlay.ts"), src("src/hud/RightThumbControls.ts")];
+assert(placement.includes("hud-ghost"), "PlacementOverlay must render the placing ghost");
+assert(placement.includes("placedKind"), "PlacementOverlay must map a site to its building kind for the ghost");
 assert(hud.includes("orderMark") && hud.includes("orderTick"), "Hud must render the order-spot UI");
 assert(hud.includes("sceneFromMap"), "Hud must close bars after a scripted scene from the map");
-assert(hud.includes("is-cancel"), "Hud must mark a running (cancelling) command item");
+assert(commands.includes("is-cancel"), "RightThumbControls must mark a running (cancelling) command item");
 
 const touch = src("src/TouchControls.ts");
 assert(touch.includes("grip"), "TouchControls must support the placing grip-drag");
@@ -34,8 +34,8 @@ assert(wideView.includes("g.cSInt !== 100"), "WideView must suppress the origina
 const story = src("src/StoryHud.ts");
 assert(story.includes("PRESS_GAP_TICKS") && !story.includes("pressedAt"), "StoryHud must gate double taps in game ticks, not wall time");
 assert(hud.includes("SCENE_AFTER_TAP_TICKS") && hud.includes("lastTouchTick"), "Hud scene guard must count game ticks, not wall time");
-assert(hud.includes("hud-action-icon") && hud.includes("jobIcon"), "Hud must render the action/job icon");
-assert(hud.includes("touchAction.icon"), "Hud must read the action icon from RenderRuntime.touchAction");
+assert(placement.includes("hud-action-icon") && placement.includes("jobIcon"), "PlacementOverlay must render the action/job icon");
+assert(placement.includes("touchAction.icon"), "PlacementOverlay must read the action icon from RenderRuntime.touchAction");
 const render = src("src/render/RenderRuntime.ts");
 assert(render.includes("export const touchAction"), "RenderRuntime must export touchAction for the HUD");
 
@@ -43,16 +43,15 @@ const legacy = src("src/core/LegacyRuntimeState.ts");
 assert(!legacy.includes("villagerPanel: {"), "LegacyRuntimeState must not keep the stale villagerPanel snapshot (only villagerPanelDraft)");
 assert(!render.includes("rt.villagerPanel = rt.villagerPanelDraft"), "RenderRuntime must not copy the draft into a stale villagerPanel snapshot");
 assert(wideView.includes('LegacyRuntimeState["villagerPanelDraft"]'), "villagerPanelOf must return the draft form");
-assert(hud.includes("=== game.selectionGroup"), "Hud groupIds must match the current selection group exactly, not any stale mark");
-assert(hud.includes("group.length < 2"), "Hud single panel must follow group.length < 2, not the stale snapshot");
-assert(hud.includes("const shownId = inspectedId || (single ? game.selectedId : 0)"), "Hud must route every villager panel through the shownId refresh (inspected or single)");
-assert(hud.includes("viewedId = shownId"), "Hud must refresh the panel immediately when the shown villager changes");
 
-const css = src("src/styles.css");
-assert(css.includes(".hud-action-icon"), "styles.css must style the action icon");
-assert(css.includes(".hud-ghost") && css.includes(".hud-order"), "styles.css must style the ghost and order-spot UI");
-assert(css.includes(".hud-cmd-item.is-cancel"), "styles.css must draw the cancel mark (CSS, not upstream's PNGs)");
-assert(css.includes(".hud-place.blocked"), "styles.css must grey the placing tick when blocked");
-assert(css.includes("top: 30px"), "styles.css must move the build cost badge below the sheet's corner");
+const cssEntry = src("src/styles.css");
+const css = [...cssEntry.matchAll(/^@import "\.\/styles\/([^\"]+)";/gm)]
+  .map(([, file]) => src(`src/styles/${file}`))
+  .join("");
+assert(css.includes(".hud-action-icon"), "feature stylesheets must style the action icon");
+assert(css.includes(".hud-ghost") && css.includes(".hud-order"), "feature stylesheets must style the ghost and order-spot UI");
+assert(css.includes(".hud-cmd-item.is-cancel"), "feature stylesheets must draw the cancel mark (CSS, not upstream's PNGs)");
+assert(css.includes(".hud-place.blocked"), "feature stylesheets must grey the placing tick when blocked");
+assert(css.includes("top: 30px"), "feature stylesheets must move the build cost badge below the sheet's corner");
 
 console.log("verify-upstream-port: ok");

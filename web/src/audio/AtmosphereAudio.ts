@@ -1,3 +1,4 @@
+import { readStorage, writeStorage } from "../platform/Storage";
 import { audioManager } from "../platform/AudioManager";
 import { getMasterVolume, isSfxEnabled, onMasterVolumeChange } from "../platform/SoundEffects";
 
@@ -5,7 +6,7 @@ const AMBIENCE_KEY = "pt.ambience";
 
 export function isAmbienceEnabled(): boolean {
   try {
-    const val = localStorage.getItem(AMBIENCE_KEY);
+    const val = readStorage(AMBIENCE_KEY);
     return val === null ? true : val === "on";
   } catch {
     return true;
@@ -14,7 +15,7 @@ export function isAmbienceEnabled(): boolean {
 
 export function setAmbienceEnabled(on: boolean): void {
   try {
-    localStorage.setItem(AMBIENCE_KEY, on ? "on" : "off");
+    void writeStorage(AMBIENCE_KEY, on ? "on" : "off");
   } catch {
     // ignore
   }
@@ -56,6 +57,10 @@ class AtmosphereAudio {
     if (!isSfxEnabled() || !isAmbienceEnabled()) return null;
     this.ctx = audioManager.getContext();
     return this.ctx;
+  }
+
+  isRunning(): boolean {
+    return this.running;
   }
 
   start(): void {

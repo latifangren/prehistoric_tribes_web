@@ -11,7 +11,8 @@
     "build": "npm run build --workspace=web",
     "preview": "npm run preview --workspace=web",
     "lint": "tsc -p web/tsconfig.json --noEmit",
-    "test": "npm test --workspace=web"
+    "test": "npm test --workspace=web",
+    "check:size": "node web/scripts/check-file-size.mjs"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

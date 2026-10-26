@@ -6,7 +6,7 @@ import vm from "node:vm";
 import fs from "node:fs";
 import { denseRequire } from "./dense-layout-require.mjs";
 
-const file = new URL("../src/sim/units/LegacyEntityOccupantCheck.ts", import.meta.url).pathname;
+const file = process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/units/LegacyEntityOccupantCheck.ts", import.meta.url));
 const module = { exports: {} };
 const output = ts.transpileModule(fs.readFileSync(file, "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },

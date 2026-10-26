@@ -14,7 +14,7 @@ function loadModule(file) {
 }
 
 const { dispatchLegacyEntityAction } = loadModule(
-  new URL("../src/sim/units/LegacyEntityActionDispatch.ts", import.meta.url).pathname,
+  process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/units/LegacyEntityActionDispatch.ts", import.meta.url)),
 );
 const state = new Int8Array(10000);
 const id = 12;

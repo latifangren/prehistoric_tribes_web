@@ -7,7 +7,7 @@ import ts from "typescript";
 import { denseRequire } from "./dense-layout-require.mjs";
 
 const module = { exports: {} };
-const output = ts.transpileModule(fs.readFileSync(new URL("../src/sim/units/LegacyEntitySkillGain.ts", import.meta.url).pathname, "utf8"), {
+const output = ts.transpileModule(fs.readFileSync(process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/units/LegacyEntitySkillGain.ts", import.meta.url)), "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText;
 vm.runInNewContext(output, { require: denseRequire, module, exports: module.exports, Int8Array, Int16Array });

@@ -6,7 +6,7 @@ import vm from "node:vm";
 import fs from "node:fs";
 import { denseRequire } from "./dense-layout-require.mjs";
 
-const source = new URL("../src/sim/units/LegacyEntityHealthDelta.ts", import.meta.url).pathname;
+const source = process.getBuiltinModule("node:url").fileURLToPath(new URL("../src/sim/units/LegacyEntityHealthDelta.ts", import.meta.url));
 const output = ts.transpileModule(fs.readFileSync(source, "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText;
