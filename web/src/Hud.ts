@@ -380,6 +380,20 @@ export function attachHud(
     "Merawat anak-anak suku hingga mereka beranjak dewasa dan siap bekerja.",
     "Menara pengawas pertahanan yang otomatis menembaki musuh atau hewan buas yang mendekat.",
   ];
+  const BUILDING_NAMES_ID = [
+    "Bengkel",
+    "Tempat Latihan",
+    "Gubuk",
+    "Tenda Kepala Suku",
+    "Dapur",
+    "Tempat Memanah",
+    "Gudang",
+    "Pentas Disko",
+    "Kuil Shaman",
+    "Pusat Riset",
+    "Penitipan Anak",
+    "Menara Pengawas",
+  ];
   const renderHelpDialog = () => {
     const lang = runtime.language === ZH_LANGUAGE ? "zh" : (typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : "en");
     const zh = lang === "zh";
@@ -410,7 +424,7 @@ export function attachHud(
     } else if (activeHelpTab === "buildings") {
       const table = runtime.packedOffsets[T_BUILDING] ?? 0;
       const cards = GUIDE_BUILDING_ICONS.map((icon, kind) => {
-        const name = capitalise(originalText(runtime, "s", kind));
+        const name = lang === "id" ? (BUILDING_NAMES_ID[kind] ?? capitalise(originalText(runtime, "s", kind))) : capitalise(originalText(runtime, "s", kind));
         const wCost = runtime.packedBytes[table + 10 * 26 + kind] ?? 0;
         const sCost = runtime.packedBytes[table + 11 * 26 + kind] ?? 0;
         const bCost = runtime.packedBytes[table + 12 * 26 + kind] ?? 0;
@@ -563,25 +577,76 @@ export function attachHud(
   tip.className = "hud-tip";
   tip.hidden = true;
   hud.append(tip);
+
+  const showTooltip = (el: HTMLElement, text: string, position: "left" | "top" | "bottom" = "left") => {
+    if (!text) { tip.hidden = true; return; }
+    const box = el.getBoundingClientRect();
+    const area = hud.getBoundingClientRect();
+    tip.textContent = text;
+    if (position === "top") {
+      tip.style.top = `${box.top - area.top - 8}px`;
+      tip.style.left = `${Math.max(140, Math.min(area.width - 140, box.left - area.left + box.width / 2))}px`;
+      tip.style.right = "auto";
+      tip.style.transform = "translate(-50%, -100%)";
+    } else if (position === "bottom") {
+      tip.style.top = `${box.bottom - area.top + 8}px`;
+      tip.style.left = `${Math.max(80, Math.min(area.width - 80, box.left - area.left + box.width / 2))}px`;
+      tip.style.right = "auto";
+      tip.style.transform = "translate(-50%, 0)";
+    } else {
+      tip.style.top = `${box.top - area.top + box.height / 2}px`;
+      tip.style.right = `${area.right - box.left + 8}px`;
+      tip.style.left = "auto";
+      tip.style.transform = "translateY(-50%)";
+    }
+    tip.hidden = false;
+  };
+
+  const hideTooltip = () => { tip.hidden = true; };
+
+  const attachHoverTip = (entry: HTMLElement, name: () => string, pos: "left" | "top" | "bottom" = "left") => {
+    entry.addEventListener("mouseenter", () => {
+      const val = name();
+      entry.setAttribute("title", val);
+      showTooltip(entry, val, pos);
+    });
+    entry.addEventListener("mouseleave", hideTooltip);
+  };
+
+  for (const { entry, item } of menuEntries) {
+    attachHoverTip(entry, () => item.label(), "left");
+  }
+  for (const counter of counters) {
+    attachHoverTip(counter.group, () => {
+      const l = lang();
+      return `${l === "zh" ? counter.nameZh : l === "id" ? counter.nameId : counter.nameEn}: ${counter.text}`;
+    }, "bottom");
+  }
+  attachHoverTip(speedButton, () => (lang() === "zh" ? "游戏倍速 [F]" : lang() === "id" ? "Kecepatan Game [F]" : "Game Speed [F]"), "bottom");
+  attachHoverTip(idleButton, () => (lang() === "zh" ? "空闲族人定位 [.]" : lang() === "id" ? "Cari Penduduk Menganggur [.]" : "Find Idle Villagers [.]"), "bottom");
+  attachHoverTip(menuButton, () => (lang() === "zh" ? "游戏菜单" : lang() === "id" ? "Menu Permainan" : "Game Menu"), "left");
+
   /** A long press on `entry` shows `name` beside it (unless `hold` does something instead); the
-   *  returned function tells the click that followed whether it was such a press. */
+   *  returned function tells the click that followed whether it was such a press. Also provides instant hover tooltip on desktop. */
   const longPress = (entry: HTMLElement, name: () => string, hold?: () => boolean) => {
     let timer = 0;
     let held = false;
-    entry.addEventListener("pointerdown", () => {
+    entry.addEventListener("mouseenter", () => {
+      const val = name();
+      entry.setAttribute("title", val);
+      showTooltip(entry, val, "left");
+    });
+    entry.addEventListener("mouseleave", hideTooltip);
+    entry.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse") return;
       held = false;
       timer = window.setTimeout(() => {
         held = true;
         if (hold?.()) return;
-        const box = entry.getBoundingClientRect();
-        const area = hud.getBoundingClientRect();
-        tip.textContent = name();
-        tip.style.top = `${box.top - area.top + box.height / 2}px`;
-        tip.style.right = `${area.right - box.left + 8}px`;
-        tip.hidden = false;
+        showTooltip(entry, name(), "left");
       }, 450);
     });
-    const end = () => { window.clearTimeout(timer); tip.hidden = true; };
+    const end = () => { window.clearTimeout(timer); hideTooltip(); };
     entry.addEventListener("pointerup", end);
     entry.addEventListener("pointercancel", end);
     entry.addEventListener("pointerleave", end);
@@ -598,6 +663,7 @@ export function attachHud(
   const buildButton = button("hud-build-button", "", "Build");
   buildButton.innerHTML = img("build-a", "up") + img("build-b", "down");
   buildButton.addEventListener("click", () => touch.command([10]));
+  attachHoverTip(buildButton, () => (lang() === "zh" ? "建造列表 [Q]" : lang() === "id" ? "Menu Bangun [Q]" : "Build Menu [Q]"), "left");
 
   // ✓ / ✕ where something waits for confirming or going back: choosing a chief, aiming a weapon or
   // spell, the building menu (select the villager), placing (back to the build list).
@@ -614,6 +680,7 @@ export function attachHud(
   // command's icon at its corner) while call to arms or form up is on. The same item cancels it.
   const cmdButton = button("hud-cmd", "", "Commands");
   cmdButton.innerHTML = img("cmd-plate") + img("cmd-horn", "glyph") + img("cmd-arms", "badge");
+  attachHoverTip(cmdButton, () => (lang() === "zh" ? "战术指令" : lang() === "id" ? "Perintah Suku" : "Commands"), "left");
   const cmdShade = document.createElement("div");
   cmdShade.className = "hud-cmd-shade";
   cmdShade.hidden = true;
@@ -663,6 +730,7 @@ export function attachHud(
     entry.innerHTML = img("cmd-plate") + img(command.glyph, "glyph");
     entry.style.setProperty("--i", String(index));
     entry.addEventListener("click", () => { closeCommands(); command.act(); });
+    attachHoverTip(entry, () => command.name(), "left");
     cmdMenu.append(entry);
     return { entry, command };
   });
@@ -823,10 +891,15 @@ export function attachHud(
         const entry = document.createElement("button");
         entry.type = "button";
         entry.className = "hud-card";
-        entry.setAttribute("aria-label", capitalise(originalText(runtime, "s", kind)));
+        const l = lang();
+        const name = l === "id" ? (BUILDING_NAMES_ID[kind] ?? capitalise(originalText(runtime, "s", kind))) : capitalise(originalText(runtime, "s", kind));
+        const desc = l === "zh" ? BUILDING_DESCS_ZH[kind] : l === "id" ? BUILDING_DESCS_ID[kind] : BUILDING_DESCS_EN[kind];
+        entry.setAttribute("aria-label", name);
+        entry.setAttribute("title", `${name}\n${desc}`);
         entry.dataset.kind = String(kind);
-        entry.innerHTML = `<span class="pic">${img(`ub-${BUILDING_ICONS[kind]}`)}</span><span class="cost"></span>`;
+        entry.innerHTML = `<span class="pic">${img(`ub-${BUILDING_ICONS[kind]}`)}</span><span class="cost"></span><span class="hud-card-name">${name}</span>`;
         entry.addEventListener("click", () => touch.pickInBar(index));
+        attachHoverTip(entry, () => `${name} — ${desc}`, "top");
         return entry;
       }));
     }

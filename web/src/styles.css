@@ -328,13 +328,17 @@ button.notice {
 
 .hud-tip {
   position: absolute;
+  z-index: 60;
   transform: translateY(-50%);
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: rgba(43, 29, 14, 0.9);
-  color: #fff6d8;
-  font: bold 14px/1.2 sans-serif;
-  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(35, 22, 10, 0.95);
+  border: 1.5px solid #8d5b2d;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  color: #fff8e1;
+  font: 600 13px/1.35 system-ui, sans-serif;
+  white-space: pre-wrap;
+  max-width: 280px;
   pointer-events: none;
 }
 
@@ -500,7 +504,7 @@ button.notice {
 .hud-bar {
   position: absolute;
   z-index: 7;
-  top: 0;
+  top: var(--hud-bar-top, 0px);
   left: 0;
   right: 0;
   height: 44px;
@@ -582,8 +586,8 @@ button.notice {
 }
 
 .hud .hud-menu-button {
-  z-index: 8;
-  top: 2px;
+  z-index: 26;
+  top: calc(2px + var(--hud-bar-top, 0px));
   right: 6px;
   width: 34px;
   height: 34px;
@@ -631,12 +635,12 @@ button.notice {
 
 .hud-menu {
   position: absolute;
-  z-index: 6;
-  top: 33px;
+  z-index: 25;
+  top: calc(36px + var(--hud-bar-top, 0px));
   right: 4px;
-  width: 56px;
+  width: 58px;
   box-sizing: border-box;
-  padding: 18px 0 8px;
+  padding: 10px 0 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -645,7 +649,7 @@ button.notice {
   border-top: 0;
   border-radius: 0 0 12px 12px;
   background: #bfb04d;
-  box-shadow: 0 3px 0 rgba(60, 34, 12, 0.55);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
   pointer-events: auto;
 }
 
@@ -675,9 +679,9 @@ button.notice {
 /* Over the map and the other buttons; the bar and its menu stay above it. */
 .hud-menu-shade {
   position: fixed;
-  z-index: 5;
+  z-index: 24;
   inset: 0;
-  background: rgba(28, 16, 4, 0.38);
+  background: rgba(28, 16, 4, 0.45);
   pointer-events: auto;
 }
 
@@ -996,19 +1000,41 @@ button.notice {
   position: relative;
   flex: none;
   touch-action: pan-x; /* .hud button's none would stop the list's sideways scroll (BUG-015) */
-  width: 87px;
-  height: 96px;
+  width: 92px;
+  height: 98px;
   scroll-snap-align: start;
 }
 
 .hud-card .pic img {
   position: absolute;
-  left: 2px;
-  top: 10px;
+  left: 6px;
+  top: 4px;
   width: 80px;
-  height: 85px;
+  height: 74px;
   object-fit: contain;
   object-position: center bottom;
+  transition: transform 0.12s ease-out;
+}
+
+.hud-card:hover .pic img {
+  transform: scale(1.06);
+}
+
+.hud-card-name {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 1px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  color: #fff9db;
+  text-shadow: 1px 1px 0 #3c220c, -1px 1px 0 #3c220c, 1px -1px 0 #3c220c, -1px -1px 0 #3c220c, 0 2px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hud-card:active .pic {
@@ -2659,7 +2685,7 @@ button.notice {
 .hud .hud-speed-btn {
   position: absolute;
   z-index: 4;
-  top: 46px;
+  top: calc(46px + var(--hud-bar-top, 0px));
   right: 8px;
   min-width: 44px;
   height: 30px;
@@ -2878,7 +2904,7 @@ button.notice {
 .hud .hud-idle-btn {
   position: absolute;
   z-index: 4;
-  top: 46px;
+  top: calc(46px + var(--hud-bar-top, 0px));
   right: 58px;
   min-width: 48px;
   height: 30px;
