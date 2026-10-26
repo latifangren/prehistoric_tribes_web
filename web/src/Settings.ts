@@ -2,6 +2,8 @@ import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { getMasterVolume, isSfxEnabled, setMasterVolume, setSfxEnabled, sfx } from "./platform/SoundEffects";
 import { isAmbienceEnabled, setAmbienceEnabled } from "./audio/AtmosphereAudio";
 import { weatherSystem } from "./render/WeatherSystem";
+import { dayNightCycle } from "./render/DayNightCycle";
+import { emotionBubbles } from "./render/EmotionBubbles";
 import {
   ALL_STORAGE_KEYS,
   canSaveCurrentMatch,
@@ -63,6 +65,8 @@ export function attachSettings(
               <label class="switch"><input type="checkbox" name="sfx"> <span data-i18n="sfx">Sound Effects</span></label>
               <label class="switch"><input type="checkbox" name="ambience"> <span data-i18n="ambience">Ambience & Drums</span></label>
               <label class="switch"><input type="checkbox" name="weather"> <span data-i18n="weather">Weather & Seasons</span></label>
+              <label class="switch"><input type="checkbox" name="dayNight"> <span data-i18n="dayNight">Day / Night & Campfires</span></label>
+              <label class="switch"><input type="checkbox" name="emotes"> <span data-i18n="emotes">Thought & Emotion Bubbles</span></label>
               <label class="switch"><input type="checkbox" name="hints"> <span data-i18n="hints">Hints</span></label>
             </div>
           </div>
@@ -123,6 +127,8 @@ export function attachSettings(
   const sfxToggle = form.elements.namedItem("sfx") as HTMLInputElement;
   const ambienceToggle = form.elements.namedItem("ambience") as HTMLInputElement;
   const weatherToggle = form.elements.namedItem("weather") as HTMLInputElement;
+  const dayNightToggle = form.elements.namedItem("dayNight") as HTMLInputElement;
+  const emotesToggle = form.elements.namedItem("emotes") as HTMLInputElement;
   const hints = form.elements.namedItem("hints") as HTMLInputElement;
   const info = form.elements.namedItem("info") as HTMLSelectElement;
   const fileInput = form.elements.namedItem("importFile") as HTMLInputElement;
@@ -168,6 +174,14 @@ export function attachSettings(
   weatherToggle.addEventListener("change", () => {
     sfx.click();
     weatherSystem.setEnabled(weatherToggle.checked);
+  });
+  dayNightToggle.addEventListener("change", () => {
+    sfx.click();
+    dayNightCycle.setEnabled(dayNightToggle.checked);
+  });
+  emotesToggle.addEventListener("change", () => {
+    sfx.click();
+    emotionBubbles.setEnabled(emotesToggle.checked);
   });
   hints.addEventListener("change", () => {
     sfx.click();
@@ -296,6 +310,8 @@ export function attachSettings(
     setText("sfx", lang === "zh" ? "游戏音效" : lang === "id" ? "Efek Suara (SFX)" : "Sound Effects");
     setText("ambience", lang === "zh" ? "自然风声与战鼓" : lang === "id" ? "Suara Alam & Drum Perang" : "Nature Ambience & Drums");
     setText("weather", lang === "zh" ? "动态天气与四季" : lang === "id" ? "Cuaca Dinamis & Musim" : "Dynamic Weather & Seasons");
+    setText("dayNight", lang === "zh" ? "昼夜交替与营火照明" : lang === "id" ? "Siklus Siang-Malam & Api Unggun" : "Day / Night & Campfires");
+    setText("emotes", lang === "zh" ? "村民心情与气泡想法" : lang === "id" ? "Balon Emosi & Pikiran Warga" : "Villager Emotion Bubbles");
     setText("hints", lang === "zh" ? "新手提示" : lang === "id" ? "Petunjuk & Bantuan" : "Hints");
     setText("volume", lang === "zh" ? "音量大小" : lang === "id" ? "Volume Suara" : "Audio Volume");
     setText("overhead", lang === "zh" ? "头顶信息" : lang === "id" ? "Status Kepala Unit" : "Overhead Info");
@@ -312,6 +328,8 @@ export function attachSettings(
     sfxToggle.checked = isSfxEnabled();
     ambienceToggle.checked = isAmbienceEnabled();
     weatherToggle.checked = weatherSystem.isEnabled();
+    dayNightToggle.checked = dayNightCycle.isEnabled();
+    emotesToggle.checked = emotionBubbles.isEnabled();
     hints.checked = game.lInt !== 0;
     info.value = String(game.frameLayoutAq);
 

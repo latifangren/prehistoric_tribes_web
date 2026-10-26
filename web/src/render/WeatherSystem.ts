@@ -1,6 +1,8 @@
 import { ZH_LANGUAGE } from "../text/LegacyZhText";
 import { audioManager } from "../platform/AudioManager";
 import { getMasterVolume, isSfxEnabled } from "../platform/SoundEffects";
+import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
+import { UNIT_ENERGY, UNIT_HP } from "../core/DenseLayout";
 
 const WEATHER_ENABLED_KEY = "pt.weather";
 
@@ -65,7 +67,8 @@ export class WeatherSystem {
   private rainGain: GainNode | null = null;
   private rainSource: AudioBufferSourceNode | null = null;
   private enabled = true;
-
+  private onWeatherChange?: (mode: WeatherMode) => void;
+  private lastEffectTime = 0;
   constructor() {
     this.canvas = document.createElement("canvas");
     this.canvas.className = "weather-canvas";
@@ -94,11 +97,39 @@ export class WeatherSystem {
     return this.currentMode;
   }
 
-  setMode(mode: WeatherMode): void {
-    this.currentMode = mode;
-    this.updateWeatherAudio();
+  setOnWeatherChange(cb: (mode: WeatherMode) => void): void {
+    this.onWeatherChange = cb;
   }
 
+  setMode(mode: WeatherMode): void {
+    if (this.currentMode === mode) return;
+    this.currentMode = mode;
+    this.updateWeatherAudio();
+    this.onWeatherChange?.(mode);
+  }
+
+  applyGameplayEffects(runtime: LegacyRuntimeState, now: number): void {
+    if (!this.enabled || now - this.lastEffectTime < 3000) return;
+    this.lastEffectTime = now;
+
+    const dense = runtime.denseState;
+
+    if (this.currentMode === "snow") {
+      // Freezing cold: outdoor villagers lose energy slightly faster
+      for (let id = 1; id <= 50; id += 1) {
+        if ((dense[UNIT_HP + id] ?? 0) > 0) {
+          const energy = dense[UNIT_ENERGY + id] ?? 50;
+          if (energy > 5) dense[UNIT_ENERGY + id] = energy - 1;
+        }
+      }
+    } else if (this.currentMode === "rain") {
+      // Rain nourishes berry vegetation: subtle natural food bonus
+      const row = runtime.mainArrays.aShort[0];
+      if (row && row[1] !== undefined && row[1] < 990) {
+        row[1] = Math.min(999, row[1] + 1);
+      }
+    }
+  }
   setEnabled(on: boolean): void {
     this.enabled = on;
     setWeatherEnabled(on);

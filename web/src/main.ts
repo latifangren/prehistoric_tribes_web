@@ -19,6 +19,8 @@ import { attachStartMenu, savedLanguage, savedMusic } from "./StartMenu";
 import { attachStoryHud } from "./StoryHud";
 import { achievementManager, attachAchievements } from "./Achievements";
 import { weatherSystem } from "./render/WeatherSystem";
+import { dayNightCycle } from "./render/DayNightCycle";
+import { emotionBubbles } from "./render/EmotionBubbles";
 import { matchStatsTracker, attachMatchRecap } from "./render/MatchRecap";
 import { tribeTactics } from "./combat/TribeTactics";
 // The Chinese strings; docs/translation-zh-CN.json is their single source.
@@ -87,7 +89,19 @@ const notify = attachAlerts(app, runtime, touch);
 const openSettings = attachSettings(app, screen, runtime, touch);
 const openAchievements = attachAchievements(app, runtime);
 const openRecap = attachMatchRecap(app, runtime, openAchievements);
+dayNightCycle.mount(app);
 weatherSystem.mount(app);
+emotionBubbles.mount(app);
+weatherSystem.setOnWeatherChange((mode) => {
+  const lang = typeof localStorage !== "undefined" && localStorage.getItem("pt.language") === "id" ? "id" : runtime.language === 1 ? "zh" : "en";
+  if (mode === "rain") {
+    notify(lang === "zh" ? "🌧️ 暴雨倾盆浇灌营地！浆果丛生长加速。" : lang === "id" ? "🌧️ Hujan lebat membasahi perkemahan! Semak berry tumbuh lebih subur." : "🌧️ Heavy rain drenches the camp! Berry bushes flourish.");
+  } else if (mode === "snow") {
+    notify(lang === "zh" ? "❄️ 严寒暴雪降临！寒气加速消耗体力，狩猎巨兽以求生存！" : lang === "id" ? "❄️ Musim dingin salju tiba! Hawa dingin menguras tenaga, berburulah untuk bertahan hidup!" : "❄️ Frosty snow falls! The cold drains energy faster; hunt beasts to survive!");
+  } else {
+    notify(lang === "zh" ? "☀️ 天空重现晴朗与温暖！部落全面恢复生产。" : lang === "id" ? "☀️ Langit kembali cerah dan hangat! Produktivitas suku berjalan penuh." : "☀️ Skies clear and warm! Tribe productivity is at its peak.");
+  }
+});
 const dangerIndicators = attachDangerIndicators(app, runtime, screen, touch);
 const hud = attachHud(
   app,
@@ -188,10 +202,27 @@ function render(): void {
   const every = (window as Window & { __prehistoricWideEvery?: number }).__prehistoricWideEvery ?? 1;
   if (renders++ % every === 0) screen.renderWide();
   screen.compose();
-  if (runtime.game.loopMode === 1) {
-    weatherSystem.resize(screen.element.clientWidth || window.innerWidth, screen.element.clientHeight || window.innerHeight);
-    weatherSystem.tick(performance.now(), 16);
+  if (runtime.game.loopMode === 1 && !screen.frozen) {
+    const sw = screen.element.clientWidth || window.innerWidth;
+    const sh = screen.element.clientHeight || window.innerHeight;
+    const now = performance.now();
+    const speed = loop.getSpeed();
+
+    dayNightCycle.resize(sw, sh);
+    dayNightCycle.tick(now, 16, speed, runtime, screen);
+
+    weatherSystem.resize(sw, sh);
+    weatherSystem.tick(now, 16);
+    weatherSystem.applyGameplayEffects(runtime, now);
+
+    emotionBubbles.resize(sw, sh);
+    emotionBubbles.tick(now, runtime, screen);
+
     if (app) tribeTactics.renderRallyMarkers(app, runtime, screen);
+  } else {
+    dayNightCycle.resize(0, 0);
+    weatherSystem.resize(0, 0);
+    emotionBubbles.resize(0, 0);
   }
   hud.update();
   menuHud.update();
@@ -388,6 +419,8 @@ if (isDevelopmentHost) {
     __prehistoricDebugBootWithoutSplash: () => debugBootWithoutSplash(),
     __prehistoricDebugRuntime: runtime,
     __prehistoricScreen: screen,
+    __prehistoricDayNight: dayNightCycle,
+    __prehistoricEmotion: emotionBubbles,
   });
 }
 
