@@ -7,6 +7,11 @@
     "dev": "sh -c 'vite --host 0.0.0.0 --port 3000'",
     "build": "tsc --noEmit && vite build",
     "preview": "sh -c 'vite preview --host 0.0.0.0 --port 3000'",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:android:build": "tauri android build --debug --target aarch64 --apk",
+    "tauri:android:dev": "tauri android dev",
     "oracle": "node scripts/oracle-all.mjs",
     "test:browser": "node scripts/browser-smoke.mjs",
     "test": "node scripts/test-all.mjs",
@@ -357,8 +362,12 @@
     "export-art": "node scripts/export-art.mjs"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.12.4",
+    "playwright": "^1.64.1",
     "typescript": "^5.7.2",
-    "vite": "^6.0.7",
-    "playwright": "^1.64.1"
+    "vite": "^6.0.7"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.12.4"
   }
 }

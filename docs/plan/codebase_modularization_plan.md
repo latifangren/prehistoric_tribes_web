@@ -97,7 +97,7 @@ Fase ini menyiapkan PWA/TWA dan wrapper native tanpa memilih dependency native s
 - [x] Tambahkan pengelolaan lifecycle web melalui `visibilitychange`/`pagehide`: hentikan atau lanjutkan loop dan audio sesuai kebijakan game, serta selesaikan penulisan yang memang tertunda tanpa mengandalkan flush sinkron.
 - [x] Sediakan hook platform untuk tombol Back Android; adapter web tidak melakukan apa-apa. Implementasi native baru dibuat saat fase wrapper Tauri.
 - [x] Pertahankan satu adapter web dan rakit di composition root `main.ts`. Jangan menambah dependency Capacitor/Tauri dalam fase ini.
-- [x] Tetapkan kebijakan orientasi mobile sebelum menerbitkan TWA atau paket native; manifest saat ini menyatakan portrait sementara game memiliki tampilan widescreen.
+- [ ] Putuskan orientasi mobile sebelum TWA/native release. Saat ini manifest dan rotate notice memaksa portrait, sementara tampilan game widescreen; keputusan perlu diuji pada perangkat, bukan dianggap selesai oleh konfigurasi saat ini.
 - [x] Verifikasi jalur browser untuk startup, settings, save/load, ekspor/impor, background/resume, serta viewport mobile dan desktop. Pastikan tidak ada I/O storage per-frame.
 
 **Kriteria selesai:** pemanggil tidak mengakses storage/haptic/lifecycle secara langsung di luar adapter yang ditetapkan; kontrak Storage dan lifecycle siap dipakai web; ekspor/impor save tetap berfungsi; tidak ada perubahan perilaku simulasi.
@@ -283,7 +283,7 @@ Fase ini opsional untuk **pendalaman struktur**, tetapi target ukuran akhir teta
 
 ## 5. Rekomendasi urutan dan keputusan tinjauan
 
-Urutan modularisasi yang direkomendasikan: **Fase 0 → Fase P → Fase 1 → Fase 2 → Fase 3b–3f → Fase 4 → Fase 5/6**. Urutan target platform: **Fase 0 → Fase P → Opsi 5 (PWA/TWA) → Fase 2 → Opsi 4 (Tauri 2)**; Opsi 5 dapat berjalan paralel dengan Fase 1 setelah Fase P selesai. Opsi 4 dimulai setelah Fase 2, ketika HUD stabil. Fase 3a dilewati pada baseline karena `WorldRuntime.ts` sudah di bawah kedua batas.
+Fase modularisasi sudah selesai. Urutan kerja platform berikutnya: **Langsung Opsi 4 (Tauri 2 Standalone untuk Windows dan Android)**. Opsi 5 (PWA/TWA) dilewati untuk menghindari ketergantungan domain publik dan verifikasi `assetlinks.json`.
 
 Keputusan dan pagar yang dipakai:
 
@@ -293,13 +293,13 @@ Keputusan dan pagar yang dipakai:
 - **Browser test:** gunakan `test:browser` terpisah dari `npm test`; CI memasang Chromium dengan `npx playwright install --with-deps chromium` lalu menjalankan suite tersebut.
 - **Oracle:** fixture tidak ada di lokal maupun path upstream yang diperiksa. Jangan wajibkan oracle sebelum tersedia; `0/0` tidak dihitung lulus.
 - **State ledger:** jangan pecah `LegacyGameState` menjadi subrecord; pertahankan dokumentasi bytecode dan pengecualian fisiknya.
-- **Keputusan target platform (2026-10-26):** jalankan Opsi 5 lebih dulu untuk mematangkan PWA/TWA dan menguji game di perangkat nyata; setelah itu gunakan Tauri 2 sebagai wrapper native untuk Android dan Windows dari frontend yang sama.
+- **Keputusan target platform (diperbarui 2026-10-27):** Opsi 5 dilewati karena memerlukan setup domain root publik. Seluruh fokus dialihkan langsung ke Tauri 2 standalone sebagai aplikasi offline murni (Windows desktop `.exe` dan Android mobile `.apk`).
 - **Pilihan wrapper:** Tauri 2 adalah pilihan default untuk Opsi 4 karena kebutuhan mencakup Android dan Windows, serta pengalaman Rust sudah ada. Jangan buat wrapper Capacitor dan Tauri terpisah tanpa kebutuhan platform konkret. Tinjau ulang Capacitor hanya jika ditemukan kebutuhan Android yang tidak terpenuhi dengan baik oleh Tauri.
 - **Urutan integrasi native:** tunggu Fase P dan Fase 2 selesai sebelum menambahkan dependency atau konfigurasi native Tauri. Gunakan adapter Tauri untuk mengganti implementasi platform; modul game tidak mengimpor API Tauri secara langsung.
 - **Storage native:** gunakan kontrak async sebagai default dan simpan data melalui adapter. Tauri Store resmi async dan mendukung Android/Windows; validasi save/load, ekspor/impor, serta perilaku saat aplikasi masuk background pada wrapper sebelum rilis. Jangan memindahkan simulasi ke Rust kecuali pengukuran perangkat membuktikan WebView tidak memenuhi kebutuhan.
 - **Artefak web:** pertahankan satu frontend web. PWA/TWA menggunakan build yang di-host; Tauri membundel frontend yang sama bersama konfigurasi wrapper per target. Jangan menganggap TWA, APK, dan installer desktop sebagai satu paket atau satu mekanisme distribusi.
 - **Save antar target:** fitur ekspor/impor yang sudah ada menjadi jalur pindah save antara origin web/PWA dan penyimpanan aplikasi Tauri. Jangan membuat sistem migrasi kedua; verifikasi alur tersebut pada smoke test native.
-- **Keputusan yang masih terbuka:** kebijakan orientasi mobile dan kebutuhan distribusi sementara lewat TWA/MSIX. Putuskan sebelum paket target terkait diterbitkan, bukan dengan mengubah kontrak platform.
+- **Roadmap platform lanjutan:** checklist Opsi 5 PWA/TWA lalu Opsi 4 Tauri 2 dipisahkan ke [`pwa_twa_tauri_roadmap.md`](pwa_twa_tauri_roadmap.md); keputusan yang masih perlu ditinjau ada di dokumen tersebut.
 
 ---
 
@@ -309,3 +309,11 @@ Keputusan dan pagar yang dipakai:
 - [x] Branch kerja `refactor-improve-codebase` dibuat.
 - [x] Plan ditinjau pengguna.
 - [x] Implementasi bertahap dimulai setelah plan ditinjau.
+
+## 7. Roadmap lanjutan platform
+
+Rencana rinci PWA/TWA dan Tauri 2 berada di [`pwa_twa_tauri_roadmap.md`](pwa_twa_tauri_roadmap.md). Dokumen tersebut memisahkan kondisi repo saat ini, checklist tiap tahap, acceptance gate, serta keputusan yang menunggu tinjauan.
+
+Keputusan disetujui: langsung ke Tauri 2 standalone (Windows desktop lalu Android mobile) tanpa melewati PWA/TWA.
+
+
