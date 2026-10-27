@@ -563,8 +563,8 @@
       "physical": 131
     },
     "web/src/hud/PlacementOverlay.ts": {
-      "effective": 140,
-      "physical": 145
+      "effective": 145,
+      "physical": 155
     },
     "web/src/hud/RightThumbControls.ts": {
       "effective": 163,
@@ -1695,8 +1695,8 @@
       "physical": 163
     },
     "web/src/styles/hud-actions.css": {
-      "effective": 314,
-      "physical": 401
+      "effective": 345,
+      "physical": 435
     },
     "web/src/styles/hud-bar-sheet.css": {
       "effective": 445,

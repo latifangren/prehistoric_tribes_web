@@ -8,6 +8,8 @@ import type { TouchControls } from "../TouchControls";
 import type { WideScreen } from "../WideScreen";
 import { hdArt } from "../render/HdArt";
 
+import { getActiveBuildKind, setActiveBuildKind } from "./BuildList";
+
 export interface HudPlacementOverlay {
   setPickIcon(name: string): void;
   track(lastTouch: number, picking: boolean, pickTarget: number, orderMarkHidden: boolean): void;
@@ -22,6 +24,7 @@ export function createHudPlacementOverlay(
   image: (name: string, className?: string) => string,
 ): HudPlacementOverlay {
   const game = runtime.game;
+  let lastBarMode = -1;
   const marker = document.createElement("img");
   marker.className = "hud-pick-marker";
   marker.alt = "";
@@ -31,8 +34,9 @@ export function createHudPlacementOverlay(
   const ghost = document.createElement("div");
   ghost.className = "hud-ghost";
   ghost.hidden = true;
-  ghost.innerHTML = '<i class="patch"></i><img alt="" draggable="false">';
+  ghost.innerHTML = '<i class="patch"><span class="door-indicator"></span></i><img alt="" draggable="false">';
   const ghostPatch = ghost.querySelector<HTMLElement>(".patch")!;
+  const doorIndicator = ghost.querySelector<HTMLElement>(".door-indicator")!;
   const ghostPicture = ghost.querySelector<HTMLImageElement>("img")!;
   const placeTick = button("hud-place", "", "Place Building");
   placeTick.innerHTML = image("btn-tick");
@@ -105,9 +109,12 @@ export function createHudPlacementOverlay(
         const [tx, ty] = screen.centreTile();
         if (tx !== game.cameraColumn + game.cursorColumn || ty !== game.cameraRow + game.cursorRow) touch.aim(tx, ty);
       }
+      if (lastBarMode === 3 && game.barMode !== 3) setActiveBuildKind(-1);
+      lastBarMode = game.barMode;
+      const activeKind = getActiveBuildKind();
       const area = touch.footprint();
       const isTrap = game.cSInt >= 20 && game.cSInt <= 22;
-      const kind = area ? (isTrap ? game.cSInt : placedKind(game.cSInt)) : -1;
+      const kind = area ? (isTrap ? game.cSInt : (activeKind >= 0 ? activeKind : placedKind(game.cSInt))) : -1;
       if (!area || kind < 0 || screen.frozen || picking || !orderMarkHidden) { placeTick.hidden = true; ghost.hidden = true; return; }
       const from = screen.tileToCss(area.column, area.row);
       const to = screen.tileToCss(area.column + area.columns, area.row + area.rows);
@@ -126,6 +133,11 @@ export function createHudPlacementOverlay(
       const left = (from.x + to.x) / 2 - width / 2;
       const top = to.y - height;
       Object.assign(ghostPicture.style, { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` });
+      if (doorIndicator) {
+        const l = typeof localStorage !== "undefined" ? localStorage.getItem("pt.language") : "id";
+        doorIndicator.textContent = isTrap ? "" : (l === "zh" ? "▼ 正门" : l === "en" ? "▼ Front" : "▼ Depan");
+        doorIndicator.hidden = isTrap;
+      }
       ghost.hidden = false;
       const tickSize = 40;
       const viewportWidth = screen.element.clientWidth;
