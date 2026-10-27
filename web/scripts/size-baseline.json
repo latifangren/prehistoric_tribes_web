@@ -491,8 +491,8 @@
       "physical": 145
     },
     "web/src/combat/TribeTactics.ts": {
-      "effective": 285,
-      "physical": 360
+      "effective": 275,
+      "physical": 345
     },
     "web/src/core/DataTables.ts": {
       "effective": 36,
@@ -587,8 +587,8 @@
       "physical": 12
     },
     "web/src/mainRuntime.ts": {
-      "effective": 420,
-      "physical": 560
+      "effective": 400,
+      "physical": 540
     },
     "web/src/MenuHud.ts": {
       "effective": 53,
@@ -703,8 +703,8 @@
       "physical": 480
     },
     "web/src/render/EmotionBubbles.ts": {
-      "effective": 225,
-      "physical": 295
+      "effective": 205,
+      "physical": 271
     },
     "web/src/render/HdArt.ts": {
       "effective": 330,
@@ -1293,10 +1293,6 @@
     "web/src/sim/tribe/SmartHarvesting.ts": {
       "effective": 120,
       "physical": 150
-    },
-    "web/src/sim/tribe/YouthInitiation.ts": {
-      "effective": 220,
-      "physical": 280
     },
     "web/src/sim/tribe/TribeRuntime.ts": {
       "effective": 1902,
