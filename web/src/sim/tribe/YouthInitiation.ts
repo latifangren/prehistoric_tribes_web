@@ -51,8 +51,8 @@ export class YouthInitiationManager {
 
     const dense = rt.denseState;
 
-    // Monitor Team 1 villagers (ids 51..100)
-    for (let id = 51; id <= 100; id++) {
+    // Monitor Team 0 (Player's tribe) villagers (ids 1..50)
+    for (let id = 1; id <= 50; id++) {
       const hp = dense[UNIT_HP + id] ?? 0;
       if (hp <= 0) {
         this.initiatedUnits.delete(id);
@@ -77,8 +77,8 @@ export class YouthInitiationManager {
       const isLinkedToNursery = workTarget < 0 && (dense[BLD_KIND + -workTarget] ?? 0) === 10;
       const graduatedFromNursery = isLinkedToNursery && (age >= 11 || type === 59 || type === 17);
       const wasChild = this.knownChildren.has(id);
-      const isIdleYouth = (age >= 11 && age <= 25) && (order === 0 || order === 3) && (workTarget === 0 || isLinkedToNursery) && (type === 69 || type === 59 || type === 17) && (job === 69 || job === 0);
-
+      // Include type 84 (idle villager in village), 69, 59, 17
+      const isIdleYouth = (age >= 11 && age <= 25) && (order === 0 || order === 3) && (workTarget === 0 || isLinkedToNursery) && (type === 84 || type === 69 || type === 59 || type === 17) && (job === 69 || job === 0);
       if ((wasChild || graduatedFromNursery || isIdleYouth) && !this.initiatedUnits.has(id)) {
         this.knownChildren.delete(id);
         this.initiatedUnits.add(id);
@@ -112,7 +112,7 @@ export class YouthInitiationManager {
         packedOffsets: rt.packedOffsets,
         v: id,
         pools: rt.mainArrays.aShort,
-        team: 1,
+        team: 0,
         onRecordCompletion: () => {},
       });
     }
@@ -174,8 +174,8 @@ export class YouthInitiationManager {
     let bestBuilding: { id: number; x: number; y: number } | null = null;
     let bestDist = Infinity;
 
-    // Team 1 buildings are 31..60
-    for (let b = 31; b <= 60; b++) {
+    // Team 0 (Player) buildings are 1..30
+    for (let b = 1; b <= 30; b++) {
       const hp = dense[BLD_HP + b] ?? 0;
       const kind = dense[BLD_KIND + b] ?? 0;
       if (hp <= 0 || kind !== targetKind) continue;
@@ -207,7 +207,7 @@ export class YouthInitiationManager {
     let bestSenior: { x: number; y: number; workTarget: number } | null = null;
     let bestDist = Infinity;
 
-    for (let s = 51; s <= 100; s++) {
+    for (let s = 1; s <= 50; s++) {
       if (s === unitId) continue;
       const hp = dense[UNIT_HP + s] ?? 0;
       const age = dense[UNIT_AGE + s] ?? 18;
