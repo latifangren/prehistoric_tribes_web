@@ -67,17 +67,19 @@ export class YouthInitiationManager {
       const workTarget = dense[UNIT_WORK_TARGET + id] ?? 0;
       const job = dense[UNIT_JOB_TYPE + id] ?? 69;
 
-      const isChild = age < 12 || type === 17;
-      if (isChild) {
+      // A young child still playing inside nursery (age < 11)
+      if (age < 11 && (type === 17 || type === 73)) {
         this.knownChildren.add(id);
         continue;
       }
 
+      // Check if graduated from nursery or is an idle youth
+      const isLinkedToNursery = workTarget < 0 && (dense[BLD_KIND + -workTarget] ?? 0) === 10;
+      const graduatedFromNursery = isLinkedToNursery && (age >= 11 || type === 59 || type === 17);
       const wasChild = this.knownChildren.has(id);
-      // A young adult who is unassigned/idle and needs initiation
-      const isIdleYouth = age >= 12 && (order === 0 || order === 3) && (workTarget === 0 || workTarget === -47) && (type === 69 || type === 59) && job === 69;
+      const isIdleYouth = (age >= 11 && age <= 25) && (order === 0 || order === 3) && (workTarget === 0 || isLinkedToNursery) && (type === 69 || type === 59 || type === 17) && (job === 69 || job === 0);
 
-      if ((wasChild || isIdleYouth) && !this.initiatedUnits.has(id)) {
+      if ((wasChild || graduatedFromNursery || isIdleYouth) && !this.initiatedUnits.has(id)) {
         this.knownChildren.delete(id);
         this.initiatedUnits.add(id);
         this.performInitiation(rt, id);
@@ -92,6 +94,16 @@ export class YouthInitiationManager {
     const order = dense[UNIT_ORDER + id] ?? 0;
     if (order !== 0 && order !== 3) return;
 
+    // Promote graduated youth to full adult status so the engine allows them to enter training/work
+    if ((dense[UNIT_AGE + id] ?? 0) < 12) {
+      dense[UNIT_AGE + id] = 12;
+    }
+    dense[UNIT_TYPE + id] = 69;
+    dense[UNIT_JOB_TYPE + id] = 69;
+    const currentWork = dense[UNIT_WORK_TARGET + id] ?? 0;
+    if (currentWork < 0 && (dense[BLD_KIND + -currentWork] ?? 0) === 10) {
+      dense[UNIT_WORK_TARGET + id] = 0;
+    }
     // 1. Try to equip preferred weapon from tribe Storehouse pool using native bytecode logic
     if ((dense[UNIT_HELD_ITEM + id] ?? 9) === 9 && rt.packedData) {
       stepLegacyEntityEquipIssue({
