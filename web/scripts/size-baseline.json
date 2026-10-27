@@ -1295,8 +1295,8 @@
       "physical": 150
     },
     "web/src/sim/tribe/YouthInitiation.ts": {
-      "effective": 190,
-      "physical": 250
+      "effective": 200,
+      "physical": 260
     },
     "web/src/sim/tribe/TribeRuntime.ts": {
       "effective": 1902,

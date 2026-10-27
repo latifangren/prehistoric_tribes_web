@@ -12,6 +12,8 @@ import {
   UNIT_AGE,
   UNIT_HELD_ITEM,
   UNIT_HP,
+  UNIT_JOB_TYPE,
+  UNIT_MODE,
   UNIT_ORDER,
   UNIT_TARGET_X,
   UNIT_TARGET_Y,
@@ -61,15 +63,21 @@ export class YouthInitiationManager {
       const age = dense[UNIT_AGE + id] ?? 18;
       const type = dense[UNIT_TYPE + id] ?? 69;
 
-      // Track children
-      if (age < 12 || type === 17) {
+      const order = dense[UNIT_ORDER + id] ?? 0;
+      const workTarget = dense[UNIT_WORK_TARGET + id] ?? 0;
+      const job = dense[UNIT_JOB_TYPE + id] ?? 69;
+
+      const isChild = age < 12 || type === 17;
+      if (isChild) {
         this.knownChildren.add(id);
         continue;
       }
 
-      // Check for coming of age transition: was known child and now age >= 12
-      const isComingOfAge = this.knownChildren.has(id);
-      if (isComingOfAge && !this.initiatedUnits.has(id)) {
+      const wasChild = this.knownChildren.has(id);
+      // A young adult who is unassigned/idle and needs initiation
+      const isIdleYouth = age >= 12 && (order === 0 || order === 3) && (workTarget === 0 || workTarget === -47) && (type === 69 || type === 59) && job === 69;
+
+      if ((wasChild || isIdleYouth) && !this.initiatedUnits.has(id)) {
         this.knownChildren.delete(id);
         this.initiatedUnits.add(id);
         this.performInitiation(rt, id);
@@ -101,9 +109,9 @@ export class YouthInitiationManager {
 
     // 2. If holding a weapon, check for corresponding training facility
     if (heldItem !== 9) {
-      // Melee weapons (0: club, 3: stone-axe, 4: bone-mace) -> Gym (building kind 1)
-      // Ranged weapons (1: stone, 2: spear, 5: tomahawk) -> Archery Range (building kind 5)
-      const isRanged = heldItem === 1 || heldItem === 2 || heldItem === 5;
+      // Melee weapons (0: club, 3: stone-axe, 4: bone-mace, 7: spring-trap) -> Gym (building kind 1)
+      // Ranged weapons (1: stone, 2: spear, 5: tomahawk, 6: net-trap) -> Archery Range (building kind 5)
+      const isRanged = heldItem === 1 || heldItem === 2 || heldItem === 5 || heldItem === 6;
       const targetBuildingKind = isRanged ? 5 : 1;
       const trainingBuilding = this.findNearestAvailableBuilding(rt, id, targetBuildingKind);
 
@@ -111,7 +119,9 @@ export class YouthInitiationManager {
         dense[UNIT_TARGET_X + id] = trainingBuilding.x;
         dense[UNIT_TARGET_Y + id] = trainingBuilding.y;
         dense[UNIT_WORK_TARGET + id] = -trainingBuilding.id;
-        dense[UNIT_ORDER + id] = 3;
+        dense[UNIT_ORDER + id] = 2; // ORDER 2: Move to target!
+        dense[UNIT_MODE + id] = 1;  // MODE 1: Walking!
+        dense[7777 + id] = 0;
         return;
       }
     }
@@ -122,7 +132,9 @@ export class YouthInitiationManager {
       dense[UNIT_TARGET_X + id] = apprenticeTarget.x;
       dense[UNIT_TARGET_Y + id] = apprenticeTarget.y;
       dense[UNIT_WORK_TARGET + id] = apprenticeTarget.workTarget;
-      dense[UNIT_ORDER + id] = 3;
+      dense[UNIT_ORDER + id] = 2; // ORDER 2: Move to target!
+      dense[UNIT_MODE + id] = 1;  // MODE 1: Walking!
+      dense[7777 + id] = 0;
       return;
     }
 
@@ -132,7 +144,9 @@ export class YouthInitiationManager {
       dense[UNIT_TARGET_X + id] = nearestRes.x;
       dense[UNIT_TARGET_Y + id] = nearestRes.y;
       dense[UNIT_WORK_TARGET + id] = nearestRes.marker;
-      dense[UNIT_ORDER + id] = 3;
+      dense[UNIT_ORDER + id] = 2; // ORDER 2: Move to target!
+      dense[UNIT_MODE + id] = 1;  // MODE 1: Walking!
+      dense[7777 + id] = 0;
     }
   }
 
