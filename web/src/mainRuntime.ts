@@ -32,6 +32,7 @@ import { tribeTactics } from "./combat/TribeTactics";
 import { animalEcology } from "./combat/AnimalEcology";
 import { smartHarvesting } from "./sim/tribe/SmartHarvesting";
 import { spatialAmbience } from "./audio/SpatialAmbience";
+import { youthInitiation } from "./sim/tribe/YouthInitiation";
 // The Chinese strings; docs/translation-zh-CN.json is their single source.
 import zhTranslation from "../../docs/translation-zh-CN.json";
 
@@ -199,6 +200,17 @@ function tick(): void {
     animalEcology.tick(runtime, performance.now());
     smartHarvesting.tick(runtime, performance.now());
     spatialAmbience.tick(runtime, performance.now());
+    youthInitiation.tick(runtime, performance.now(), (id) => {
+      emotionBubbles.triggerCustomBubble(id, "💪", 3500);
+      const l = typeof localStorage !== "undefined" ? localStorage.getItem("pt.language") : "id";
+      notify(
+        l === "zh"
+          ? "🎉 一名部落少年已长大成年，正式开启学徒生涯！"
+          : l === "en"
+          ? "🎉 A tribe youth reached adulthood and began their apprenticeship!"
+          : "🎉 Seorang pemuda suku telah beranjak dewasa dan mulai magang berbakti!",
+      );
+    });
   }
   matchStatsTracker.tick(runtime);
   achievementManager.tickGame(runtime);

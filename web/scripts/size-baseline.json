@@ -587,8 +587,8 @@
       "physical": 12
     },
     "web/src/mainRuntime.ts": {
-      "effective": 400,
-      "physical": 540
+      "effective": 420,
+      "physical": 560
     },
     "web/src/MenuHud.ts": {
       "effective": 53,
@@ -703,8 +703,8 @@
       "physical": 480
     },
     "web/src/render/EmotionBubbles.ts": {
-      "effective": 205,
-      "physical": 271
+      "effective": 225,
+      "physical": 295
     },
     "web/src/render/HdArt.ts": {
       "effective": 330,
@@ -1293,6 +1293,10 @@
     "web/src/sim/tribe/SmartHarvesting.ts": {
       "effective": 120,
       "physical": 150
+    },
+    "web/src/sim/tribe/YouthInitiation.ts": {
+      "effective": 190,
+      "physical": 250
     },
     "web/src/sim/tribe/TribeRuntime.ts": {
       "effective": 1902,

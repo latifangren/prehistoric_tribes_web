@@ -31,7 +31,7 @@ export function setEmotesEnabled(on: boolean): void {
   }
 }
 
-export type EmotionType = "hunger" | "sleep" | "love" | "danger" | "happy" | "work";
+export type EmotionType = "hunger" | "sleep" | "love" | "danger" | "happy" | "work" | "initiation";
 
 interface ActiveBubble {
   id: number;
@@ -85,6 +85,17 @@ export class EmotionBubbles {
 
   isEnabled(): boolean {
     return this.enabled;
+  }
+
+  triggerCustomBubble(id: number, emoji: string, durationMs = 3500): void {
+    if (!this.enabled) return;
+    this.activeBubbles.set(id, {
+      id,
+      type: "initiation",
+      emoji,
+      startTime: performance.now(),
+      durationMs,
+    });
   }
 
   private triggerBubble(id: number, type: EmotionType, emoji: string, now: number): void {
