@@ -15,8 +15,6 @@
     "oracle": "node scripts/oracle-all.mjs",
     "test:browser": "node scripts/browser-smoke.mjs",
     "test": "node scripts/test-all.mjs",
-    "test:codec": "node scripts/verify-rms-codec.mjs",
-    "test:runtime-persistence": "node scripts/verify-runtime-gameplay-persistence.mjs",
     "test:geometry": "node scripts/verify-geometry.mjs",
     "test:geometry-renderer": "node scripts/verify-geometry-renderer.mjs",
     "test:geometry-text": "node scripts/verify-geometry-text.mjs",

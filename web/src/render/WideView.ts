@@ -93,9 +93,10 @@ export type WideWindow = {
   readonly columns: number;
   readonly rows: number;
 };
+const savedMarkersA = new Int8Array(61);
+const savedMarkersB = new Int8Array(61);
 
 let image: LegacyOffscreenImage | null = null;
-
 /** The HUD slot of the top resource bar (record 2, f.paint() draws it at the top). */
 export const TOP_BAR_SLOT = 0;
 
@@ -118,12 +119,25 @@ export function renderWideView(rt: LegacyRuntimeState, window: WideWindow, touch
   image.graphics.fillRect(0, 0, width, height);
 
   const g = rt.game;
+  const dense = rt.denseState;
   // The map's offscreen is Graphics[c[1]] (f.m()'s N:B, and the fog fill's target).
   const slot = Math.max(0, Math.min(3, g.frameImageSlots[1] ?? 0)) as 0 | 1 | 2 | 3;
-  const saved = snapshot(rt);
+  const savedCursorCol = g.cursorColumn;
+  const savedCursorRow = g.cursorRow;
+  const savedCameraCol = g.cameraColumn;
+  const savedCameraRow = g.cameraRow;
+  const savedViewCols = g.viewColumns;
+  const savedViewRows = g.viewRows;
+  const savedTargetSlot = g.targetSlot;
+  const savedBCounter = g.BCounter;
+  const savedCAaByte = g.cAaByte;
+  const savedCRFlag = g.cRFlag;
+  for (let i = 1; i <= 60; i += 1) {
+    savedMarkersA[i] = dense[8871 + i] ?? 0;
+    savedMarkersB[i] = dense[9176 + i] ?? 0;
+  }
   const original = targets.graphics[slot];
   try {
-    // The cursor is kept relative to the camera; keep its tile on the map.
     g.cursorColumn += g.cameraColumn - window.column;
     g.cursorRow += g.cameraRow - window.row;
     g.cameraColumn = window.column;
@@ -144,7 +158,20 @@ export function renderWideView(rt: LegacyRuntimeState, window: WideWindow, touch
   } finally {
     hdArt.end();
     targets.graphics[slot] = original;
-    restore(saved);
+    g.cursorColumn = savedCursorCol;
+    g.cursorRow = savedCursorRow;
+    g.cameraColumn = savedCameraCol;
+    g.cameraRow = savedCameraRow;
+    g.viewColumns = savedViewCols;
+    g.viewRows = savedViewRows;
+    g.targetSlot = savedTargetSlot;
+    g.BCounter = savedBCounter;
+    g.cAaByte = savedCAaByte;
+    g.cRFlag = savedCRFlag;
+    for (let i = 1; i <= 60; i += 1) {
+      dense[8871 + i] = savedMarkersA[i]!;
+      dense[9176 + i] = savedMarkersB[i]!;
+    }
   }
   return image;
 }

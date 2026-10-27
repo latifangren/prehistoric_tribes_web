@@ -12,8 +12,8 @@ Dokumen arsitektur resmi untuk repositori `prehistoric_tribes_web`. Dokumen ini 
 1. **Single Source of Truth:** Seluruh logika simulasi, aturan game, dan aset berada di dalam web frontend (`web/src/`). Shell native Tauri 2 hanya berfungsi sebagai wrapper runtime tanpa logika game ganda.
 2. **Platform Seams Invariant:** Modul game dan simulasi dilarang keras mengimpor API Tauri atau dependensi native secara langsung. Seluruh akses native dibatasi ketat di balik adapter pada `web/src/platform/`.
 3. **Flat TypedArray Memory (Data-Oriented):** Menyerap arsitektur memori bawaan bytecode original (`DenseLayout.ts`) yang menggunakan array biner datar (`Int8Array` / `Int16Array`) untuk performa komputasi instan tanpa overhead Garbage Collection.
-4. **Decoupled Simulation & Presentation:** Simulasi permainan berjalan pada kecepatan pasti **10 Ticks / Detik (Fixed Simulation Loop)**, sedangkan rendering kanvas dan animasi partikel berjalan halus pada **60 FPS**.
-
+4. **Decoupled Simulation & Presentation:** Simulasi permainan berjalan pada kecepatan pasti **10 Ticks / Detik (Fixed Simulation Loop, 120 ms)**, sedangkan rendering kanvas dan komposisi display berjalan halus pada **60 / 120 FPS** via `requestAnimationFrame`.
+5. **Zero-Allocation Inner Loop:** Perulangan rendering tile peta dan kalkulasi status entitas beroperasi langsung di atas TypedArray tanpa alokasi objek dinamis per frame.
 ---
 
 ## 2. High-Level System Diagram
@@ -113,16 +113,19 @@ prehistoric_tribes_web/
 
 ### A. Core Engine (`web/src/core/`)
 Arsitektur game mempertahankan format memori data flat bawaan emulator bytecode Java:
-* **`DenseLayout.ts`:** **(Paling Krusial)** Berisi konstanta alamat offset array memori integer (`Int8Array`). Seluruh identitas entitas disimpan dalam indeks angka flat:
-  * `UNIT_HP = 1919`, `UNIT_MAX_HP = 6767`, `UNIT_AGE = 1414`, `UNIT_GENDER = 1515`.
-  * `UNIT_ORDER = 6161` (`0`: Idle, `1`: Combat Attack, `2`: Walk to Target, `3`: Work/Harvest).
-  * `UNIT_MODE = 2929` (Kode animasi gerak: `1` berjalan, `20` bersiap, dll.).
-  * `UNIT_TARGET_X = 3131`, `UNIT_TARGET_Y = 3232` (Koordinat tujuan langkah).
-  * `UNIT_WORK_TARGET = 4747` (Target aksi: `-1..-30` gedung suku 0, `-31..-60` gedung musuh, `-61..-110` sumber daya alam, `<=-123` binatang buruan).
-  * `BLD_HP`, `BLD_KIND`, `BLD_WORKERS`, `RES_AMOUNT`, `RES_KIND`.
+* **`DenseLayout.ts`:** **(Paling Krusial)** Berisi konstanta alamat offset array memori integer datar (`Int8Array(9983)`). Seluruh identitas entitas disimpan dalam indeks angka flat:
+  * **Partisi Unit (ID 1..100, stride 101 byte):** ID 1..50 untuk Tim 0 (Pemain), ID 51..100 untuk Tim 1 (AI Musuh).
+    * `UNIT_HP = 1919`, `UNIT_MAX_HP = 6767`, `UNIT_AGE = 1414`, `UNIT_GENDER = 1515`.
+    * `UNIT_ORDER = 6161` (`0`: Idle, `1`: Tempur, `2`: Berjalan ke Koordinat Sasaran, `3`: Memanen/Bekerja).
+    * `UNIT_MODE = 2929` (Status gerak/animasi: `1` berjalan, `20` siap tempur).
+    * `UNIT_TARGET_X = 3131`, `UNIT_TARGET_Y = 3232` (Koordinat tujuan langkah).
+    * `UNIT_WORK_TARGET = 4747` (Target aksi: `-1..-30` gedung pemain, `-31..-60` gedung musuh, `-61..-110` sumber daya alam, `<=-123` binatang buruan).
+  * **Partisi Gedung (ID 1..60, stride 61 byte):** ID 1..30 (Pemain), ID 31..60 (Musuh). `BLD_HP = 8505`, `BLD_KIND = 8749`, `BLD_OWNER = 8810`, `BLD_WORKERS = 8932`.
+  * **Partisi Fauna (22 slot, stride 22 byte):** `ANIMAL_X = 9359`, `ANIMAL_Y = 9381`, `ANIMAL_HP = 9513`, `ANIMAL_KIND = 9535`.
+  * **Partisi Sumber Daya Alam (50 slot, stride 50 byte):** `RES_X = 9733`, `RES_Y = 9783`, `RES_KIND = 9833`, `RES_AMOUNT = 9883`.
+  * **Array Pendukung:** `mainArrays.aShort` (`Int16Array[2][26]`) untuk stok pool gudang & senjata; `subsystemArrays.a` (`Int8Array[2][101][80]`) untuk tabel koordinat waypoint rute pathfinding.
 * **`DataTables.ts`:** Pemetaan index tabel data biner `/pd0` (tabel max HP berdasarkan umur, kalkulasi damage, biaya gedung).
-* **`LegacyRuntimeState.ts`:** Objek penampung (*state holder*) utama permainan yang menyatukan memori array, status layar saat ini (`loopMode`), dan frame counter.
-
+* **`LegacyRuntimeState.ts`:** Objek penampung (*state holder*) utama permainan yang menyatukan memori array, status layar saat ini (`loopMode`), dan frame counter. Memiliki guard kondisional `typeof document === "undefined"` agar test runner Node.js dapat berjalan murni tanpa DOM.
 ### B. Domain Simulasi (`web/src/sim/`)
 Berjalan pada loop tetap **10 kali per detik** (`FixedLoop.ts`):
 * **`sim/tribe/` (Sosial & Ekonomi Suku):**
@@ -138,13 +141,14 @@ Berjalan pada loop tetap **10 kali per detik** (`FixedLoop.ts`):
   * `LegacyMapRleDecoder.ts`: Dekoder kompresi RLE untuk membaca file peta biner `assets/ma`.
 
 ### C. Pipeline Render & Grafis (`web/src/render/`)
-* **`HdArt.ts`:** **(Paling Krusial)** Mesin yang menerjemahkan sprite resolusi rendah 1x menjadi visual **HD Art (2x / 4x Ultra HD)** secara proporsional menggunakan kalkulasi matriks `drawScaled(hd, x, y, width, height)`.
+* **`Dual-Loop Compositor`:** Pemisahan ketat antara *gameplay logic paint* (120 ms diskrit) dan *display compositor* (60 / 120 Hz via `requestAnimationFrame` di `WideScreen.ts:screen.compose()`). Panning kamera digerakkan langsung oleh GPU tanpa membebani tick logika.
+* **`HdArt.ts`:** **(Paling Krusial)** Mesin yang menerjemahkan sprite resolusi rendah 1x menjadi visual **HD Art (Hybrid 2x / 4x Ultra HD)** secara proporsional menggunakan kalkulasi matriks `drawScaled(hd, x, y, width, height)`.
 * **`WideView.ts`:** Menggambar viewport dunia yang lebih lebar dari resolusi ponsel jadul 240x320 agar memenuhi rasio layar modern secara responsif.
+  * *Invarian Render Snapshot:* State snapshot saat me-render wide view dibatasi ketat hanya pada koordinat viewport/kursor transient (`cursorColumn`, `cursorRow`, `cameraColumn`, `cameraRow`, `viewColumns`, `viewRows`, `targetSlot`), dilarang menduplikasi TypedArray runtime secara penuh agar terhindar dari lonjakan Garbage Collection.
 * **`MapMargin.ts`:** Merender pemandangan tepi border luar peta (pepohonan, tebing, dan semak) secara adaptif terhadap rasio pembesaran aset 4x sehingga menyatu alami dengan peta.
 * **`DayNightCycle.ts`:** Mengatur pencahayaan atmosfer siklus siang, senja keemasan, dan malam hari dengan radius cahaya api unggun.
 * **`WeatherSystem.ts`:** Mengatur cuaca dinamis (hujan lebat yang meningkatkan kesuburan semak buah dan salju musim dingin yang menguras stamina).
 * **`WorldParticles.ts`:** Sistem partikel ringan untuk asap perapian gubuk, debu pembangunan, jejak kaki di salju/lumpur, dan kawanan burung purba di angkasa.
-
 ### D. Antarmuka Pengguna & Kontrol Sentuh (`web/src/hud/` & `web/src/ui/`)
 * **`TopBar.ts`:** Bilah status atas untuk memantau Populasi, Makanan, Kayu, dan Batu secara interaktif. Mengetuk ikon populasi membuka daftar warga desa.
 * **`BuildList.ts` & `BuildingCatalog.ts`:** Menu kartu pembangunan fasilitas suku (Hut, Kitchen, Gym, Range, Armory, Storehouse, dll.) lengkap dengan indikator pintu depan (*front door indicator*).
@@ -159,12 +163,9 @@ Berjalan pada loop tetap **10 kali per detik** (`FixedLoop.ts`):
 
 ### F. Lapisan Abstraksi Platform (*Platform Seams* di `web/src/platform/`)
 * **`Storage.ts`:** Adapter penyimpanan otomatis. Menggunakan `localStorage` di lingkungan web dan dapat disambungkan ke file system/SQLite di native Tauri.
-* **`BackButton.ts`:** Menangani interupsi tombol Back fisik perangkat Android agar membuka pause menu permainan alih-alih menutup aplikasi paksa.
-* **`Haptic.ts`:** Memberikan umpan balik getaran sentuh halus (*haptic vibration*) saat mengetuk tombol aksi atau memberi perintah militer.
+* **`BackButton.ts`:** Menangani interupsi tombol Back fisik perangkat Android agar membuka pause menu permainan atau membatalkan mode seleksi alih-alih menutup aplikasi paksa.
+* **`Haptic.ts`:** Memberikan umpan balik getaran sentuh halus (*haptic vibration*) via `navigator.vibrate()`. Membutuhkan deklarasi izin `<uses-permission android:name="android.permission.VIBRATE" />` di `AndroidManifest.xml`.
 * **`PageLifecycle.ts`:** Memastikan game otomatis memasuki status *pause* saat jendela aplikasi di-minimize atau berpindah ke latar belakang (*background*).
-
----
-
 ## 5. Basis Data Biner Asli (`web/public/assets/`)
 
 File-file biner di folder ini merupakan database bawaan bytecode original yang dipadatkan:
@@ -223,8 +224,14 @@ Untuk menjaga momentum pengembangan vibe-coding tanpa menimbulkan technical debt
 
 ---
 
-## 9. Glosarium & Terminologi Kunci
+## 9. Laporan Audit & Riwayat Diagnostik
 
+Untuk penelusuran mendalam temuan runtime, postmortem rollback sistem inisiasi pemuda (commit `4ee7c96`), profil memori render, dan analisis ergonomi kontrol sentuh HP, rujuk dokumen:
+* **`docs/audit/2026-10-deep-audit-and-architecture-report.md`**
+
+---
+
+## 10. Glosarium & Terminologi Kunci
 * **DenseState:** Array integer 1 dimensi flat (`Int8Array`) yang menampung seluruh state game aktif.
 * **Team 0:** Suku milik pemain (warga ID `1 s/d 50`, bangunan ID `1 s/d 30`, gudang pool `team 0`).
 * **Team 1:** Suku musuh yang dikendalikan AI (warga ID `51 s/d 100`, bangunan ID `31 s/d 60`, gudang pool `team 1`).

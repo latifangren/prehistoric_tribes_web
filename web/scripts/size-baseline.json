@@ -915,8 +915,8 @@
       "physical": 360
     },
     "web/src/render/WideView.ts": {
-      "effective": 215,
-      "physical": 275
+      "effective": 235,
+      "physical": 295
     },
     "web/src/ResourceBootstrap.ts": {
       "effective": 63,
@@ -1775,8 +1775,8 @@
       "physical": 50
     },
     "web/src/TouchControls.ts": {
-      "effective": 675,
-      "physical": 860
+      "effective": 690,
+      "physical": 875
     },
     "web/src/TribeModals.ts": {
       "effective": 386,

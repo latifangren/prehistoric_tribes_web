@@ -388,6 +388,7 @@ export function attachTouchControls(
 
   // ---- screens other than the map: menus, dialogue, story ----
   const tapScreen = (x: number, y: number) => {
+    if (x < 0 || x > 240) return;
     // The soft keys' corner icons are covered (WideScreen.menuFrame); the HUD's ✓ / ✗ replace them.
     // The main menu keeps only PLAY and HELP (user, 2026-10-17).
     const rows = game.screen === 0 ? runtime.touchMenuRows.slice(0, 2) : runtime.touchMenuRows;
@@ -529,6 +530,18 @@ export function attachTouchControls(
   const finish = (event: PointerEvent) => {
     activePointers.delete(event.pointerId);
     if (activePointers.size < 2) pinchDistance = 0;
+    if (activePointers.size === 1 && !gesture) {
+      const [remainingId, pos] = activePointers.entries().next().value as [number, { x: number; y: number }];
+      const point = toGame({ clientX: pos.x, clientY: pos.y } as PointerEvent);
+      const on = point.on === "bottom" ? "panel" : point.on;
+      gesture = {
+        id: remainingId,
+        sx: pos.x, sy: pos.y, cx: pos.x, cy: pos.y,
+        x0: point.x, y0: point.y, gx: point.x, gy: point.y,
+        drag: false, on, at: performance.now(), grip: null,
+      };
+      return;
+    }
     if (!gesture || event.pointerId !== gesture.id) return;
     const g = gesture;
     gesture = null;
@@ -549,10 +562,11 @@ export function attachTouchControls(
   canvas.addEventListener("pointercancel", (event) => {
     activePointers.delete(event.pointerId);
     if (activePointers.size < 2) pinchDistance = 0;
-    if (!gesture || event.pointerId !== gesture.id) return;
     if (box) cancelBox();
     arc.style.display = "none";
-    gesture = null;
+    if (gesture && event.pointerId === gesture.id) {
+      gesture = null;
+    }
   });
   canvas.addEventListener("contextmenu", (event) => event.preventDefault());
 
