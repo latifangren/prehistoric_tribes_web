@@ -491,8 +491,8 @@
       "physical": 145
     },
     "web/src/combat/TribeTactics.ts": {
-      "effective": 275,
-      "physical": 345
+      "effective": 285,
+      "physical": 360
     },
     "web/src/core/DataTables.ts": {
       "effective": 36,

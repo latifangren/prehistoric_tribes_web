@@ -8,12 +8,14 @@ import {
   BLD_KIND,
   BLD_X,
   BLD_Y,
+  UNIT_AGE,
   UNIT_HELD_ITEM,
   UNIT_HP,
   UNIT_ORDER,
   UNIT_SELECTION,
   UNIT_TARGET_X,
   UNIT_TARGET_Y,
+  UNIT_TYPE,
   UNIT_WORK_TARGET,
   UNIT_X,
   UNIT_Y,
@@ -255,6 +257,15 @@ export class TribeTacticsManager {
     // 2. Rally points: check newborn/freshly trained villagers and dispatch them
     for (let id = 1; id <= 50; id += 1) {
       if ((dense[UNIT_HP + id] ?? 0) <= 0) continue;
+      const type = dense[UNIT_TYPE + id] ?? 0;
+      const age = dense[UNIT_AGE + id] ?? 20;
+
+      // Children and infants must NEVER be dispatched to combat rally points
+      if (type === 17 || type === 73 || type === 74 || age < 12) {
+        this.processedNewborns.add(id);
+        continue;
+      }
+
       if (!this.processedNewborns.has(id)) {
         this.processedNewborns.add(id);
         const ux = dense[UNIT_X + id] ?? 0;

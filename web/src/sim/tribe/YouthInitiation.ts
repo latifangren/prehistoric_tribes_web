@@ -1,16 +1,11 @@
 import type { LegacyRuntimeState } from "../../core/LegacyRuntimeState";
 import {
-  BLD_HP,
   BLD_KIND,
-  BLD_WORKERS,
-  BLD_X,
-  BLD_Y,
   RES_AMOUNT,
   RES_KIND,
   RES_X,
   RES_Y,
   UNIT_AGE,
-  UNIT_HELD_ITEM,
   UNIT_HP,
   UNIT_JOB_TYPE,
   UNIT_MODE,
@@ -21,7 +16,6 @@ import {
   UNIT_WORK_TARGET,
   UNIT_Y,
 } from "../../core/DenseLayout";
-import { stepLegacyEntityEquipIssue } from "../units/LegacyEntityEquipIssue";
 
 /**
  * Youth Initiation & Apprentice System (Inisiasi Kedewasaan & Sistem Magang)
@@ -104,41 +98,7 @@ export class YouthInitiationManager {
     if (currentWork < 0 && (dense[BLD_KIND + -currentWork] ?? 0) === 10) {
       dense[UNIT_WORK_TARGET + id] = 0;
     }
-    // 1. Try to equip preferred weapon from tribe Storehouse pool using native bytecode logic
-    if ((dense[UNIT_HELD_ITEM + id] ?? 9) === 9 && rt.packedData) {
-      stepLegacyEntityEquipIssue({
-        state: dense,
-        packedBytes: rt.packedBytes,
-        packedOffsets: rt.packedOffsets,
-        v: id,
-        pools: rt.mainArrays.aShort,
-        team: 0,
-        onRecordCompletion: () => {},
-      });
-    }
-
-    const heldItem = dense[UNIT_HELD_ITEM + id] ?? 9;
-
-    // 2. If holding a weapon, check for corresponding training facility
-    if (heldItem !== 9) {
-      // Melee weapons (0: club, 3: stone-axe, 4: bone-mace, 7: spring-trap) -> Gym (building kind 1)
-      // Ranged weapons (1: stone, 2: spear, 5: tomahawk, 6: net-trap) -> Archery Range (building kind 5)
-      const isRanged = heldItem === 1 || heldItem === 2 || heldItem === 5 || heldItem === 6;
-      const targetBuildingKind = isRanged ? 5 : 1;
-      const trainingBuilding = this.findNearestAvailableBuilding(rt, id, targetBuildingKind);
-
-      if (trainingBuilding) {
-        dense[UNIT_TARGET_X + id] = trainingBuilding.x;
-        dense[UNIT_TARGET_Y + id] = trainingBuilding.y;
-        dense[UNIT_WORK_TARGET + id] = -trainingBuilding.id;
-        dense[UNIT_ORDER + id] = 2; // ORDER 2: Move to target!
-        dense[UNIT_MODE + id] = 1;  // MODE 1: Walking!
-        dense[7777 + id] = 0;
-        return;
-      }
-    }
-
-    // 3. Fallback: Apprentice System (Magang Membantu Senior Terdekat)
+    // Apprentice System: dispatch youth to assist nearest working senior villager
     const apprenticeTarget = this.findSeniorWorkTarget(rt, id);
     if (apprenticeTarget) {
       dense[UNIT_TARGET_X + id] = apprenticeTarget.x;
@@ -150,7 +110,7 @@ export class YouthInitiationManager {
       return;
     }
 
-    // 4. Fallback 2: Find nearest natural resource to harvest
+    // Fallback: Find nearest natural resource to harvest
     const nearestRes = this.findNearestResource(rt, id);
     if (nearestRes) {
       dense[UNIT_TARGET_X + id] = nearestRes.x;
@@ -160,40 +120,6 @@ export class YouthInitiationManager {
       dense[UNIT_MODE + id] = 1;  // MODE 1: Walking!
       dense[7777 + id] = 0;
     }
-  }
-
-  private findNearestAvailableBuilding(
-    rt: LegacyRuntimeState,
-    unitId: number,
-    targetKind: number,
-  ): { id: number; x: number; y: number } | null {
-    const dense = rt.denseState;
-    const ux = dense[unitId] ?? 0;
-    const uy = dense[UNIT_Y + unitId] ?? 0;
-
-    let bestBuilding: { id: number; x: number; y: number } | null = null;
-    let bestDist = Infinity;
-
-    // Team 0 (Player) buildings are 1..30
-    for (let b = 1; b <= 30; b++) {
-      const hp = dense[BLD_HP + b] ?? 0;
-      const kind = dense[BLD_KIND + b] ?? 0;
-      if (hp <= 0 || kind !== targetKind) continue;
-
-      const workers = dense[BLD_WORKERS + b] ?? 0;
-      // Cap training slots to 4 to prevent crowding
-      if (workers >= 4) continue;
-
-      const bx = dense[BLD_X + b] ?? 0;
-      const by = dense[BLD_Y + b] ?? 0;
-      const dist = (ux - bx) ** 2 + (uy - by) ** 2;
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestBuilding = { id: b, x: bx, y: by };
-      }
-    }
-
-    return bestBuilding;
   }
 
   private findSeniorWorkTarget(
