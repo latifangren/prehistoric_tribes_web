@@ -25,7 +25,7 @@ try {
   assert.equal(manifestResponse.status(), 200, "the PWA manifest must be served");
   const manifest = await manifestResponse.json();
   assert.equal(manifest.display, "standalone");
-  assert.equal(manifest.orientation, "portrait");
+  assert.equal(manifest.orientation, "any");
   assert.equal(new URL(manifest.start_url, manifestUrl).pathname, new URL(baseUrl).pathname);
   assert.ok(manifest.icons.some((icon) => icon.sizes === "512x512"), "the PWA/TWA manifest must provide a 512px icon");
   assert.equal(new URL(manifest.scope, manifestUrl).pathname, new URL(baseUrl).pathname);
@@ -38,9 +38,9 @@ try {
   await page.locator("#app .screen").waitFor();
   await page.locator('.start-menu[data-page="main"] [aria-label="CAMPAIGN"]').waitFor({ timeout: 30_000 });
   await page.setViewportSize({ width: 844, height: 390 });
-  await page.locator(".rotate-notice").waitFor({ state: "visible" });
+  const landscapeScreen = await page.locator("#app .screen").boundingBox();
+  assert.ok(landscapeScreen && landscapeScreen.width > 0 && landscapeScreen.height > 0, "the game screen must be laid out in mobile landscape");
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.locator(".rotate-notice").waitFor({ state: "hidden" });
 
   assert.equal(await page.title(), "Prehistoric Tribes Web");
   const initialScreen = await page.locator("#app .screen").boundingBox();

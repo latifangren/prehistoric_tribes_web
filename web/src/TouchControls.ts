@@ -204,7 +204,9 @@ export function attachTouchControls(
 
   const tapMap = (x: number, y: number) => {
     if (game.cameraBFlag || game.columnScrollDelta !== 0 || game.rowScrollDelta !== 0) return;
-    const [tx, ty] = tileAt(x, y);
+    const [rawX, rawY] = tileAt(x, y);
+    const tx = Math.max(0, Math.min(game.mapWidth - 1, rawX));
+    const ty = Math.max(0, Math.min(rowLimit() - 1, rawY));
     if (game.barMode === 3) {
       // Building placement: the footprint is centred on the cursor (f.T:I = y - w/2, f.U:I = A - h/2
       // each frame); a tap anywhere moves it there. It is placed with the tick next to it (Hud.ts,
@@ -236,7 +238,8 @@ export function attachTouchControls(
     // the cursor jumps to them and FIRE follows. Anything else takes two taps: the first shows the
     // action icon there, the second confirms.
     const villager = villagerAt(x, y);
-    if (villager && !(game.barMode === 1 && villager.id === game.selectedId)) {
+    if (villager && game.barMode === 1 && villager.id === game.selectedId) return;
+    if (villager) {
       // From a building's bar, the villager's panel straight away (BUG-018).
       sfx.select();
       haptic.tap();
@@ -458,7 +461,15 @@ export function attachTouchControls(
     const on = point.on === "bottom" ? "panel" : point.on;
     let grip: [number, number] | null = null;
     const area = on === "map" && game.cSInt !== 100 ? controls.footprint() : null;
-    if (area) {
+    if (area && game.barMode === 3) {
+      // Modern Touch Ergonomics: Tapping or dragging anywhere on the map snaps the building
+      // to the target tile, with a 1-tile vertical offset on touch screens so fingers do not
+      // obscure the blueprint or blocking grid.
+      const [tx, ty] = tileAt(gx, gy);
+      const touchOffset = event.pointerType === "touch" ? 1 : 0;
+      moveCursorTo(tx, Math.max(0, ty - touchOffset));
+      grip = [0, touchOffset];
+    } else if (area) {
       const [tx, ty] = tileAt(gx, gy);
       if (tx >= area.column && tx < area.column + area.columns && ty >= area.row && ty < area.row + area.rows) {
         grip = [tx - (game.cameraColumn + game.cursorColumn), ty - (game.cameraRow + game.cursorRow)];

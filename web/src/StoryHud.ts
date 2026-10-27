@@ -25,6 +25,10 @@ import type { WideScreen } from "./WideScreen";
  */
 
 const ART = "hd/story/";
+type Kind = "story" | "dialogue" | "outcome" | "score" | "again";
+const SCORE_TEXT = 71 + 234; // d0 234: the score's row names, '&' between them
+const WON = 57;
+const AGAIN = 58;
 // Characters per paragraph, so that one fits the box (about 4 lines of the box's width).
 const STORY_LETTERS = { latin: 120, cjk: 54 };
 const DIALOGUE_LETTERS = { latin: 96, cjk: 42 };
@@ -65,8 +69,10 @@ export function attachStoryHud(
   let ticks = 0;
   let pressedTick = -Infinity;
   const PRESS_GAP_TICKS = 5; // about 0.6 s
+  let pendingFire = false;
 
   const next = () => {
+    if (layer.dataset.kind === "again") return; // YES / NO only
     if (ticks - pressedTick < PRESS_GAP_TICKS) return;
     sfx.click();
     if (part < parts.length - 1) {
@@ -75,7 +81,7 @@ export function attachStoryHud(
       return;
     }
     pressedTick = ticks;
-    touch.pressKey(OriginalKey.FIRE);
+    pendingFire = true;
   };
   layer.addEventListener("click", next);
 
@@ -86,67 +92,56 @@ export function attachStoryHud(
     return element;
   };
 
-  function buildOutcome(): void {
-    const won = game.vInt === 57;
-    sfx.outcome(won);
-    const zh = runtime.language === ZH_LANGUAGE;
+  const tick = '<img class="story-tick" src="hd/ui/btn-tick.png" alt="">';
+  const background = '<img class="story-picture" src="hd/menu/bg-menu.jpg" alt="">';
+
+  function buildEnd(kind: Kind): void {
+    layer.innerHTML = background;
+    const box = document.createElement("div");
+    box.className = "story-box";
+    const isZh = runtime.language === ZH_LANGUAGE;
     const isId = readStorage("pt.language") === "id";
-    const title = capitalise(originalText(runtime, "s", game.vInt || (won ? 57 : 56)));
-    const subtitle = won
-      ? (zh ? "你的部落取得了辉煌胜利！" : isId ? "Sukumu meraih kemenangan gemilang!" : "Your tribe has triumphed!")
-      : (zh ? "你的部落没能挺过这一关……" : isId ? "Sukumu tumbang di babak ini..." : "Your tribe has fallen...");
-    layer.innerHTML = `<img class="story-picture" src="hd/menu/bg-menu.jpg" alt="">`;
-    const card = document.createElement("div");
-    card.className = `story-outcome-card ${won ? "win" : "lose"}`;
-    card.innerHTML = `
-      <div class="story-outcome-badge">
-        <img src="hd/ui/${won ? "pt-chief" : "demolish"}.png" alt="">
-      </div>
-      <h2 class="story-outcome-title">${escapeHtml(title)}</h2>
-      <p class="story-outcome-sub">${escapeHtml(subtitle)}</p>
-      <img class="story-tick" src="hd/ui/btn-tick.png" alt="">
-    `;
-    layer.append(card);
-  }
 
-  function buildStats(): void {
-    const zh = runtime.language === ZH_LANGUAGE;
-    const rawLabels = originalText(runtime, "t", 71 + 234)
-      .split("&")
-      .map((s: string) => s.replace(/[\u0000-\u001f]/g, "").trim())
-      .filter(Boolean);
-    const statIndices = [19, 20, 21, 22, 23, 24];
-    const p0 = runtime.mainArrays.aShort[0];
-    const p1 = runtime.mainArrays.aShort[1];
-    const rowsHtml = statIndices.map((z, idx) => {
-      const label = capitalise(rawLabels[idx] ?? `Stat ${idx + 1}`);
-      const v0 = z === 24 ? (p0?.[z] ?? 0) * 10 : (p0?.[z] ?? 0);
-      const v1 = z === 24 ? (p1?.[z] ?? 0) * 10 : (p1?.[z] ?? 0);
-      const isTotal = idx === statIndices.length - 1;
-      return `<div class="story-stat-row${isTotal ? " total" : ""}">
-        <span class="val player">${v0}</span>
-        <span class="lbl">${escapeHtml(label)}</span>
-        <span class="val enemy">${v1}</span>
-      </div>`;
-    }).join("");
-    layer.innerHTML = `<img class="story-picture" src="hd/menu/bg-menu.jpg" alt="">`;
-    const card = document.createElement("div");
-    card.className = "story-stats-card";
-    card.innerHTML = `
-      <div class="story-title">${zh ? "战果统计" : "Statistics"}</div>
-      <div class="story-stat-head">
-        <span class="player"><img src="hd/ui/pt-chief.png" alt=""> ${zh ? "我方部落" : "Your Tribe"}</span>
-        <span class="enemy">${zh ? "敌方部落" : "Enemy"} <img src="hd/ui/club.png" alt=""></span>
-      </div>
-      <div class="story-stat-list">${rowsHtml}</div>
-      <img class="story-tick" src="hd/ui/btn-tick.png" alt="">
-    `;
-    layer.append(card);
+    if (kind === "outcome") {
+      const won = game.vInt === WON;
+      sfx.outcome(won);
+      layer.insertAdjacentHTML("beforeend", `<img class="end-picture" src="${ART}story-${won ? 10 : 11}.webp" alt="">`);
+      box.append(text("story-text", originalText(runtime, "t", game.vInt)));
+      box.insertAdjacentHTML("beforeend", tick);
+      layer.append(box);
+      return;
+    }
+    if (kind === "score") {
+      const names = originalText(runtime, "t", SCORE_TEXT).split("&").map((s) => s.replace(/[\x00-\x1f]/g, "").trim()).filter(Boolean);
+      const [ours, theirs] = [0, 1].map((team) => runtime.mainArrays.aShort[team]!);
+      box.classList.add("end-score");
+      const ourLabel = isId ? "Suku Kita" : isZh ? "我方" : "Our Tribe";
+      const enemyLabel = isId ? "Suku Lawan" : isZh ? "敌方" : "Enemy Tribe";
+      const head = `<div class="end-row head"><img src="hd/ui/pt-chief.png" alt="${ourLabel}"><span></span><img src="${ART}faces/face-0748.png" alt="${enemyLabel}"></div>`;
+      const value = (row: Int16Array, i: number) => (i === 5 ? (row[24] ?? 0) * 10 + Math.floor(Math.random() * 10) : row[19 + i] ?? 0);
+      const rows = names.map((name, i) => `<div class="end-row"><b>${value(ours, i)}</b><span>${name}</span><b>${value(theirs, i)}</b></div>`).join("");
+      box.innerHTML = head + rows + tick;
+      box.append(text("story-title", originalText(runtime, "s", 97)));
+      layer.append(box);
+      return;
+    }
+    const art = isZh ? "cn" : "en";
+    layer.insertAdjacentHTML("beforeend", '<img class="end-logo" src="hd/menu/logo.png" alt="">');
+    const column = document.createElement("div");
+    column.className = "end-again";
+    column.append(text("story-text", originalText(runtime, "t", AGAIN)));
+    for (const [word, key] of [["yes", OriginalKey.SOFT_LEFT], ["no", OriginalKey.SOFT_RIGHT]] as const) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.setAttribute("aria-label", word === "yes" ? (isId ? "Ya" : isZh ? "是" : "Yes") : (isId ? "Tidak" : isZh ? "否" : "No"));
+      button.innerHTML = `<img src="hd/menu/words/${art}/${word}.png" alt="">`;
+      button.addEventListener("click", (event) => { event.stopPropagation(); touch.pressKey(key); });
+      column.append(button);
+    }
+    layer.append(column);
   }
-
   function build(): void {
-    if (layer.dataset.kind === "outcome") { buildOutcome(); return; }
-    if (layer.dataset.kind === "stats") { buildStats(); return; }
+
     const story = game.screen === 18;
     const box = document.createElement("div");
     box.className = "story-box";
@@ -169,24 +164,29 @@ export function attachStoryHud(
 
   function update(): void {
     ticks += 1;
+    if (pendingFire && !game.nFlag) { pendingFire = false; touch.pressKey(OriginalKey.FIRE); }
     const offMap = game.loopMode !== 1 && !screen.frozen;
+    const end: Kind | null = !offMap ? null
+      : game.screen === 24 ? "outcome"
+      : game.screen === 15 && runtime.shownTextRecord === SCORE_TEXT ? "score"
+      : game.screen === 16 && game.vInt === AGAIN ? "again"
+      : null;
+    if (end) {
+      layer.hidden = false;
+      layer.dataset.kind = end;
+      const key = `${end}:${game.vInt}:${runtime.language}`;
+      if (key !== shown) { shown = key; pressedTick = -Infinity; buildEnd(end); }
+      return;
+    }
     const story = offMap && game.screen === 18;
     const talking = offMap && (game.screen === 17 || game.screen === 20) && game.resourceSectionW === game.vInt;
-    const outcome = offMap && game.screen === 24;
-    const stats = offMap && game.screen === 15 && game.mByte === 2;
-    layer.hidden = !story && !talking && !outcome && !stats;
-    layer.dataset.kind = story ? "story" : outcome ? "outcome" : stats ? "stats" : "dialogue";
+    layer.hidden = !story && !talking;
+    layer.dataset.kind = story ? "story" : "dialogue";
     if (layer.hidden) { shown = ""; return; }
     const record = game.resourceSectionW === game.vInt ? runtime.shownTextRecord : -1;
     const key = `${game.screen}:${game.mByte}:${game.vInt}:${record}:${runtime.shownPicture}:${runtime.language}`;
     if (key === shown) return;
     shown = key;
-    if (outcome || stats) {
-      parts = [""];
-      part = 0;
-      build();
-      return;
-    }
     const letters = story ? STORY_LETTERS : DIALOGUE_LETTERS;
     const words = record >= 0 ? originalText(runtime, "t", record) : "";
     parts = paragraphs(words, runtime.language === ZH_LANGUAGE ? letters.cjk : letters.latin);
@@ -194,6 +194,6 @@ export function attachStoryHud(
     build();
   }
 
-  // The story, outcome, and stats pages hide the original's screen; the dialogue box leaves its frame showing.
+  // Every page but the dialogue box hides the original's screen.
   return { update, covers: () => !layer.hidden && layer.dataset.kind !== "dialogue" };
 }

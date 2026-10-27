@@ -30,6 +30,10 @@ type Manifest = {
   buildings: string[];
   animals: string[];
   effects: string[];
+  /** Resource points drawn whole: "<object>-look<n>" (berry bushes by look), "stone-<n>". */
+  resources: string[];
+  /** The HUD's pictures (hd/ui/), by file name. */
+  ui: string[];
 };
 type Bounds = { x: number; y: number; width: number; height: number };
 
@@ -38,8 +42,11 @@ const BASE = "hd/";
 const REFERENCE_SHEET = 8;
 
 let manifest: Manifest | null = null;
-const has = { parts: new Set<number>(), variants: new Map<number, Set<number>>(), terrain: new Set<number>(), objects: new Set<number>(), buildings: new Set<string>(), animals: new Set<string>(), effects: new Set<string>() };
+const has = { parts: new Set<number>(), variants: new Map<number, Set<number>>(), terrain: new Set<number>(), objects: new Set<number>(), buildings: new Set<string>(), animals: new Set<string>(), effects: new Set<string>(), resources: new Set<string>() };
 const images = new Map<string, HTMLImageElement>();
+/** The HUD's pictures, loaded and decoded at start-up and kept, so a panel opened later shows its
+ *  icons at once instead of one by one (BUG-023). */
+const uiPictures: HTMLImageElement[] = [];
 
 /** The picture at `path`, or null while it loads (it is requested on the first call). */
 function picture(path: string): HTMLImageElement | null {
@@ -101,6 +108,13 @@ export const hdArt = {
     manifest.buildings.forEach((b) => has.buildings.add(b));
     manifest.animals.forEach((a) => has.animals.add(a));
     manifest.effects.forEach((e) => has.effects.add(e));
+    manifest.resources.forEach((r) => has.resources.add(r));
+    for (const name of manifest.ui) {
+      const image = new Image();
+      image.src = `${BASE}ui/${name}`;
+      image.decode().catch(() => { /* shown by the <img> later, as before */ });
+      uiPictures.push(image);
+    }
     picture(`terrain/${REFERENCE_SHEET}.png`);
   },
 
@@ -148,7 +162,8 @@ export const hdArt = {
     const runtime = this.runtime;
     const target = this.target;
     if (!runtime || !target) return null;
-    const key = building > 0 ? buildingKey(kind, level) : resourceObjectKey(resource, look);
+    const looked = building === 0 && has.resources.has(`${1000 + resource}-look${look}`);
+    const key = building > 0 ? buildingKey(kind, level) : looked ? `o${1000 + resource}-look${look}` : resourceObjectKey(resource, look);
     if (!key) return null;
     const hd = picture(key.startsWith("o") ? `objects/${key.slice(1)}.png` : `buildings/${key}.png`);
     if (!hd) return null;
@@ -164,7 +179,8 @@ export const hdArt = {
     const draw = (bounds: Bounds) => {
       if (this.drawn.has(id)) return;
       this.drawn.add(id);
-      target.drawScaled(hd, x + bounds.x, y + bounds.y, bounds.width, bounds.height);
+      if (looked) target.drawScaled(hd, x + 11, y + 8, 22, 16);
+      else target.drawScaled(hd, x + bounds.x, y + bounds.y, bounds.width, bounds.height);
     };
     // The ground cells still draw the original's ground-sheet pieces (sheets 4 and 8: the ground
     // itself) under the picture, which carries the rest (docs/hd-art-handoff.md 2.7): where it is
@@ -237,6 +253,31 @@ export const hdArt = {
     };
   },
 
+  /** The whole picture hd/`path` into (x, y, width, height) of the target; false until it is loaded. */
+  /**
+   * f.o()'s composite for map tile `tile` at (x, y): a gatherable stone tile (63..75 on grass,
+   * 115..127 on earth; more rocks to fewer) draws its ground pieces and then one picture of light,
+   * shining stone (2026-10-27: the original's rock pieces look like the scenery's, which stays as
+   * it is). Returns false to let the original draw.
+   */
+  drawStoneTile(tile: number, x: number, y: number): boolean {
+    const step = tile >= 63 && tile <= 75 ? tile - 63 : tile >= 115 && tile <= 127 ? tile - 115 : -1;
+    if (step < 0 || !this.target || !this.ground) return false;
+    const n = step <= 3 ? 1 : step <= 6 ? 2 : step <= 9 ? 3 : 4;
+    const hd = has.resources.has(`stone-${n}`) ? picture(`objects/stone-${n}.png`) : null;
+    if (!hd) return false;
+    this.ground.drawComposite(tile, x, y);
+    this.target.drawScaled(hd, x + 11, y + 8, 22, 16);
+    return true;
+  },
+
+  drawPicture(path: string, x: number, y: number, width: number, height: number): boolean {
+    const hd = this.target && picture(path);
+    if (!hd) return false;
+    this.target!.drawScaled(hd, x, y, width, height);
+    return true;
+  },
+
   /** Sub-record `record` at phase `phase` drawn at (x, y). Returns false to let the original draw. */
   drawEffect(runtime: LegacyRuntimeState, record: number, x: number, y: number, phase: number): boolean {
     if (!this.target) return false;
@@ -264,11 +305,6 @@ function buildingKey(kind: number, level: number): string | null {
  * Stages: look=3 (full), look=2 (medium), look=1 (low), look=0 (depleted).
  */
 function resourceObjectKey(resource: number, look: number): string | null {
-  // Berry / fruit bushes: 1027 (empty bare bush) to 1030 (full bright red berries)
-  if (resource >= 27 && resource <= 30) {
-    const stage = 1027 + Math.max(0, Math.min(3, look));
-    if (has.objects.has(stage)) return `o${stage}`;
-  }
   // Cut wood / log piles: 1021 (full logs) vs 1022 (depleted twigs)
   if (resource === 21 || resource === 22) {
     const stage = look >= 2 ? 1021 : 1022;

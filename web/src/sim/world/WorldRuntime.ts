@@ -662,8 +662,17 @@ export function rebuildGridAfterLoad(rt: LegacyRuntimeState): void {
     const kind = f[0][i] ?? 0;
     if (kind !== 0) set(f[3][i] ?? 0, f[2][i] ?? 0, kind > 30 ? -126 : -123);
   }
-  for (let i = 0; i < 50; i += 1) { // 1061..1124
-    if ((e[RES_KIND + i] ?? 0) >= 6) set(e[RES_Y + i] ?? 0, e[RES_X + i] ?? 0, toJavaByte(-61 - i));
+  // Clear any pre-load ground resource markers so stale map-decode allocations do not collide
+  for (let y = 0; y < c.length; y += 1) {
+    const row = c[y];
+    if (!row) continue;
+    for (let x = 0; x < row.length; x += 1) {
+      if (row[x] <= -61 && row[x] >= -110) row[x] = 0;
+    }
+  }
+  for (let i = 0; i < 50; i += 1) {
+    const kind = e[RES_KIND + i] ?? 0;
+    if (kind !== 0) set(e[RES_Y + i] ?? 0, e[RES_X + i] ?? 0, toJavaByte(-61 - i));
   }
   for (let i = 1; i <= 100; i += 1) { // 1127..1459, units
     if ((e[UNIT_HP + i] ?? 0) === 0) continue;
@@ -907,6 +916,18 @@ export function resetMapEntryAllocation(rt: LegacyRuntimeState, q: number): void
   rt.game.missionFrame = state.cInt;
 }
 
+/**
+ * Berry bushes added to the custom maps (user 2026-10-27: at least 2-3 within 15 tiles of the camp;
+ * GREAT LAKE and SLAUGHTER had none, PLOT OF LAND one; docs/map-resources-idea.md), by map q:
+ * [x, y, berry kind 1..3] written into the map as the special tiles 175..177 -- the map data's own
+ * way of placing a resource point. On open grass 4..10 tiles from the camp.
+ */
+const ADDED_BERRIES: Record<number, readonly (readonly [number, number, number])[]> = {
+  7: [[76, 32, 1], [79, 43, 2], [82, 25, 3]],
+  10: [[7, 92, 2], [12, 89, 1], [11, 79, 3]],
+  11: [[6, 33, 2], [23, 32, 3]],
+};
+
 /** Raw tiles plus the first f.aN() overlay pass, ready for later consumers. */
 export function decodeMap(rt: LegacyRuntimeState, mapIndex: number, onSpecialTile?: (type: number, x: number, y: number, parameter: number) => void): LegacyRawMap & LegacyMapOverlay {
   const raw = applyLegacyTerrainAdjustment(rt.decodeRawMap(mapIndex), (mask, divisor) =>
@@ -918,6 +939,7 @@ export function decodeMap(rt: LegacyRuntimeState, mapIndex: number, onSpecialTil
   // and q === 5 differ from the decode stride. See LegacyRawMap's docblock.
   rt.game.mapWidth = raw.logicalWidth;
   rt.game.mapHeight = raw.logicalHeight;
+  for (const [x, y, kind] of ADDED_BERRIES[rt.game.mission] ?? []) raw.tiles[y * raw.width + x] = 174 + kind;
   if (!rt.packedData) throw new Error("/pd0 data has not been attached to runtime state");
   const specialTiles: LegacySpecialTile[] = [];
   const overlay = buildLegacyMapOverlay({

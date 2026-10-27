@@ -1,7 +1,7 @@
 /* Game Speed Toggle (1x / 2x / 4x) */
 .hud .hud-speed-btn {
   position: absolute;
-  z-index: 4;
+  z-index: 26;
   top: calc(46px + var(--hud-bar-top, 0px));
   right: 8px;
   min-width: 44px;
@@ -204,7 +204,7 @@
 /* Idle Villager Finder (💤) */
 .hud .hud-idle-btn {
   position: absolute;
-  z-index: 4;
+  z-index: 26;
   top: calc(46px + var(--hud-bar-top, 0px));
   right: 58px;
   min-width: 48px;
@@ -254,6 +254,21 @@
 
 .hud .hud-idle-btn:active {
   transform: translateY(1px) scale(0.95);
+}
+
+/* Desktop & Widescreen: integrate Speed and Idle buttons directly into top bar beside Menu */
+@media (min-width: 768px) {
+  .hud-bar {
+    padding-right: 185px;
+  }
+  .hud .hud-speed-btn {
+    top: calc(7px + var(--hud-bar-top, 0px));
+    right: 120px;
+  }
+  .hud .hud-idle-btn {
+    top: calc(7px + var(--hud-bar-top, 0px));
+    right: 50px;
+  }
 }
 
 @keyframes pulse-idle {

@@ -1,8 +1,24 @@
 import { readStorage, writeStorage } from "../platform/Storage";
 import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
-import { BLD_HP, BLD_KIND, BLD_X, BLD_Y, UNIT_HP } from "../core/DenseLayout";
+import {
+  BLD_HP,
+  BLD_KIND,
+  BLD_X,
+  BLD_Y,
+  UNIT_ENERGY,
+  UNIT_HAPPINESS,
+  UNIT_HP,
+  UNIT_MODE,
+  UNIT_ORDER,
+  UNIT_SELECTION,
+  UNIT_TARGET_X,
+  UNIT_TARGET_Y,
+  UNIT_TYPE,
+  UNIT_X,
+  UNIT_Y,
+} from "../core/DenseLayout";
 import type { WideScreen } from "../WideScreen";
-
+import { weatherSystem } from "./WeatherSystem";
 const DAY_NIGHT_ENABLED_KEY = "pt.dayNight";
 
 export function isDayNightEnabled(): boolean {
@@ -87,7 +103,8 @@ export class DayNightCycle {
   private enabled = true;
   private lastTickTime = performance.now();
   private scaleFactor = 1;
-
+  private lastSleepRoutineTime = 0;
+  private awakenedThisCycle = false;
   constructor() {
     this.canvas = document.createElement("canvas");
     this.canvas.className = "day-night-canvas";
@@ -195,12 +212,13 @@ export class DayNightCycle {
     const dense = runtime.denseState;
     const s = this.scaleFactor;
 
-    // Organic flame flicker factor
+    // Organic flame flicker factor, dampened slightly in rain
+    const rainDampen = weatherSystem.getMode() === "rain" ? 0.8 : 1.0;
     const flicker =
-      0.94 +
+      (0.94 +
       0.06 * Math.sin(now * 0.007) +
       0.03 * Math.cos(now * 0.015) +
-      0.02 * Math.sin(now * 0.023);
+      0.02 * Math.sin(now * 0.023)) * rainDampen;
 
     // 1. Scan Tribe Buildings 1..30 (Team 0)
     for (let id = 1; id <= 30; id += 1) {
@@ -280,6 +298,93 @@ export class DayNightCycle {
     return lights;
   }
 
+  /**
+   * Natural sleep routine: at night (21:00 - 05:00), idle/tired villagers
+   * walk home to their huts to rest and wake up energized at dawn.
+   */
+  private applyNightSleepRoutine(runtime: LegacyRuntimeState, now: number): void {
+    if (now - this.lastSleepRoutineTime < 2500) return;
+    this.lastSleepRoutineTime = now;
+
+    const dense = runtime.denseState;
+    const isLateNight = this.time >= 21.0 || this.time < 5.0;
+
+    if (isLateNight) {
+      this.awakenedThisCycle = false;
+      for (let id = 1; id <= 50; id += 1) {
+        if ((dense[UNIT_HP + id] ?? 0) <= 0) continue;
+        // Never disturb units selected by player or executing an order
+        if ((dense[UNIT_SELECTION + id] ?? 0) !== 0 || (dense[UNIT_ORDER + id] ?? 0) !== 0) continue;
+
+        const home = dense[3434 + id] ?? 0;
+        if (home <= 0 || (dense[BLD_HP + home] ?? 0) <= 0) continue;
+
+        const hx = dense[BLD_X + home] ?? 0;
+        const hy = dense[BLD_Y + home] ?? 0;
+        const ux = dense[UNIT_X + id] ?? 0;
+        const uy = dense[UNIT_Y + id] ?? 0;
+
+        // Already in or near home hut: recover energy
+        if (Math.abs(ux - hx) <= 1 && Math.abs(uy - hy) <= 1) {
+          const energy = dense[UNIT_ENERGY + id] ?? 50;
+          if (energy < 99) {
+            dense[UNIT_ENERGY + id] = Math.min(99, energy + 2);
+          }
+          continue;
+        }
+
+        // Tired or deep night: head home to sleep
+        const energy = dense[UNIT_ENERGY + id] ?? 50;
+        if (energy < 75 || this.time >= 22.0 || this.time < 4.0) {
+          dense[UNIT_TARGET_X + id] = hx;
+          dense[UNIT_TARGET_Y + id] = hy;
+          dense[UNIT_MODE + id] = 1;
+        }
+      }
+    } else if (this.time >= 18.5 && this.time < 20.8) {
+      // Evening tribal gathering: idle villagers relax near campfire, boosting happiness
+      let campX = 0;
+      let campY = 0;
+      for (let b = 1; b <= 30; b += 1) {
+        if ((dense[BLD_HP + b] ?? 0) <= 0) continue;
+        const k = dense[BLD_KIND + b] ?? 0;
+        if (k === 3 || k === 7) {
+          campX = dense[BLD_X + b] ?? 0;
+          campY = dense[BLD_Y + b] ?? 0;
+          break;
+        }
+      }
+      if (campX > 0) {
+        for (let id = 1; id <= 50; id += 1) {
+          if ((dense[UNIT_HP + id] ?? 0) <= 0) continue;
+          if ((dense[UNIT_SELECTION + id] ?? 0) !== 0 || (dense[UNIT_ORDER + id] ?? 0) !== 0) continue;
+          if ((dense[UNIT_TYPE + id] ?? 0) !== 69) continue;
+
+          const ux = dense[UNIT_X + id] ?? 0;
+          const uy = dense[UNIT_Y + id] ?? 0;
+          const dist = Math.hypot(ux - campX, uy - campY);
+          if (dist <= 3) {
+            const hap = dense[UNIT_HAPPINESS + id] ?? 50;
+            if (hap < 85) dense[UNIT_HAPPINESS + id] = hap + 1;
+          } else if (dist <= 10) {
+            dense[UNIT_TARGET_X + id] = campX;
+            dense[UNIT_TARGET_Y + id] = campY;
+            dense[UNIT_MODE + id] = 1;
+          }
+        }
+      }
+    } else if (this.time >= 5.5 && this.time < 7.5 && !this.awakenedThisCycle) {
+      // Dawn awakening: villagers wake up refreshed with max energy
+      this.awakenedThisCycle = true;
+      for (let id = 1; id <= 50; id += 1) {
+        if ((dense[UNIT_HP + id] ?? 0) > 0) {
+          const currentEnergy = dense[UNIT_ENERGY + id] ?? 50;
+          dense[UNIT_ENERGY + id] = Math.max(currentEnergy, 95);
+        }
+      }
+    }
+  }
+
   tick(
     now: number,
     deltaMs: number,
@@ -288,6 +393,8 @@ export class DayNightCycle {
     screen: WideScreen,
   ): void {
     if (!this.enabled) return;
+
+    this.applyNightSleepRoutine(runtime, now);
 
     const dtSec = Math.min(0.2, deltaMs / 1000) * speed;
     // Progress world clock (24 hours per cycleDurationSec)

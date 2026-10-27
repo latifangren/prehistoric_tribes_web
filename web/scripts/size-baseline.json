@@ -478,13 +478,21 @@
       "effective": 240,
       "physical": 322
     },
+    "web/src/audio/SpatialAmbience.ts": {
+      "effective": 95,
+      "physical": 110
+    },
     "web/src/Bestiary.ts": {
       "effective": 213,
       "physical": 222
     },
+    "web/src/combat/AnimalEcology.ts": {
+      "effective": 120,
+      "physical": 145
+    },
     "web/src/combat/TribeTactics.ts": {
-      "effective": 212,
-      "physical": 261
+      "effective": 275,
+      "physical": 345
     },
     "web/src/core/DataTables.ts": {
       "effective": 36,
@@ -579,8 +587,8 @@
       "physical": 12
     },
     "web/src/mainRuntime.ts": {
-      "effective": 383,
-      "physical": 522
+      "effective": 400,
+      "physical": 540
     },
     "web/src/MenuHud.ts": {
       "effective": 53,
@@ -691,16 +699,16 @@
       "physical": 254
     },
     "web/src/render/DayNightCycle.ts": {
-      "effective": 297,
-      "physical": 363
+      "effective": 395,
+      "physical": 480
     },
     "web/src/render/EmotionBubbles.ts": {
       "effective": 205,
       "physical": 271
     },
     "web/src/render/HdArt.ts": {
-      "effective": 294,
-      "physical": 398
+      "effective": 330,
+      "physical": 450
     },
     "web/src/render/Legacy1010Renderer.ts": {
       "effective": 58,
@@ -886,6 +894,10 @@
       "effective": 24,
       "physical": 27
     },
+    "web/src/render/MapMargin.ts": {
+      "effective": 80,
+      "physical": 95
+    },
     "web/src/render/MatchRecap.ts": {
       "effective": 325,
       "physical": 374
@@ -895,12 +907,16 @@
       "physical": 1841
     },
     "web/src/render/WeatherSystem.ts": {
-      "effective": 352,
-      "physical": 420
+      "effective": 375,
+      "physical": 450
+    },
+    "web/src/render/WorldParticles.ts": {
+      "effective": 315,
+      "physical": 360
     },
     "web/src/render/WideView.ts": {
-      "effective": 162,
-      "physical": 214
+      "effective": 215,
+      "physical": 275
     },
     "web/src/ResourceBootstrap.ts": {
       "effective": 63,
@@ -1274,6 +1290,10 @@
       "effective": 61,
       "physical": 99
     },
+    "web/src/sim/tribe/SmartHarvesting.ts": {
+      "effective": 120,
+      "physical": 150
+    },
     "web/src/sim/tribe/TribeRuntime.ts": {
       "effective": 1902,
       "physical": 2902
@@ -1639,8 +1659,8 @@
       "physical": 21
     },
     "web/src/sim/world/WorldRuntime.ts": {
-      "effective": 693,
-      "physical": 969
+      "effective": 715,
+      "physical": 1005
     },
     "web/src/StartMenu.ts": {
       "effective": 391,
@@ -1687,8 +1707,8 @@
       "physical": 18
     },
     "web/src/styles/hud-extra-controls.css": {
-      "effective": 229,
-      "physical": 269
+      "effective": 250,
+      "physical": 295
     },
     "web/src/styles/hud-responsive.css": {
       "effective": 264,
@@ -1715,8 +1735,8 @@
       "physical": 376
     },
     "web/src/styles/story-outcomes.css": {
-      "effective": 101,
-      "physical": 117
+      "effective": 205,
+      "physical": 235
     },
     "web/src/styles/story.css": {
       "effective": 112,
@@ -1755,8 +1775,8 @@
       "physical": 50
     },
     "web/src/TouchControls.ts": {
-      "effective": 665,
-      "physical": 844
+      "effective": 675,
+      "physical": 860
     },
     "web/src/TribeModals.ts": {
       "effective": 386,
@@ -1915,8 +1935,8 @@
       "physical": 1
     },
     "web/src/WideScreen.ts": {
-      "effective": 399,
-      "physical": 554
+      "effective": 460,
+      "physical": 630
     }
   }
 }

@@ -3,7 +3,7 @@ import { ZH_LANGUAGE } from "../text/LegacyZhText";
 import { audioManager } from "../platform/AudioManager";
 import { getMasterVolume, isSfxEnabled } from "../platform/SoundEffects";
 import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
-import { UNIT_ENERGY, UNIT_HP } from "../core/DenseLayout";
+import { UNIT_ENERGY, UNIT_HP, UNIT_MODE } from "../core/DenseLayout";
 
 const WEATHER_ENABLED_KEY = "pt.weather";
 
@@ -70,6 +70,7 @@ export class WeatherSystem {
   private enabled = true;
   private onWeatherChange?: (mode: WeatherMode) => void;
   private lastEffectTime = 0;
+  private lastMudEffectTime = 0;
   constructor() {
     this.canvas = document.createElement("canvas");
     this.canvas.className = "weather-canvas";
@@ -110,10 +111,29 @@ export class WeatherSystem {
   }
 
   applyGameplayEffects(runtime: LegacyRuntimeState, now: number): void {
-    if (!this.enabled || now - this.lastEffectTime < 3000) return;
-    this.lastEffectTime = now;
+    if (!this.enabled) return;
 
     const dense = runtime.denseState;
+
+    // Mud effect during rain: dampens walking speed by ~15% on wet terrain
+    if (this.currentMode === "rain" && now - this.lastMudEffectTime >= 240) {
+      this.lastMudEffectTime = now;
+      for (let id = 1; id <= 50; id += 1) {
+        if ((dense[UNIT_HP + id] ?? 0) <= 0) continue;
+        const mode = (dense[UNIT_MODE + id] ?? 0) & 0xff;
+        // Active walking/moving outdoor modes (modes 1..7)
+        if (mode >= 1 && mode <= 7) {
+          const step = dense[5050 + id] ?? 0;
+          if (step > 1) {
+            dense[5050 + id] = step - 1;
+          }
+        }
+      }
+    }
+
+    // Economy & weather atmosphere modifiers (every 3000ms)
+    if (now - this.lastEffectTime < 3000) return;
+    this.lastEffectTime = now;
 
     if (this.currentMode === "snow") {
       // Freezing cold: outdoor villagers lose energy slightly faster
