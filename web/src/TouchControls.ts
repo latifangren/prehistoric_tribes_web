@@ -762,7 +762,7 @@ export function attachTouchControls(
     cancelBox,
     footprint() {
       if (game.loopMode !== 1 || game.barMode !== 3) return null;
-      if (game.cSInt <= 3 || game.cSInt === 100) {
+      if (game.cSInt <= 3 || game.cSInt === 100 || (game.cSInt >= 20 && game.cSInt <= 22)) {
         return { column: game.cameraColumn + game.cursorColumn, row: game.cameraRow + game.cursorRow, columns: 1, rows: 1 };
       }
       const table = runtime.packedOffsets[T_BUILDING] ?? 0;

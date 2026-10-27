@@ -106,7 +106,8 @@ export function createHudPlacementOverlay(
         if (tx !== game.cameraColumn + game.cursorColumn || ty !== game.cameraRow + game.cursorRow) touch.aim(tx, ty);
       }
       const area = touch.footprint();
-      const kind = area ? placedKind(game.cSInt) : -1;
+      const isTrap = game.cSInt >= 20 && game.cSInt <= 22;
+      const kind = area ? (isTrap ? game.cSInt : placedKind(game.cSInt)) : -1;
       if (!area || kind < 0 || screen.frozen || picking || !orderMarkHidden) { placeTick.hidden = true; ghost.hidden = true; return; }
       const from = screen.tileToCss(area.column, area.row);
       const to = screen.tileToCss(area.column + area.columns, area.row + area.rows);
@@ -115,12 +116,13 @@ export function createHudPlacementOverlay(
       placeTick.classList.toggle("blocked", blocked);
       placeTick.setAttribute("aria-disabled", String(blocked));
       Object.assign(ghostPatch.style, { left: `${from.x}px`, top: `${from.y}px`, width: `${to.x - from.x}px`, height: `${to.y - from.y}px` });
-      const src = `hd/buildings/${kind}-1.png`;
+      const trapName = game.cSInt === 20 ? "net-trap" : game.cSInt === 21 ? "spring-trap" : "pit-trap";
+      const src = isTrap ? `hd/ui/${trapName}.png` : `hd/buildings/${kind}-1.png`;
       if (!ghostPicture.src.endsWith(src)) ghostPicture.src = src;
       const cssPerGame = (screen.tileToCss(1, 0).x - screen.tileToCss(0, 0).x) / 22;
-      const scale = hdArt.scale(runtime);
-      const width = (ghostPicture.naturalWidth / scale) * cssPerGame;
-      const height = (ghostPicture.naturalHeight / scale) * cssPerGame;
+      const scale = isTrap ? 1 : hdArt.scale(runtime);
+      const width = isTrap ? 26 * cssPerGame : (ghostPicture.naturalWidth / scale) * cssPerGame;
+      const height = isTrap ? 26 * cssPerGame : (ghostPicture.naturalHeight / scale) * cssPerGame;
       const left = (from.x + to.x) / 2 - width / 2;
       const top = to.y - height;
       Object.assign(ghostPicture.style, { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` });

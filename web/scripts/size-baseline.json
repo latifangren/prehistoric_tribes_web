@@ -543,12 +543,12 @@
       "physical": 64
     },
     "web/src/Hud.ts": {
-      "effective": 645,
-      "physical": 771
+      "effective": 700,
+      "physical": 830
     },
     "web/src/hud/BuildList.ts": {
-      "effective": 91,
-      "physical": 96
+      "effective": 105,
+      "physical": 110
     },
     "web/src/hud/BuildingCatalog.ts": {
       "effective": 59,
@@ -563,8 +563,8 @@
       "physical": 131
     },
     "web/src/hud/PlacementOverlay.ts": {
-      "effective": 128,
-      "physical": 135
+      "effective": 140,
+      "physical": 145
     },
     "web/src/hud/RightThumbControls.ts": {
       "effective": 163,
@@ -1711,8 +1711,8 @@
       "physical": 295
     },
     "web/src/styles/hud-responsive.css": {
-      "effective": 264,
-      "physical": 304
+      "effective": 320,
+      "physical": 370
     },
     "web/src/styles/match-recap.css": {
       "effective": 142,

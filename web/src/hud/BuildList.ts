@@ -34,8 +34,13 @@ export function createBuildList(
   pageDots.className = "hud-sheet-dots";
   const previous = createButton("hud-sheet-nav prev", "◀", "Previous Buildings");
   const next = createButton("hud-sheet-nav next", "▶", "Next Buildings");
-  previous.addEventListener("click", () => element.scrollBy({ left: -260, behavior: "smooth" }));
-  next.addEventListener("click", () => element.scrollBy({ left: 260, behavior: "smooth" }));
+  const scrollTarget = () => {
+    const row = sheet.querySelector<HTMLElement>(".hud-sheet-row");
+    if (row && !row.hidden && element.hidden) return row;
+    return element;
+  };
+  previous.addEventListener("click", () => scrollTarget().scrollBy({ left: -260, behavior: "smooth" }));
+  next.addEventListener("click", () => scrollTarget().scrollBy({ left: 260, behavior: "smooth" }));
   sheet.append(element, pageDots, previous, next);
   element.addEventListener("wheel", (event) => {
     if (event.deltaY !== 0 || event.deltaX !== 0) {

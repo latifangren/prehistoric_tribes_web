@@ -16,6 +16,12 @@
   .hud-sheet:has(.hud-sheet-list:not([hidden])) .hud-sheet-list {
     padding: 0 42px;
   }
+  .hud-sheet:has(.hud-sheet-row:not([hidden])) {
+    width: min(calc(100% - 32px), 760px);
+  }
+  .hud-sheet:has(.hud-sheet-row:not([hidden])) .hud-sheet-row {
+    padding: 0 38px;
+  }
   .hud-sheet .deco.bottom {
     border-radius: 0 0 15px 15px;
     overflow: hidden;
@@ -254,6 +260,50 @@
   transform: none;
 }
 
+
+.hud-item .craft-stepper {
+  position: absolute;
+  top: 1px;
+  right: -2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 5;
+}
+
+.hud-item .craft-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  font-size: 13px;
+  font-weight: bold;
+  font-style: normal;
+  line-height: 1;
+  color: #fff2b0;
+  background: #3c220c;
+  border: 1px solid #7c4a1e;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.hud-item .craft-btn:hover {
+  background: #5a3414;
+  color: #ffffff;
+}
+
+.hud-item .craft-btn:active {
+  transform: scale(0.9);
+  background: #2b1808;
+}
+
+.hud-item.has-stepper {
+  cursor: pointer;
+}
 .hud-sep {
   flex: none;
   width: 2px;
