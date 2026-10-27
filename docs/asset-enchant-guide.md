@@ -25,7 +25,7 @@ Tool yang digunakan adalah **Real-ESRGAN (NCNN Vulkan)**, implementasi portabel 
 | Branch | Konfigurasi | Ukuran Aset | Rekomendasi Penggunaan |
 | :--- | :--- | :--- | :--- |
 | **`asset-enchant`** (2x Murni) | Semua 1.768 file di-upscale **2x** menggunakan `realesr-animevideov3` & `anime`. | ~130 MB | **Default Production**: Seimbang, ringan dimuat di HP/web canvas, animasi sendi 100% presisi. |
-| **`asset-enchant-4x-selective`** (Hybrid) | `buildings`, `animals`, `story/faces` di-upscale **4x** murni dari file original (`origin/dev`); `parts/` dan `effects/` tetap **2x**. | ~165 MB | **Ultra-Sharp**: Tampilan bangunan dan hewan ultra tajam di layar 2K/4K tanpa membebani animasi pergerakan karakter. |
+| **`asset-enchant-4x-selective`** (Hybrid) | `buildings`, `animals`, `story/faces`, dan `objects` (pohon, batu, alam) di-upscale **4x** murni dari file original (`origin/dev`); `parts/` dan `effects/` tetap **2x**. | ~250 MB | **Ultra-Sharp**: Tampilan bangunan, hewan, dan objek alam ultra tajam di layar 2K/4K tanpa membebani animasi pergerakan karakter. |
 
 ---
 
