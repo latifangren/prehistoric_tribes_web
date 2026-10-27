@@ -69,8 +69,9 @@ export function drawMapMargin(image: LegacyOffscreenImage, window: WideWindow, m
       const id = roll < 13 ? TREES[pick(column, row, TREES.length, 1)]! : roll < 18 ? BUSHES[pick(column, row, BUSHES.length, 2)]! : ROCK;
       const art = picture(id);
       if (!art.complete || art.naturalWidth === 0) continue;
-      const w = art.naturalWidth / k;
-      const h = art.naturalHeight / k;
+      const objectScale = art.naturalWidth > 150 ? 4 : 1;
+      const w = art.naturalWidth / (k * objectScale);
+      const h = art.naturalHeight / (k * objectScale);
       const jitter = pick(column, row, 7, 3) - 3;
       context.drawImage(art, x(column) + TILE_W / 2 - w / 2 + jitter, y(row) + TILE_H - h, w, h);
     }
