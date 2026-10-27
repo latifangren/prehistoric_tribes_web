@@ -6,6 +6,7 @@ import {
   RES_X,
   RES_Y,
   UNIT_AGE,
+  UNIT_FLAGS,
   UNIT_HP,
   UNIT_JOB_TYPE,
   UNIT_MODE,
@@ -106,8 +107,8 @@ export class YouthInitiationManager {
       dense[UNIT_WORK_TARGET + id] = apprenticeTarget.workTarget;
       dense[UNIT_ORDER + id] = 2; // ORDER 2: Move to target!
       dense[UNIT_MODE + id] = 1;  // MODE 1: Walking!
+      dense[UNIT_FLAGS + id] = (dense[UNIT_FLAGS + id] ?? 0) & 223;
       dense[7777 + id] = 0;
-      return;
     }
 
     // Fallback: Find nearest natural resource to harvest
@@ -118,6 +119,7 @@ export class YouthInitiationManager {
       dense[UNIT_WORK_TARGET + id] = nearestRes.marker;
       dense[UNIT_ORDER + id] = 2; // ORDER 2: Move to target!
       dense[UNIT_MODE + id] = 1;  // MODE 1: Walking!
+      dense[UNIT_FLAGS + id] = (dense[UNIT_FLAGS + id] ?? 0) & 223;
       dense[7777 + id] = 0;
     }
   }
@@ -140,9 +142,9 @@ export class YouthInitiationManager {
       if (hp <= 0 || age <= 12) continue;
 
       const workTarget = dense[UNIT_WORK_TARGET + s] ?? 0;
-      const order = dense[UNIT_ORDER + s] ?? 0;
-      if (workTarget === 0 && order !== 3) continue;
-
+      // Senior MUST be harvesting a natural resource on the map (-61 to -110: wood, stone, berry)
+      // Never send bare-handed youth to fight wild beasts (<= -123) or enter buildings (-1 to -30)!
+      if (workTarget > -61 || workTarget < -110) continue;
       const tx = dense[UNIT_TARGET_X + s] ?? (dense[s] ?? 0);
       const ty = dense[UNIT_TARGET_Y + s] ?? (dense[UNIT_Y + s] ?? 0);
       const dist = (ux - tx) ** 2 + (uy - ty) ** 2;
