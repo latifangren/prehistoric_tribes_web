@@ -615,8 +615,8 @@
       "physical": 175
     },
     "web/src/platform/BackButton.ts": {
-      "effective": 6,
-      "physical": 7
+      "effective": 65,
+      "physical": 75
     },
     "web/src/platform/BinaryResource.ts": {
       "effective": 138,
