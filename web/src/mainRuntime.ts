@@ -522,7 +522,7 @@ async function debugBootWithoutSplash(): Promise<void> {
   refreshDebugOverlay();
 }
 
-if (isDevelopmentHost) {
+if (isDevelopmentHost || (typeof window !== "undefined" && window.location.search.includes("perf=1"))) {
   Object.assign(window as unknown as Record<string, unknown>, {
     __prehistoricDebugEnterMap: debugEnterMap,
     __prehistoricDebugEnterMapViaMenu: (maxTicks = 200) => debugEnterMapViaMenu(maxTicks),

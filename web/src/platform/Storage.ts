@@ -10,6 +10,8 @@ export const ALL_STORAGE_KEYS = [
   "pt.sfx",
   "pt.volume",
   "pt.zoomOut",
+  "pt.hudStyle",
+  "pt.mapFit",
   "pt.achievements",
   "pt.achievement_stats",
   "pt.ambience",
