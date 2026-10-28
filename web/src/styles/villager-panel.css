@@ -123,42 +123,17 @@
   transform: none;
 }
 
-.hud-group .hud-member img.weapon {
-  width: 28px;
-  height: 28px;
-}
+.hud-group .hud-member img.weapon { width: 28px; height: 28px; }
 
 /* HD Aiming marker floating above target villager */
-.hud-pick-marker {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  image-rendering: auto;
-  filter: drop-shadow(0 0 4px #ffe27a) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.65));
-  animation: marker-bob 0.8s ease-in-out infinite alternate;
-}
+.hud-pick-marker { width: 40px; height: 40px; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 0 4px #ffe27a) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.65)); animation: marker-bob 0.8s ease-in-out infinite alternate; }
 
 @keyframes marker-bob {
-  from {
-    transform: translate(-50%, -100%);
-  }
-  to {
-    transform: translate(-50%, -118%);
-  }
+  from { transform: translate(-50%, -100%); }
+  to { transform: translate(-50%, -118%); }
 }
 
 /* Accessible touch target for craft stepper buttons (+ and -) */
-.craft-btn {
-  position: relative;
-}
-
-.craft-btn::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 44px;
-  height: 44px;
-  transform: translate(-50%, -50%);
-}
+.craft-btn { position: relative; }
+.craft-btn::after { content: ""; position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
 

@@ -19,6 +19,7 @@ import { escapeHtml } from "./platform/Html";
 import type { TouchControls } from "./TouchControls";
 import { stepAs } from "./ui/UiStateRuntime";
 import type { WideScreen } from "./WideScreen";
+import { hudSettingsSectionHtml, setupHudSettingsSection } from "./ui/HudSettingsSection";
 
 const ZOOM_KEY = "pt.zoomOut";
 
@@ -85,20 +86,7 @@ export function attachSettings(
               <input type="range" name="zoom" min="0" step="1">
             </div>
 
-            <div class="settings-select-row">
-              <span data-i18n="hudStyle">HUD Style</span>
-              <select name="hudStyle" class="settings-select">
-                <option value="floating" data-i18n="hudFloating">Modern Floating Island</option>
-                <option value="console" data-i18n="hudConsole">Classic RTS Command Console</option>
-              </select>
-            </div>
-            <div class="settings-select-row">
-              <span data-i18n="mapFit">Display Bounds</span>
-              <select name="mapFit" class="settings-select">
-                <option value="smart" data-i18n="mapFitSmart">Penuhi Layar Penuh (Smart Fit)</option>
-                <option value="free" data-i18n="mapFitFree">Bebas (Free Zoom)</option>
-              </select>
-            </div>
+${hudSettingsSectionHtml}
             <div class="settings-select-row">
               <span data-i18n="overhead">Overhead Info</span>
               <select name="info" class="settings-select">
@@ -130,27 +118,15 @@ export function attachSettings(
       </div>
     </form>`;
   const form = dialog.querySelector("form")!;
-  const hudStyle = form.elements.namedItem("hudStyle") as HTMLSelectElement;
-  const mapFit = form.elements.namedItem("mapFit") as HTMLSelectElement;
-  const slider = form.elements.namedItem("zoom") as HTMLInputElement;
-  const text = form.elements.namedItem("zoomText") as HTMLOutputElement;
-  const volumeSlider = form.elements.namedItem("volume") as HTMLInputElement;
-  const volumeText = form.elements.namedItem("volumeText") as HTMLOutputElement;
-  const music = form.elements.namedItem("music") as HTMLInputElement;
-  const sfxToggle = form.elements.namedItem("sfx") as HTMLInputElement;
-  const ambienceToggle = form.elements.namedItem("ambience") as HTMLInputElement;
-  const weatherToggle = form.elements.namedItem("weather") as HTMLInputElement;
-  const dayNightToggle = form.elements.namedItem("dayNight") as HTMLInputElement;
-  const emotesToggle = form.elements.namedItem("emotes") as HTMLInputElement;
-  const hints = form.elements.namedItem("hints") as HTMLInputElement;
-  const info = form.elements.namedItem("info") as HTMLSelectElement;
+  const slider = form.elements.namedItem("zoom") as HTMLInputElement, text = form.elements.namedItem("zoomText") as HTMLOutputElement;
+  const volumeSlider = form.elements.namedItem("volume") as HTMLInputElement, volumeText = form.elements.namedItem("volumeText") as HTMLOutputElement;
+  const music = form.elements.namedItem("music") as HTMLInputElement, sfxToggle = form.elements.namedItem("sfx") as HTMLInputElement;
+  const ambienceToggle = form.elements.namedItem("ambience") as HTMLInputElement, weatherToggle = form.elements.namedItem("weather") as HTMLInputElement;
+  const dayNightToggle = form.elements.namedItem("dayNight") as HTMLInputElement, emotesToggle = form.elements.namedItem("emotes") as HTMLInputElement;
+  const hints = form.elements.namedItem("hints") as HTMLInputElement, info = form.elements.namedItem("info") as HTMLSelectElement;
   const fileInput = form.elements.namedItem("importFile") as HTMLInputElement;
-  const statusEl = dialog.querySelector<HTMLElement>("[data-status]")!;
-  const slotsBox = dialog.querySelector<HTMLElement>("[data-slots]")!;
-  dialog.querySelector(".settings-close-x")?.addEventListener("click", () => {
-    sfx.click();
-    dialog.close();
-  });
+  const statusEl = dialog.querySelector<HTMLElement>("[data-status]")!, slotsBox = dialog.querySelector<HTMLElement>("[data-slots]")!;
+  dialog.querySelector(".settings-close-x")?.addEventListener("click", () => { sfx.click(); dialog.close(); });
 
   const tabBtns = Array.from(dialog.querySelectorAll<HTMLButtonElement>(".settings-tab"));
   const panes = Array.from(dialog.querySelectorAll<HTMLElement>(".settings-pane"));
@@ -162,17 +138,7 @@ export function attachSettings(
       panes.forEach((p) => p.classList.toggle("active", p.dataset.pane === target));
     });
   });
-  hudStyle.value = readStorage("pt.hudStyle") ?? "floating";
-  mapFit.value = readStorage("pt.mapFit") ?? "smart";
-  app.setAttribute("data-hud-style", hudStyle.value);
-  hudStyle.addEventListener("change", () => {
-    app.setAttribute("data-hud-style", hudStyle.value);
-    void writeStorage("pt.hudStyle", hudStyle.value);
-  });
-  mapFit.addEventListener("change", () => {
-    screen.setMapFit(mapFit.value as "smart" | "free");
-    void writeStorage("pt.mapFit", mapFit.value);
-  });
+  const hudSettings = setupHudSettingsSection(form, app, screen);
 
 
   const toggle = (row: number) => {
@@ -334,12 +300,7 @@ export function attachSettings(
     setText("hints", lang === "zh" ? "新手提示" : lang === "id" ? "Petunjuk & Bantuan" : "Hints");
     setText("volume", lang === "zh" ? "音量大小" : lang === "id" ? "Volume Suara" : "Audio Volume");
     setText("overhead", lang === "zh" ? "头顶信息" : lang === "id" ? "Status Kepala Unit" : "Overhead Info");
-    setText("hudStyle", lang === "zh" ? "界面风格" : lang === "id" ? "Gaya Antarmuka" : "HUD Style");
-    setText("hudFloating", lang === "zh" ? "现代浮动岛" : lang === "id" ? "Modern Floating Island" : "Modern Floating Island");
-    setText("hudConsole", lang === "zh" ? "经典 RTS 指挥台" : lang === "id" ? "Classic RTS Command Console" : "Classic RTS Command Console");
-    setText("mapFit", lang === "zh" ? "显示范围" : lang === "id" ? "Pengisian Layar" : "Display Bounds");
-    setText("mapFitSmart", lang === "zh" ? "智能铺满全屏" : lang === "id" ? "Penuhi Layar Penuh (Smart Fit)" : "Fill Screen (Smart Fit)");
-    setText("mapFitFree", lang === "zh" ? "自由缩放" : lang === "id" ? "Bebas (Free Zoom)" : "Free (Free Zoom)");
+    hudSettings.applyI18n(lang, setText);
     setText("infoAll", lang === "zh" ? "全部村民" : lang === "id" ? "Semua Penduduk" : "All Villagers");
     setText("infoSelected", lang === "zh" ? "选中的村民" : lang === "id" ? "Penduduk Terpilih" : "Selected Villager");
     setText("infoNone", lang === "zh" ? "不显示（受伤时显示）" : lang === "id" ? "Sembunyikan (Tampil Saat Terluka)" : "Hidden (Show When Hurt)");
@@ -349,8 +310,7 @@ export function attachSettings(
     setText("exportSave", lang === "zh" ? "导出备份" : lang === "id" ? "Ekspor JSON" : "Export JSON");
     setText("importSave", lang === "zh" ? "导入备份" : lang === "id" ? "Impor JSON" : "Import JSON");
     setText("done", lang === "zh" ? "完成" : lang === "id" ? "Selesai" : "Done");
-    hudStyle.value = readStorage("pt.hudStyle") ?? "floating";
-    mapFit.value = readStorage("pt.mapFit") ?? "smart";
+    hudSettings.sync();
     music.checked = game.eByte !== 0;
     sfxToggle.checked = isSfxEnabled();
     ambienceToggle.checked = isAmbienceEnabled();

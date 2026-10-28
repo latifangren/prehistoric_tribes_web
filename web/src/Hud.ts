@@ -66,14 +66,11 @@ export function attachHud(
 ): { update(): void; track(): void; openHelp(): void } {
   const game = runtime.game;
   app.setAttribute("data-hud-style", readStorage("pt.hudStyle") ?? "floating");
-  const hud = document.createElement("div");
-  hud.className = "hud";
-  app.append(hud);
+  const hud = document.createElement("div"); hud.className = "hud"; app.append(hud);
   const { attachHoverTip, longPress } = createHudTooltips(hud);
 
   const modals = attachTribeModals(app, runtime, screen, touch);
-  const radialMenu = new RadialMenu();
-  touch.setRadialMenu(radialMenu);
+  const radialMenu = new RadialMenu(); touch.setRadialMenu(radialMenu);
 
   const button = (className: string, text: string, label?: string) => {
     const element = document.createElement("button");
@@ -93,10 +90,7 @@ export function attachHud(
   const topBar = createHudTopBar(runtime, screen, touch, () => modals.openRoster(), notify, lang, isZh, button, attachHoverTip, speedControl);
   const { bar, speedButton, idleButton } = topBar;
 
-  const aMoveBanner = document.createElement("div");
-  aMoveBanner.className = "hud-attack-move-banner";
-  aMoveBanner.hidden = true;
-  hud.append(aMoveBanner);
+  const aMoveBanner = document.createElement("div"); aMoveBanner.className = "hud-attack-move-banner"; aMoveBanner.hidden = true; hud.append(aMoveBanner);
 
   const updateAttackMoveBanner = () => {
     const active = tribeTactics.isAttackMoveActive();

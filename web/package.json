@@ -13,6 +13,7 @@
     "tauri:android:build": "tauri android build --debug --target aarch64 --apk",
     "tauri:android:dev": "tauri android dev",
     "oracle": "node scripts/oracle-all.mjs",
+    "check:size": "node scripts/check-file-size.mjs",
     "test:browser": "node scripts/browser-smoke.mjs",
     "test": "node scripts/test-all.mjs",
     "test:geometry": "node scripts/verify-geometry.mjs",

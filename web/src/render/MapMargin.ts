@@ -21,11 +21,7 @@ const ROCK = 1097;
 const pictures = new Map<number, HTMLImageElement>();
 const picture = (id: number) => {
   let image = pictures.get(id);
-  if (!image) {
-    image = new Image();
-    image.src = `hd/objects/${id}.png`;
-    pictures.set(id, image);
-  }
+  if (!image) { image = new Image(); image.src = `hd/objects/${id}.png`; pictures.set(id, image); }
   return image;
 };
 
@@ -41,18 +37,13 @@ const pick = (x: number, y: number, n: number, salt = 0) => {
 export function drawMapMargin(image: LegacyOffscreenImage, window: WideWindow, mapWidth: number, mapHeight: number, k: number): void {
   const context = image.element.getContext("2d");
   if (!context) return;
-  const left = -MARGIN_TILES;
-  const top = -MARGIN_TILES;
-  const right = mapWidth + MARGIN_TILES;
-  const bottom = mapHeight + MARGIN_TILES;
+  const left = -MARGIN_TILES, top = -MARGIN_TILES, right = mapWidth + MARGIN_TILES, bottom = mapHeight + MARGIN_TILES;
   const from = { column: Math.max(window.column, left), row: Math.max(window.row, top) };
   const to = { column: Math.min(window.column + window.columns, right), row: Math.min(window.row + window.rows, bottom) };
   if (from.column >= to.column || from.row >= to.row) return;
   const x = (column: number) => 11 + (column - window.column) * TILE_W;
   const y = (row: number) => 8 + (row - window.row) * TILE_H;
-  const inside = window.column >= 0 && window.row >= 0 && window.column + window.columns <= mapWidth && window.row + window.rows <= mapHeight;
-  if (inside) return;
-
+  if (window.column >= 0 && window.row >= 0 && window.column + window.columns <= mapWidth && window.row + window.rows <= mapHeight) return;
   context.save();
   // Only the band: the border's outer rectangle minus the map.
   context.beginPath();
@@ -70,64 +61,25 @@ export function drawMapMargin(image: LegacyOffscreenImage, window: WideWindow, m
       const art = picture(id);
       if (!art.complete || art.naturalWidth === 0) continue;
       const objectScale = art.naturalWidth > 150 ? 4 : 1;
-      const w = art.naturalWidth / (k * objectScale);
-      const h = art.naturalHeight / (k * objectScale);
-      const jitter = pick(column, row, 7, 3) - 3;
-      context.drawImage(art, x(column) + TILE_W / 2 - w / 2 + jitter, y(row) + TILE_H - h, w, h);
+      const w = art.naturalWidth / (k * objectScale), h = art.naturalHeight / (k * objectScale);
+      context.drawImage(art, x(column) + TILE_W / 2 - w / 2 + (pick(column, row, 7, 3) - 3), y(row) + TILE_H - h, w, h);
     }
   }
-  const visibleLeft = x(from.column);
-  const visibleTop = y(from.row);
-  const visibleRight = x(to.column);
-  const visibleBottom = y(to.row);
-  const fillGradient = (gradient: CanvasGradient, left: number, top: number, right: number, bottom: number) => {
-    if (left >= right || top >= bottom) return;
-    context.fillStyle = gradient;
-    context.fillRect(left, top, right - left, bottom - top);
+  const [CLEAR_V, EDGE, CLEAR_E] = ["rgba(70, 70, 70, 0)", "rgba(0, 0, 0, 0.18)", "rgba(0, 0, 0, 0)"];
+  const [vl, vt, vr, vb] = [x(from.column), y(from.row), x(to.column), y(to.row)];
+  const grad = (x0: number, y0: number, x1: number, y1: number, c0: string, c1: string, l: number, t: number, r: number, b: number) => {
+    if (l >= r || t >= b) return;
+    const g = context.createLinearGradient(x0, y0, x1, y1);
+    g.addColorStop(0, c0); g.addColorStop(1, c1);
+    context.fillStyle = g; context.fillRect(l, t, r - l, b - t);
   };
-
-  const topGradient = context.createLinearGradient(0, y(top), 0, y(0));
-  topGradient.addColorStop(0, VEIL);
-  topGradient.addColorStop(1, "rgba(70, 70, 70, 0)");
-  fillGradient(topGradient, visibleLeft, Math.max(visibleTop, y(top)), visibleRight, Math.min(visibleBottom, y(0)));
-
-  const bottomGradient = context.createLinearGradient(0, y(mapHeight), 0, y(bottom));
-  bottomGradient.addColorStop(0, "rgba(70, 70, 70, 0)");
-  bottomGradient.addColorStop(1, VEIL);
-  fillGradient(bottomGradient, visibleLeft, Math.max(visibleTop, y(mapHeight)), visibleRight, Math.min(visibleBottom, y(bottom)));
-
-  const leftGradient = context.createLinearGradient(x(left), 0, x(0), 0);
-  leftGradient.addColorStop(0, VEIL);
-  leftGradient.addColorStop(1, "rgba(70, 70, 70, 0)");
-  fillGradient(leftGradient, Math.max(visibleLeft, x(left)), visibleTop, Math.min(visibleRight, x(0)), visibleBottom);
-
-  const rightGradient = context.createLinearGradient(x(mapWidth), 0, x(right), 0);
-  rightGradient.addColorStop(0, "rgba(70, 70, 70, 0)");
-  rightGradient.addColorStop(1, VEIL);
+  grad(0, y(top), 0, y(0), VEIL, CLEAR_V, vl, Math.max(vt, y(top)), vr, Math.min(vb, y(0)));
+  grad(0, y(mapHeight), 0, y(bottom), CLEAR_V, VEIL, vl, Math.max(vt, y(mapHeight)), vr, Math.min(vb, y(bottom)));
+  grad(x(left), 0, x(0), 0, VEIL, CLEAR_V, Math.max(vl, x(left)), vt, Math.min(vr, x(0)), vb);
+  grad(x(mapWidth), 0, x(right), 0, CLEAR_V, VEIL, Math.max(vl, x(mapWidth)), vt, Math.min(vr, x(right)), vb);
   context.restore();
-
-  // Fade a soft shadow into the map's edge tiles as well as over the outer border.
-  context.save();
-  const edgeShadow = "rgba(0, 0, 0, 0.18)";
-  const clearShadow = "rgba(0, 0, 0, 0)";
-  const innerTop = context.createLinearGradient(0, y(0), 0, y(1));
-  innerTop.addColorStop(0, edgeShadow);
-  innerTop.addColorStop(1, clearShadow);
-  fillGradient(innerTop, x(0), y(0), x(mapWidth), y(1));
-
-  const innerBottom = context.createLinearGradient(0, y(mapHeight - 1), 0, y(mapHeight));
-  innerBottom.addColorStop(0, clearShadow);
-  innerBottom.addColorStop(1, edgeShadow);
-  fillGradient(innerBottom, x(0), y(mapHeight - 1), x(mapWidth), y(mapHeight));
-
-  const innerLeft = context.createLinearGradient(x(0), 0, x(1), 0);
-  innerLeft.addColorStop(0, edgeShadow);
-  innerLeft.addColorStop(1, clearShadow);
-  fillGradient(innerLeft, x(0), y(0), x(1), y(mapHeight));
-
-  const innerRight = context.createLinearGradient(x(mapWidth - 1), 0, x(mapWidth), 0);
-  innerRight.addColorStop(0, clearShadow);
-  innerRight.addColorStop(1, edgeShadow);
-  fillGradient(innerRight, x(mapWidth - 1), y(0), x(mapWidth), y(mapHeight));
-  context.restore();
+  grad(0, y(0), 0, y(1), EDGE, CLEAR_E, x(0), y(0), x(mapWidth), y(1));
+  grad(0, y(mapHeight - 1), 0, y(mapHeight), CLEAR_E, EDGE, x(0), y(mapHeight - 1), x(mapWidth), y(mapHeight));
+  grad(x(0), 0, x(1), 0, EDGE, CLEAR_E, x(0), y(0), x(1), y(mapHeight));
+  grad(x(mapWidth - 1), 0, x(mapWidth), 0, CLEAR_E, EDGE, x(mapWidth - 1), y(0), x(mapWidth), y(mapHeight));
 }

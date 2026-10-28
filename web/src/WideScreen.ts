@@ -128,43 +128,23 @@ export class WideScreen {
 
   /** The zoom levels this screen offers: device pixels per game pixel, largest first. */
   zoomLevels(): number[] {
-    const max = this.maxScale();
+    const max = this.maxScale(), g = this.runtime.game;
+    const fitW = Math.ceil(this.element.width / Math.max(1, (g.mapWidth || 32) * TILE_W));
+    const fitH = Math.ceil(this.element.height / Math.max(1, (g.mapHeight || 32) * TILE_H));
+    const minScale = Math.max(1, this.mapFit === "smart" ? Math.min(max, Math.max(fitW, fitH)) : Math.ceil(max / 2));
     const levels: number[] = [];
-    const g = this.runtime.game;
-    const mapW = Math.max(1, (g.mapWidth || 32) * TILE_W);
-    const mapH = Math.max(1, (g.mapHeight || 32) * TILE_H);
-    const fitW = Math.ceil(this.element.width / mapW);
-    const fitH = Math.ceil(this.element.height / mapH);
-    const fitMapScale = Math.min(max, Math.max(fitW, fitH));
-
-    const minScale = this.mapFit === "smart"
-      ? Math.max(1, fitMapScale)
-      : Math.max(1, Math.ceil(max / 2));
-
     for (let s = max; s >= minScale; s -= 1) levels.push(s);
     return levels.length > 0 ? levels : [max];
   }
 
-  setMapFit(mode: "smart" | "free"): void {
-    this.mapFit = mode;
-    this.resize();
-  }
-
-  getMapFit(): "smart" | "free" {
-    return this.mapFit;
-  }
+  setMapFit(mode: "smart" | "free"): void { this.mapFit = mode; this.resize(); }
+  getMapFit(): "smart" | "free" { return this.mapFit; }
 
   /** About how many tiles the map shows at `scale` device pixels per game pixel. */
   viewTiles(scale: number): { columns: number; rows: number } {
-    return {
-      columns: Math.floor(this.element.width / scale / TILE_W),
-      rows: Math.floor((this.element.height / scale - 60) / TILE_H),
-    };
+    return { columns: Math.floor(this.element.width / scale / TILE_W), rows: Math.floor((this.element.height / scale - 60) / TILE_H) };
   }
-
-  get ratio(): number {
-    return this.element.width / (this.cssSize.width || 1);
-  }
+  get ratio(): number { return this.element.width / (this.cssSize.width || 1); }
 
   private maxScale(): number {
     const fit = Math.min(this.element.width / 240, this.element.height / 320);
@@ -282,19 +262,13 @@ export class WideScreen {
   }
 
   /** The original's chief succession is waiting for a pick (K:Z with its row open). */
-  get choosingChief(): boolean {
-    const g = this.runtime.game;
-    return g.loopMode === 1 && g.choosingChief && g.barMode === 2;
-  }
-
+  get choosingChief(): boolean { return this.runtime.game.loopMode === 1 && this.runtime.game.choosingChief && this.runtime.game.barMode === 2; }
   /** A building's bar is open (slot 2 on, f.Z() filling it from aa / ab / ac; w 2, or 4 while an
    *  item confirms): the HUD's building menu shows instead. */
   get buildingMenuOpen(): boolean {
     const g = this.runtime.game;
-    // w 4: one of its items confirming (its line shows in the sheet, BUG-019).
     return g.loopMode === 1 && (g.barMode === 2 || g.barMode === 4) && !!g.selectionFlags[BAR_STRIP_SLOT] && !g.choosingChief && !this.buildCardsOpen;
   }
-
   /** The original's build cards are up (the build list shows instead). */
   get buildCardsOpen(): boolean {
     const g = this.runtime.game;
@@ -311,8 +285,7 @@ export class WideScreen {
 
   /** Where the camera's 240-wide window sits on screen, in game pixels. */
   private cameraOnScreen(): { x: number; y: number } {
-    const g = this.runtime.game;
-    return { x: g.cameraColumn * TILE_W - this.viewX, y: g.cameraRow * TILE_H - this.viewY };
+    return { x: this.runtime.game.cameraColumn * TILE_W - this.viewX, y: this.runtime.game.cameraRow * TILE_H - this.viewY };
   }
 
   /** Keeps the view on the map; a map smaller than the screen is centred. */
@@ -322,23 +295,12 @@ export class WideScreen {
     const mapW = Math.max(1, (g.mapWidth || 32) * TILE_W);
     const mapH = Math.max(1, (g.mapHeight || 32) * TILE_H);
     if (this.mapFit === "smart") {
-      this.viewX = mapW <= this.width
-        ? (mapW - this.width) / 2
-        : Math.max(0, Math.min(mapW - this.width, this.viewX));
-      this.viewY = mapH <= this.height
-        ? (mapH - this.height) / 2
-        : Math.max(0, Math.min(mapH - this.height, this.viewY));
+      this.viewX = mapW <= this.width ? (mapW - this.width) / 2 : Math.max(0, Math.min(mapW - this.width, this.viewX));
+      this.viewY = mapH <= this.height ? (mapH - this.height) / 2 : Math.max(0, Math.min(mapH - this.height, this.viewY));
       return;
     }
-    // The map may run under the panels and the screen's bottom edge, never under the bar. A map
-    // shorter than the screen (mission 1's 32 rows on a tall phone) starts right under the bar.
-    // When a bottom sheet is open (villager panel, building panel, or build list), give extra scroll
-    // headroom so bottom-most tiles can be panned completely above the panel.
-    const bottomPad = (this.villagerSheet || this.groupSheet || this.buildCardsOpen || this.buildingMenuOpen)
-      ? Math.round((112 * this.ratio) / this.scale)
-      : 0;
-    const mx = MARGIN_TILES * TILE_W;
-    const my = MARGIN_TILES * TILE_H;
+    const bottomPad = (this.villagerSheet || this.groupSheet || this.buildCardsOpen || this.buildingMenuOpen) ? Math.round((112 * this.ratio) / this.scale) : 0;
+    const mx = MARGIN_TILES * TILE_W, my = MARGIN_TILES * TILE_H;
     this.viewX = mapW + 2 * mx <= this.width ? (mapW - this.width) / 2 : Math.max(-mx, Math.min(mapW + mx - this.width, this.viewX));
     this.viewY = Math.max(-upper - my, Math.min(mapH + my - this.height + bottomPad, this.viewY));
   }

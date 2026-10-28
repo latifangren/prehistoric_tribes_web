@@ -318,22 +318,13 @@ const composeEveryFrame = () => {
   lastCompose = now;
 
   if (runtime.game.loopMode === 1 && !screen.frozen) {
-    const sw = screen.element.clientWidth || window.innerWidth;
-    const sh = screen.element.clientHeight || window.innerHeight;
-    weatherSystem.resize(sw, sh);
-    weatherSystem.tick(now, dt);
-
-    emotionBubbles.resize(sw, sh);
-    emotionBubbles.tick(now, runtime, screen);
-
-    worldParticles.resize(sw, sh);
-    worldParticles.tick(now, runtime, screen);
-
+    const sw = screen.element.clientWidth || window.innerWidth, sh = screen.element.clientHeight || window.innerHeight;
+    weatherSystem.resize(sw, sh); weatherSystem.tick(now, dt);
+    emotionBubbles.resize(sw, sh); emotionBubbles.tick(now, runtime, screen);
+    worldParticles.resize(sw, sh); worldParticles.tick(now, runtime, screen);
     if (app) tribeTactics.renderRallyMarkers(app, runtime, screen);
   } else {
-    weatherSystem.resize(0, 0);
-    emotionBubbles.resize(0, 0);
-    worldParticles.resize(0, 0);
+    weatherSystem.resize(0, 0); emotionBubbles.resize(0, 0); worldParticles.resize(0, 0);
   }
 
   hud.track();
@@ -342,8 +333,7 @@ const composeEveryFrame = () => {
 };
 requestAnimationFrame(composeEveryFrame);
 
-let resumeLoopAfterPageVisible = false;
-let resumeAudioAfterPageVisible = false;
+let resumeLoopAfterPageVisible = false, resumeAudioAfterPageVisible = false;
 const suspendForPageLifecycle = () => {
   resumeLoopAfterPageVisible ||= loop.isRunning();
   resumeAudioAfterPageVisible ||= atmosphereAudio.isRunning();

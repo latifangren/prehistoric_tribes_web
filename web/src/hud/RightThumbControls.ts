@@ -94,10 +94,7 @@ export function createRightThumbControls(options: Options): RightThumbControls {
     }
   };
 
-  const squads = [
-    { row: 2, key: OriginalKey.DIGIT_7 },
-    { row: 3, key: OriginalKey.DIGIT_9 },
-  ];
+  const squads = [{ row: 2, key: OriginalKey.DIGIT_7 }, { row: 3, key: OriginalKey.DIGIT_9 }];
   type Squad = (typeof squads)[number];
   const squadCount = (row: number) => {
     const members = runtime.mainArrays.aByte[row];
@@ -106,16 +103,10 @@ export function createRightThumbControls(options: Options): RightThumbControls {
     return count;
   };
   const store = (squad: Squad) => touch.pressKey(squad.key, 5);
-  const squadBox = document.createElement("div");
-  squadBox.className = "hud-squads";
-  const squadPop = document.createElement("div");
-  squadPop.className = "hud-squad-pop";
-  squadPop.hidden = true;
-  const replaceButton = button("hud-squad-action", "", "Replace squad with selection");
-  replaceButton.innerHTML = image("cmd-replace");
-  const disbandButton = button("hud-squad-action", "", "Disband squad");
-  disbandButton.innerHTML = image("cmd-disband");
-  squadPop.append(replaceButton, disbandButton);
+  const squadBox = document.createElement("div"); squadBox.className = "hud-squads";
+  const squadPop = document.createElement("div"); squadPop.className = "hud-squad-pop"; squadPop.hidden = true;
+  const replaceButton = button("hud-squad-action", "", "Replace squad with selection"); replaceButton.innerHTML = image("cmd-replace");
+  const disbandButton = button("hud-squad-action", "", "Disband squad"); disbandButton.innerHTML = image("cmd-disband");
   let popFor: Squad | null = null;
   const closePop = () => { squadPop.hidden = true; popFor = null; };
   replaceButton.addEventListener("click", () => { if (popFor) store(popFor); closePop(); });

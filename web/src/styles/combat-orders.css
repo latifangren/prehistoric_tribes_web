@@ -44,19 +44,8 @@
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
-.a-move-cancel-btn::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 44px;
-  height: 44px;
-  transform: translate(-50%, -50%);
-}
-.a-move-cancel-btn:active {
-  transform: scale(0.88);
-  background: rgba(255, 255, 255, 0.4);
-}
+.a-move-cancel-btn::after { content: ""; position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
+.a-move-cancel-btn:active { transform: scale(0.88); background: rgba(255, 255, 255, 0.4); }
 
 .hud-rally-btn {
   display: flex;
@@ -69,21 +58,9 @@
   border: 1.5px solid #ffd54f !important;
 }
 
-.hud-rally-btn.has-rally {
-  background: rgba(76, 175, 80, 0.25) !important;
-  border-color: #81c784 !important;
-}
-
-.hud-rally-btn span {
-  font-size: 18px;
-  line-height: 1;
-}
-
-.hud-rally-btn .rally-text {
-  font: 800 10px/1 system-ui, sans-serif;
-  color: #fff;
-  text-shadow: 0 1px 2px #000;
-}
+.hud-rally-btn.has-rally { background: rgba(76, 175, 80, 0.25) !important; border-color: #81c784 !important; }
+.hud-rally-btn span { font-size: 18px; line-height: 1; }
+.hud-rally-btn .rally-text { font: 800 10px/1 system-ui, sans-serif; color: #fff; text-shadow: 0 1px 2px #000; }
 
 /* Rally Flag on Screen Map */
 .rally-flag {
@@ -96,21 +73,8 @@
   animation: flag-bob 1.2s infinite alternate ease-in-out;
 }
 
-.flag-icon {
-  font-size: 20px;
-  line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
-}
-
-.flag-label {
-  font: 800 9px/1 system-ui, sans-serif;
-  background: rgba(0, 0, 0, 0.75);
-  color: #ffd54f;
-  padding: 1px 4px;
-  border-radius: 4px;
-  border: 1px solid #ffd54f;
-  white-space: nowrap;
-}
+.flag-icon { font-size: 20px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)); }
+.flag-label { font: 800 9px/1 system-ui, sans-serif; background: rgba(0, 0, 0, 0.75); color: #ffd54f; padding: 1px 4px; border-radius: 4px; border: 1px solid #ffd54f; white-space: nowrap; }
 
 @keyframes flag-bob {
   0% { transform: translate(-50%, -100%); }

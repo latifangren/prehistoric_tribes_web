@@ -120,21 +120,18 @@ export function attachTouchControls(
   let script: Script | null = null;
   let radialMenu: RadialMenu | null = null;
   let rightPointerOpenedMenu = false;
-  canvas.addEventListener("contextmenu", (event) => {
-    event.preventDefault();
-    if (rightPointerOpenedMenu) { rightPointerOpenedMenu = false; return; }
-    if (game.loopMode === 1 && !screen.frozen && radialMenu) radialMenu.open(event.clientX, event.clientY);
+  canvas.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    if (rightPointerOpenedMenu) rightPointerOpenedMenu = false;
+    else if (game.loopMode === 1 && !screen.frozen && radialMenu) radialMenu.open(e.clientX, e.clientY);
   });
-  canvas.addEventListener("pointerdown", (event) => {
-    if (event.button !== 2) return;
-    event.preventDefault();
-    rightPointerOpenedMenu = game.loopMode === 1 && !screen.frozen && radialMenu !== null;
-    if (rightPointerOpenedMenu) radialMenu!.open(event.clientX, event.clientY);
+  canvas.addEventListener("pointerdown", (e) => {
+    if (e.button !== 2) return;
+    e.preventDefault();
+    if ((rightPointerOpenedMenu = game.loopMode === 1 && !screen.frozen && radialMenu !== null)) radialMenu!.open(e.clientX, e.clientY);
   });
-  window.addEventListener("pointerup", (event) => {
-    if (event.button !== 2) return;
-    radialMenu?.release(event.clientX, event.clientY);
-    window.setTimeout(() => { rightPointerOpenedMenu = false; }, 0);
+  window.addEventListener("pointerup", (e) => {
+    if (e.button === 2) { radialMenu?.release(e.clientX, e.clientY); window.setTimeout(() => { rightPointerOpenedMenu = false; }, 0); }
   });
   // Ticks counted by step(), and the tick of the last touch/mouse input: behaviour that only suits
   // touch (centring the placement footprint) must not touch keyboard play or a replayed key script.
@@ -674,20 +671,14 @@ export function attachTouchControls(
   // Named (not returned inline) so the pointer handlers above can call controls.footprint()
   // for the placing grip, as in upstream BOMBWCC 29e035f.
   const controls: TouchControls = {
-    setRadialMenu(menu: RadialMenu | null) {
-      radialMenu = menu;
-    },
+    setRadialMenu(menu: RadialMenu | null) { radialMenu = menu; },
     bindKey(button: HTMLElement, key: OriginalKeyName) {
       const up = () => { if (button.dataset.down) { delete button.dataset.down; keys.release(key); } };
       button.addEventListener("pointerdown", (event) => {
-        event.preventDefault();
-        capture(button, event.pointerId);
-        button.dataset.down = "1";
-        keys.press(key);
-        touched();
+        event.preventDefault(); capture(button, event.pointerId);
+        button.dataset.down = "1"; keys.press(key); touched();
       });
-      button.addEventListener("pointerup", up);
-      button.addEventListener("pointercancel", up);
+      button.addEventListener("pointerup", up); button.addEventListener("pointercancel", up);
       button.addEventListener("contextmenu", (event) => event.preventDefault());
     },
     get boxing() { return box !== null; },
@@ -717,9 +708,7 @@ export function attachTouchControls(
     fireAt(tx: number, ty: number) {
       if (game.barMode !== 3) return;
       run((function* () {
-        moveCursorTo(tx, ty);
-        yield; // the cursor's target (f.R:I, f.r:Z) is worked out as the frame is drawn
-        yield* tapKey(OriginalKey.FIRE);
+        moveCursorTo(tx, ty); yield; yield* tapKey(OriginalKey.FIRE);
         if (game.barMode === 3) yield* tapKey(OriginalKey.SOFT_RIGHT);
       })());
     },
@@ -756,16 +745,8 @@ export function attachTouchControls(
     startGame(plan) {
       const ch = plan.chapter ?? 0;
       const rows: Record<number, number> = {
-        0: 0,
-        2: plan.custom ? 1 : 0,
-        3: plan.resume ? 0 : 1,
-        13: plan.difficulty,
-        9: plan.map,
-        4: ch,
-        5: ch,
-        6: ch,
-        7: ch,
-        8: ch,
+        0: 0, 2: plan.custom ? 1 : 0, 3: plan.resume ? 0 : 1,
+        13: plan.difficulty, 9: plan.map, 4: ch, 5: ch, 6: ch, 7: ch, 8: ch,
       };
       run((function* () {
         for (let i = 0; i < 1000 && game.loopMode !== 1 && game.screen !== 18; i += 1) {

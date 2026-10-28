@@ -243,19 +243,9 @@
   transition: all 0.2s ease;
 }
 
-.hud .hud-idle-btn[hidden] {
-  display: none;
-}
-
-.hud .hud-idle-btn .hud-idle-icon {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.hud .hud-idle-btn .hud-idle-count {
-  font-weight: 800;
-  font-size: 12px;
-}
+.hud .hud-idle-btn[hidden] { display: none; }
+.hud .hud-idle-btn .hud-idle-icon { font-size: 14px; line-height: 1; }
+.hud .hud-idle-btn .hud-idle-count { font-weight: 800; font-size: 12px; }
 
 .hud .hud-idle-btn.has-idle {
   border-color: #ffb300;
@@ -265,27 +255,16 @@
   animation: pulse-idle 2.4s infinite ease-in-out;
 }
 
-.hud .hud-idle-btn.has-idle .hud-idle-count {
-  color: #fff9c4;
-}
-
-.hud .hud-idle-btn:active {
-  transform: translateY(1px) scale(0.95);
-}
+.hud .hud-idle-btn.has-idle .hud-idle-count { color: #fff9c4; }
+.hud .hud-idle-btn:active { transform: translateY(1px) scale(0.95); }
 
 /* Desktop & Widescreen: integrate Speed and Idle buttons directly into top bar beside Menu */
 @media (min-width: 768px) {
   .hud-bar {
     padding-right: 185px;
   }
-  .hud .hud-speed-btn {
-    top: calc(7px + var(--hud-bar-top, 0px));
-    right: 120px;
-  }
-  .hud .hud-idle-btn {
-    top: calc(7px + var(--hud-bar-top, 0px));
-    right: 50px;
-  }
+  .hud .hud-speed-btn { top: calc(7px + var(--hud-bar-top, 0px)); right: 120px; }
+  .hud .hud-idle-btn { top: calc(7px + var(--hud-bar-top, 0px)); right: 50px; }
 }
 
 @media (min-width: 960px) {
@@ -300,29 +279,14 @@
     border-radius: 0 0 12px 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   }
-  .hud-bar-bg {
-    border-radius: 0 0 12px 12px;
-  }
-  .hud-count {
-    gap: 6px;
-  }
-  .hud-count > img {
-    width: 22px;
-    height: 22px;
-  }
-  .hud-count.people > img {
-    height: 26px;
-  }
+  .hud-bar-bg { border-radius: 0 0 12px 12px; }
+  .hud-count { gap: 6px; }
+  .hud-count > img { width: 22px; height: 22px; }
+  .hud-count.people > img { height: 26px; }
 }
 
 @keyframes pulse-idle {
-  0%, 100% {
-    box-shadow: 0 0 6px rgba(255, 179, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.5);
-    border-color: #ffb300;
-  }
-  50% {
-    box-shadow: 0 0 14px rgba(255, 213, 79, 0.7), 0 2px 6px rgba(0, 0, 0, 0.5);
-    border-color: #fff59d;
-  }
+  0%, 100% { box-shadow: 0 0 6px rgba(255, 179, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.5); border-color: #ffb300; }
+  50% { box-shadow: 0 0 14px rgba(255, 213, 79, 0.7), 0 2px 6px rgba(0, 0, 0, 0.5); border-color: #fff59d; }
 }
 
