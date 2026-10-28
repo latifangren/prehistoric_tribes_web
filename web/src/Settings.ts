@@ -19,6 +19,7 @@ import { escapeHtml } from "./platform/Html";
 import type { TouchControls } from "./TouchControls";
 import { stepAs } from "./ui/UiStateRuntime";
 import type { WideScreen } from "./WideScreen";
+import { hudSettingsSectionHtml, setupHudSettingsSection } from "./ui/HudSettingsSection";
 
 const ZOOM_KEY = "pt.zoomOut";
 
@@ -85,6 +86,7 @@ export function attachSettings(
               <input type="range" name="zoom" min="0" step="1">
             </div>
 
+${hudSettingsSectionHtml}
             <div class="settings-select-row">
               <span data-i18n="overhead">Overhead Info</span>
               <select name="info" class="settings-select">
@@ -116,25 +118,15 @@ export function attachSettings(
       </div>
     </form>`;
   const form = dialog.querySelector("form")!;
-  const slider = form.elements.namedItem("zoom") as HTMLInputElement;
-  const text = form.elements.namedItem("zoomText") as HTMLOutputElement;
-  const volumeSlider = form.elements.namedItem("volume") as HTMLInputElement;
-  const volumeText = form.elements.namedItem("volumeText") as HTMLOutputElement;
-  const music = form.elements.namedItem("music") as HTMLInputElement;
-  const sfxToggle = form.elements.namedItem("sfx") as HTMLInputElement;
-  const ambienceToggle = form.elements.namedItem("ambience") as HTMLInputElement;
-  const weatherToggle = form.elements.namedItem("weather") as HTMLInputElement;
-  const dayNightToggle = form.elements.namedItem("dayNight") as HTMLInputElement;
-  const emotesToggle = form.elements.namedItem("emotes") as HTMLInputElement;
-  const hints = form.elements.namedItem("hints") as HTMLInputElement;
-  const info = form.elements.namedItem("info") as HTMLSelectElement;
+  const slider = form.elements.namedItem("zoom") as HTMLInputElement, text = form.elements.namedItem("zoomText") as HTMLOutputElement;
+  const volumeSlider = form.elements.namedItem("volume") as HTMLInputElement, volumeText = form.elements.namedItem("volumeText") as HTMLOutputElement;
+  const music = form.elements.namedItem("music") as HTMLInputElement, sfxToggle = form.elements.namedItem("sfx") as HTMLInputElement;
+  const ambienceToggle = form.elements.namedItem("ambience") as HTMLInputElement, weatherToggle = form.elements.namedItem("weather") as HTMLInputElement;
+  const dayNightToggle = form.elements.namedItem("dayNight") as HTMLInputElement, emotesToggle = form.elements.namedItem("emotes") as HTMLInputElement;
+  const hints = form.elements.namedItem("hints") as HTMLInputElement, info = form.elements.namedItem("info") as HTMLSelectElement;
   const fileInput = form.elements.namedItem("importFile") as HTMLInputElement;
-  const statusEl = dialog.querySelector<HTMLElement>("[data-status]")!;
-  const slotsBox = dialog.querySelector<HTMLElement>("[data-slots]")!;
-  dialog.querySelector(".settings-close-x")?.addEventListener("click", () => {
-    sfx.click();
-    dialog.close();
-  });
+  const statusEl = dialog.querySelector<HTMLElement>("[data-status]")!, slotsBox = dialog.querySelector<HTMLElement>("[data-slots]")!;
+  dialog.querySelector(".settings-close-x")?.addEventListener("click", () => { sfx.click(); dialog.close(); });
 
   const tabBtns = Array.from(dialog.querySelectorAll<HTMLButtonElement>(".settings-tab"));
   const panes = Array.from(dialog.querySelectorAll<HTMLElement>(".settings-pane"));
@@ -146,6 +138,7 @@ export function attachSettings(
       panes.forEach((p) => p.classList.toggle("active", p.dataset.pane === target));
     });
   });
+  const hudSettings = setupHudSettingsSection(form, app, screen);
 
 
   const toggle = (row: number) => {
@@ -307,6 +300,7 @@ export function attachSettings(
     setText("hints", lang === "zh" ? "新手提示" : lang === "id" ? "Petunjuk & Bantuan" : "Hints");
     setText("volume", lang === "zh" ? "音量大小" : lang === "id" ? "Volume Suara" : "Audio Volume");
     setText("overhead", lang === "zh" ? "头顶信息" : lang === "id" ? "Status Kepala Unit" : "Overhead Info");
+    hudSettings.applyI18n(lang, setText);
     setText("infoAll", lang === "zh" ? "全部村民" : lang === "id" ? "Semua Penduduk" : "All Villagers");
     setText("infoSelected", lang === "zh" ? "选中的村民" : lang === "id" ? "Penduduk Terpilih" : "Selected Villager");
     setText("infoNone", lang === "zh" ? "不显示（受伤时显示）" : lang === "id" ? "Sembunyikan (Tampil Saat Terluka)" : "Hidden (Show When Hurt)");
@@ -316,6 +310,7 @@ export function attachSettings(
     setText("exportSave", lang === "zh" ? "导出备份" : lang === "id" ? "Ekspor JSON" : "Export JSON");
     setText("importSave", lang === "zh" ? "导入备份" : lang === "id" ? "Impor JSON" : "Import JSON");
     setText("done", lang === "zh" ? "完成" : lang === "id" ? "Selesai" : "Done");
+    hudSettings.sync();
     music.checked = game.eByte !== 0;
     sfxToggle.checked = isSfxEnabled();
     ambienceToggle.checked = isAmbienceEnabled();

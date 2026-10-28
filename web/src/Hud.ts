@@ -1,3 +1,5 @@
+import "./styles/hud-modular.css";
+import "./styles/hud-radial.css";
 import { readStorage } from "./platform/Storage";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { OriginalKey } from "./platform/Input";
@@ -21,6 +23,7 @@ import { createRightThumbControls } from "./hud/RightThumbControls";
 import { createHudTopBar } from "./hud/TopBar";
 import { createHudTooltips } from "./hud/Tooltips";
 import { createHudPauseMenu } from "./hud/PauseMenu";
+import { RadialMenu } from "./hud/RadialMenu";
 
 /** The round-3 UI's pictures (scripts/import-hd.mjs copies them from design/). */
 const UI = "hd/ui/";
@@ -62,12 +65,12 @@ export function attachHud(
   openRecap?: () => void,
 ): { update(): void; track(): void; openHelp(): void } {
   const game = runtime.game;
-  const hud = document.createElement("div");
-  hud.className = "hud";
-  app.append(hud);
+  app.setAttribute("data-hud-style", readStorage("pt.hudStyle") ?? "floating");
+  const hud = document.createElement("div"); hud.className = "hud"; app.append(hud);
   const { attachHoverTip, longPress } = createHudTooltips(hud);
 
   const modals = attachTribeModals(app, runtime, screen, touch);
+  const radialMenu = new RadialMenu(); touch.setRadialMenu(radialMenu);
 
   const button = (className: string, text: string, label?: string) => {
     const element = document.createElement("button");
@@ -87,10 +90,7 @@ export function attachHud(
   const topBar = createHudTopBar(runtime, screen, touch, () => modals.openRoster(), notify, lang, isZh, button, attachHoverTip, speedControl);
   const { bar, speedButton, idleButton } = topBar;
 
-  const aMoveBanner = document.createElement("div");
-  aMoveBanner.className = "hud-attack-move-banner";
-  aMoveBanner.hidden = true;
-  hud.append(aMoveBanner);
+  const aMoveBanner = document.createElement("div"); aMoveBanner.className = "hud-attack-move-banner"; aMoveBanner.hidden = true; hud.append(aMoveBanner);
 
   const updateAttackMoveBanner = () => {
     const active = tribeTactics.isAttackMoveActive();
@@ -167,7 +167,7 @@ export function attachHud(
   const buildButton = button("hud-build-button", "", "Build");
   buildButton.innerHTML = img("build-a", "up") + img("build-b", "down");
   buildButton.addEventListener("click", () => touch.command([10]));
-  attachHoverTip(buildButton, () => (lang() === "zh" ? "建造列表 [Q]" : lang() === "id" ? "Menu Bangun [Q]" : "Build Menu [Q]"), "left");
+  attachHoverTip(buildButton, () => (lang() === "zh" ? "建造列表" : lang() === "id" ? "Menu Bangun" : "Build Menu"), "left");
 
   // ✓ / ✕ where something waits for confirming or going back: choosing a chief, aiming a weapon or
   // spell, the building menu (select the villager), placing (back to the build list).
@@ -223,6 +223,7 @@ export function attachHud(
     attachHoverTip,
     longPress,
   });
+  radialMenu.setActions(rightThumb.radialActions.map((action) => ({ glyph: action.glyph, label: action.label(), run: action.act })));
   const { cmdButton, squadBox, closeCommands, closePop, drawCommands, drawSquads } = rightThumb;
 
   hud.append(buildButton, fab);
@@ -411,6 +412,27 @@ export function attachHud(
   };
   const panelRow = document.createElement("div");
   panelRow.className = "hud-sheet-row";
+  panelRow.addEventListener("wheel", (event) => {
+    if (event.deltaY !== 0 || event.deltaX !== 0) {
+      event.preventDefault();
+      panelRow.scrollLeft += (event.deltaY || event.deltaX) * 1.5;
+    }
+  }, { passive: false });
+  let panelDown = false;
+  let panelStartX = 0;
+  let panelScrollX = 0;
+  panelRow.addEventListener("pointerdown", (e) => {
+    if ((e.target as HTMLElement).closest(".craft-btn")) return;
+    panelDown = true;
+    panelStartX = e.clientX;
+    panelScrollX = panelRow.scrollLeft;
+  });
+  window.addEventListener("pointerup", () => { panelDown = false; });
+  panelRow.addEventListener("pointermove", (e) => {
+    if (!panelDown) return;
+    const dx = e.clientX - panelStartX;
+    if (Math.abs(dx) > 3) panelRow.scrollLeft = panelScrollX - dx;
+  });
   const confirmRow = document.createElement("div");
   confirmRow.className = "hud-sheet-confirm";
   confirmRow.innerHTML = `${img("demolish")}<span></span>`;
@@ -441,6 +463,10 @@ export function attachHud(
     else if (code === 22) achievementManager.recordSpellCast("disease");
     if (code < 0 || (buildingKind() === ARMOURY && code <= 5)) { touch.pickInBar(index, 0); return; }
     if (code === 17) { confirming = true; return; }
+    if (buildingKind() === ARMOURY && code >= 6 && code <= 8) {
+      const l = lang();
+      notify(l === "zh" ? "🚩 请点击地图目标，然后按 ✓ 放置陷阱" : l === "id" ? "🚩 Ketuk petak peta lalu tekan ✓ untuk memasang jebakan" : "🚩 Tap map tile then press ✓ to deploy trap");
+    }
     touch.pickInBar(index);
   };
   const drawBuildingMenu = () => {
@@ -469,34 +495,49 @@ export function attachHud(
           sep.className = "hud-sep";
           items.push(sep);
         }
+        const isWeapon = kind === ARMOURY && code >= 0 && code <= 5;
         const entry = document.createElement("button");
         entry.type = "button";
-        entry.className = "hud-item";
+        entry.className = `hud-item${isWeapon ? " has-stepper" : ""}`;
         entry.dataset.index = String(index);
         entry.dataset.code = String(code);
         entry.setAttribute("aria-label", itemName(code));
-        entry.innerHTML = `${img(code < 0 ? portrait(-code, kind) : PANEL_ICONS[code] ?? "nothing")}<span class="n"></span>`;
+        entry.innerHTML = `${img(code < 0 ? portrait(-code, kind) : PANEL_ICONS[code] ?? "nothing")}<span class="n"></span>${
+          isWeapon
+            ? '<span class="craft-stepper"><i class="craft-btn minus" role="button" aria-label="Decrease">−</i><i class="craft-btn plus" role="button" aria-label="Increase">+</i></span>'
+            : ""
+        }`;
         const held = longPress(entry, () => itemName(code));
-        let swiped = false;
-        if (kind === ARMOURY && code >= 0 && code <= 5) {
-          // A swipe to the right raises the count, to the left lowers it: one per 24 pixels.
-          let start = -1;
-          let applied = 0;
-          entry.style.touchAction = "pan-y";
-          entry.addEventListener("pointerdown", (event) => { start = event.clientX; applied = 0; swiped = false; });
-          entry.addEventListener("pointermove", (event) => {
-            if (start < 0) return;
-            const steps = Math.trunc((event.clientX - start) / 24);
-            if (steps === applied) return;
-            swiped = true;
-            touch.adjustInBar(index, steps - applied);
-            applied = steps;
-          });
-          const stop = () => { start = -1; };
-          entry.addEventListener("pointerup", stop);
-          entry.addEventListener("pointercancel", stop);
+        if (isWeapon) {
+          entry.addEventListener("wheel", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            sfx.click();
+            touch.adjustInBar(index, event.deltaY < 0 ? 1 : -1);
+          }, { passive: false });
         }
-        entry.addEventListener("click", () => { if (!held() && !swiped) tapBarItem(index, code); });
+        entry.addEventListener("click", (event) => {
+          if (held()) return;
+          const target = event.target as HTMLElement;
+          if (target.closest(".minus")) {
+            event.stopPropagation();
+            sfx.click();
+            touch.adjustInBar(index, -1);
+            return;
+          }
+          if (target.closest(".plus")) {
+            event.stopPropagation();
+            sfx.click();
+            touch.adjustInBar(index, 1);
+            return;
+          }
+          if (isWeapon) {
+            sfx.click();
+            touch.adjustInBar(index, 1);
+            return;
+          }
+          tapBarItem(index, code);
+        });
         items.push(entry);
       });
       if (kind === 0 || kind === 2 || kind === 10) {
@@ -667,7 +708,6 @@ export function attachHud(
           }
         } : null);
       }
-      screen.scripting = touch.busy && game.loopMode === 1;
       const layout = screen.hudLayout();
       const onMap = layout !== null && game.loopMode === 1 && !choosing;
       if (layout) {
@@ -692,6 +732,7 @@ export function attachHud(
       const showGroupRow = (!choosing && group.length > 1 && !viewing) || (choosing && candidate === 0 && chiefList.length > 0);
       const activeGroup = choosing ? chiefList : group;
       screen.villagerSheet = single || choosing;
+      screen.groupSheet = showGroupRow;
       show(villagerBox, villager);
       show(groupRow, showGroupRow);
       show(pageDots, building || showGroupRow);
@@ -746,7 +787,16 @@ export function attachHud(
         orderMark.hidden = !aiming;
         orderTick.hidden = !aiming;
         if (aiming) orderMark.innerHTML = img("cmd-plate") + img(ordering, "glyph");
-        if (!picking && !choosing) touch.setMapTapHandler(aiming ? () => {} : null);
+        if (!picking && !choosing) {
+          touch.setTileTapHandler(aiming ? (tx, ty) => { touch.aim(tx, ty); return true; } : null);
+        }
+      }
+      if (aiming) {
+        const pos = screen.tileToCss(game.cameraColumn + game.cursorColumn, game.cameraRow + game.cursorRow);
+        orderMark.style.left = `${pos.x}px`;
+        orderMark.style.top = `${pos.y}px`;
+        orderTick.style.left = `${pos.x + 36}px`;
+        orderTick.style.top = `${pos.y - 28}px`;
       }
       // ✓ / ✕: choosing a chief, aiming at a villager (✓); placing (✕, back).
       const tick = choosing || picking;
@@ -761,8 +811,8 @@ export function attachHud(
       show(actions, onMap && !building && !menu && !villager && group.length < 2 && !touch.busy);
       if (!onMap) return;
       if (menu) drawBuildingMenu();
-      show(left, w === 2 && !building && !menu);
-      show(right, w === 2 && !building && !menu);
+      show(left, false);
+      show(right, false);
       show(cancelBox, touch.boxing);
       show(cancel, !touch.boxing && ((w !== 0 && w !== 3) || picking));
       cancel.setAttribute("aria-label", w === 1 ? (isZh() ? "取消选择" : "Deselect") : (isZh() ? "取消" : "Cancel"));

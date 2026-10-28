@@ -8,6 +8,7 @@ import {
   BLD_KIND,
   BLD_X,
   BLD_Y,
+  UNIT_HELD_ITEM,
   UNIT_HP,
   UNIT_ORDER,
   UNIT_SELECTION,
@@ -27,6 +28,7 @@ export type RallyPoint = {
   tileY: number;
 };
 
+
 export class TribeTacticsManager {
   private attackMoveActive = false;
   private attackMoveSquad: number[] = [];
@@ -35,7 +37,7 @@ export class TribeTacticsManager {
   private processedNewborns = new Set<number>();
   private markerOverlay: HTMLElement | null = null;
   private flagElements = new Map<number, HTMLElement>();
-
+  private lastEnemyTacticsTime = 0;
   isAttackMoveActive(): boolean {
     return this.attackMoveActive;
   }
@@ -106,9 +108,81 @@ export class TribeTacticsManager {
     if (squad.length > 0) {
       this.attackMoveSquad = squad;
       touch.fireAt(targetX, targetY);
+      this.applySmartBattleFormation(squad, targetX, targetY, runtime);
       sfx.select();
     }
     this.attackMoveActive = false;
+  }
+
+  /**
+   * Smart Battle Line: Deploys melee warriors to the frontline and ranged fighters
+   * 2 tiles behind, spreading horizontally along the battle rank.
+   */
+  applySmartBattleFormation(
+    squad: number[],
+    targetX: number,
+    targetY: number,
+    runtime: LegacyRuntimeState,
+  ): void {
+    const dense = runtime.denseState;
+    if (squad.length <= 1) return;
+
+    // Calculate squad center
+    let sumX = 0;
+    let sumY = 0;
+    let count = 0;
+    for (const u of squad) {
+      sumX += dense[UNIT_X + u] ?? targetX;
+      sumY += dense[UNIT_Y + u] ?? targetY;
+      count += 1;
+    }
+    const squadCenterX = count > 0 ? sumX / count : targetX;
+    const squadCenterY = count > 0 ? sumY / count : targetY;
+
+    // Approach direction vector towards target
+    const dx = targetX - squadCenterX;
+    const dy = targetY - squadCenterY;
+    const dist = Math.hypot(dx, dy) || 1;
+    const dirX = dx / dist;
+    const dirY = dy / dist;
+
+    // Perpendicular vector for rank line spread
+    const perpX = -dirY;
+    const perpY = dirX;
+
+    const meleeUnits: number[] = [];
+    const rangedUnits: number[] = [];
+
+    for (const u of squad) {
+      const held = dense[UNIT_HELD_ITEM + u] ?? 9;
+      // Ranged weapons: 1 throwing stone, 2 spear, 5 tomahawk
+      if (held === 1 || held === 2 || held === 5) {
+        rangedUnits.push(u);
+      } else {
+        meleeUnits.push(u);
+      }
+    }
+
+    const mapW = runtime.game.mapWidth || 50;
+    const mapH = runtime.game.mapHeight || 50;
+    const clampX = (val: number) => Math.max(1, Math.min(mapW - 2, Math.round(val)));
+    const clampY = (val: number) => Math.max(1, Math.min(mapH - 2, Math.round(val)));
+
+    // 1. Melee Frontline
+    const meleeCount = meleeUnits.length;
+    meleeUnits.forEach((u, idx) => {
+      const offset = idx - (meleeCount - 1) / 2;
+      dense[UNIT_TARGET_X + u] = clampX(targetX + perpX * offset);
+      dense[UNIT_TARGET_Y + u] = clampY(targetY + perpY * offset);
+    });
+
+    // 2. Ranged Rearline (2 tiles back)
+    const rangedCount = rangedUnits.length;
+    rangedUnits.forEach((u, idx) => {
+      const offset = idx - (rangedCount - 1) / 2;
+      dense[UNIT_TARGET_X + u] = clampX(targetX - dirX * 2 + perpX * offset);
+      dense[UNIT_TARGET_Y + u] = clampY(targetY - dirY * 2 + perpY * offset);
+    });
   }
 
   tick(runtime: LegacyRuntimeState, touch: TouchControls): void {
@@ -173,6 +247,7 @@ export class TribeTacticsManager {
           dense[UNIT_TARGET_X + u] = targetEnemyTile[0];
           dense[UNIT_TARGET_Y + u] = targetEnemyTile[1];
           dense[UNIT_WORK_TARGET + u] = 0;
+          this.applySmartBattleFormation(this.attackMoveSquad, targetEnemyTile[0], targetEnemyTile[1], runtime);
         }
       }
     }
@@ -203,6 +278,60 @@ export class TribeTacticsManager {
           dense[UNIT_TARGET_X + id] = nearestRally.x;
           dense[UNIT_TARGET_Y + id] = nearestRally.y;
         }
+      }
+    }
+
+    // 3. Enemy AI (Team 1) Tactics: coordinates ranged skirmishers every ~1200ms
+    const now = performance.now();
+    if (now - this.lastEnemyTacticsTime >= 1200) {
+      this.lastEnemyTacticsTime = now;
+      this.coordinateEnemyTactics(runtime);
+    }
+  }
+
+  /**
+   * Enemy AI (Team 1) Tactics: Coordinates enemy raiders during skirmishes.
+   * Ranged enemies (spears/rocks) maintain 2-3 tile standoff distance behind melee vanguards,
+   * preventing them from recklessly face-tanking player defenses.
+   */
+  private coordinateEnemyTactics(runtime: LegacyRuntimeState): void {
+    const dense = runtime.denseState;
+
+    for (let e = 51; e <= 100; e += 1) {
+      if ((dense[UNIT_HP + e] ?? 0) <= 0) continue;
+      const order = dense[UNIT_ORDER + e] ?? 0;
+      if (order !== 2 && order !== 3) continue;
+
+      const held = dense[UNIT_HELD_ITEM + e] ?? 0;
+      // Ranged: 1 throwing stone, 2 spear, 5 tomahawk
+      const isRanged = held === 1 || held === 2 || held === 5;
+      if (!isRanged) continue;
+
+      const ex = dense[UNIT_X + e] ?? 0;
+      const ey = dense[UNIT_Y + e] ?? 0;
+
+      let nearestDist = 8;
+      let targetPlayer: [number, number] | null = null;
+      for (let p = 1; p <= 50; p += 1) {
+        if ((dense[UNIT_HP + p] ?? 0) <= 0) continue;
+        const px = dense[UNIT_X + p] ?? 0;
+        const py = dense[UNIT_Y + p] ?? 0;
+        const d = Math.hypot(px - ex, py - ey);
+        if (d < nearestDist) {
+          nearestDist = d;
+          targetPlayer = [px, py];
+        }
+      }
+
+      if (targetPlayer && nearestDist <= 2.5) {
+        const dx = ex - targetPlayer[0];
+        const dy = ey - targetPlayer[1];
+        const len = Math.hypot(dx, dy) || 1;
+        const mapW = runtime.game.mapWidth || 50;
+        const mapH = runtime.game.mapHeight || 50;
+        dense[UNIT_TARGET_X + e] = Math.max(1, Math.min(mapW - 2, Math.round(ex + (dx / len) * 2)));
+        dense[UNIT_TARGET_Y + e] = Math.max(1, Math.min(mapH - 2, Math.round(ey + (dy / len) * 2)));
+        dense[UNIT_ORDER + e] = 2;
       }
     }
   }

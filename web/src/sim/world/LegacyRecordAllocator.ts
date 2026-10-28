@@ -86,7 +86,7 @@ export function allocateLegacyRecord(
   put(input.state, 3434 + id, -1);
   put(input.state, UNIT_CARRY_KIND + id, 0);
   put(input.state, UNIT_CARRY_AMOUNT + id, 0);
-  put(input.state, UNIT_CARRY_CAPACITY + id, 2 + random(255, 2));
+  put(input.state, UNIT_CARRY_CAPACITY + id, 4 + random(255, 2));
   put(input.state, 3838 + id, id);
   put(input.state, UNIT_RECORD + id, id);
   put(input.state, UNIT_NEXT_WORKER + id, 0);

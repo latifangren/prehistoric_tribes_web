@@ -19,6 +19,10 @@ export function drawPageDots(list: HTMLElement, dots: HTMLElement, count: number
   Array.from(dots.children).forEach((dot, index) => dot.classList.toggle("on", index === page));
 }
 
+let activeBuildKind = -1;
+export function getActiveBuildKind(): number { return activeBuildKind; }
+export function setActiveBuildKind(kind: number): void { activeBuildKind = kind; }
+
 export function createBuildList(
   sheet: HTMLElement,
   runtime: LegacyRuntimeState,
@@ -34,8 +38,13 @@ export function createBuildList(
   pageDots.className = "hud-sheet-dots";
   const previous = createButton("hud-sheet-nav prev", "◀", "Previous Buildings");
   const next = createButton("hud-sheet-nav next", "▶", "Next Buildings");
-  previous.addEventListener("click", () => element.scrollBy({ left: -260, behavior: "smooth" }));
-  next.addEventListener("click", () => element.scrollBy({ left: 260, behavior: "smooth" }));
+  const scrollTarget = () => {
+    const row = sheet.querySelector<HTMLElement>(".hud-sheet-row");
+    if (row && !row.hidden && element.hidden) return row;
+    return element;
+  };
+  previous.addEventListener("click", () => scrollTarget().scrollBy({ left: -260, behavior: "smooth" }));
+  next.addEventListener("click", () => scrollTarget().scrollBy({ left: 260, behavior: "smooth" }));
   sheet.append(element, pageDots, previous, next);
   element.addEventListener("wheel", (event) => {
     if (event.deltaY !== 0 || event.deltaX !== 0) {
@@ -70,7 +79,10 @@ export function createBuildList(
         entry.setAttribute("title", `${name}\n${description}`);
         entry.dataset.kind = String(kind);
         entry.innerHTML = `<span class="pic">${image(`ub-${BUILDING_ICONS[kind]}`)}</span><span class="cost"></span><span class="hud-card-name">${escapeHtml(name)}</span>`;
-        entry.addEventListener("click", () => pickInBar(index));
+        entry.addEventListener("click", () => {
+          setActiveBuildKind(kind);
+          pickInBar(index);
+        });
         attachHoverTip(entry, () => `${name} — ${description}`, "top");
         return entry;
       }));

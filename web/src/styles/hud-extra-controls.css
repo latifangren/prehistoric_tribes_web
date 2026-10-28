@@ -1,11 +1,12 @@
 /* Game Speed Toggle (1x / 2x / 4x) */
 .hud .hud-speed-btn {
   position: absolute;
-  z-index: 4;
+  z-index: 26;
   top: calc(46px + var(--hud-bar-top, 0px));
   right: 8px;
   min-width: 44px;
-  height: 30px;
+  min-height: 38px;
+  height: 38px;
   padding: 0 10px;
   border-radius: 8px;
   border: 2px solid #3c220c;
@@ -16,6 +17,22 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
   pointer-events: auto;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.hud .hud-speed-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  min-width: 44px;
+  height: 100%;
+  min-height: 44px;
+  transform: translate(-50%, -50%);
 }
 
 .hud .hud-speed-btn[hidden] {
@@ -204,7 +221,7 @@
 /* Idle Villager Finder (💤) */
 .hud .hud-idle-btn {
   position: absolute;
-  z-index: 4;
+  z-index: 26;
   top: calc(46px + var(--hud-bar-top, 0px));
   right: 58px;
   min-width: 48px;
@@ -226,19 +243,9 @@
   transition: all 0.2s ease;
 }
 
-.hud .hud-idle-btn[hidden] {
-  display: none;
-}
-
-.hud .hud-idle-btn .hud-idle-icon {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.hud .hud-idle-btn .hud-idle-count {
-  font-weight: 800;
-  font-size: 12px;
-}
+.hud .hud-idle-btn[hidden] { display: none; }
+.hud .hud-idle-btn .hud-idle-icon { font-size: 14px; line-height: 1; }
+.hud .hud-idle-btn .hud-idle-count { font-weight: 800; font-size: 12px; }
 
 .hud .hud-idle-btn.has-idle {
   border-color: #ffb300;
@@ -248,22 +255,38 @@
   animation: pulse-idle 2.4s infinite ease-in-out;
 }
 
-.hud .hud-idle-btn.has-idle .hud-idle-count {
-  color: #fff9c4;
+.hud .hud-idle-btn.has-idle .hud-idle-count { color: #fff9c4; }
+.hud .hud-idle-btn:active { transform: translateY(1px) scale(0.95); }
+
+/* Desktop & Widescreen: integrate Speed and Idle buttons directly into top bar beside Menu */
+@media (min-width: 768px) {
+  .hud-bar {
+    padding-right: 185px;
+  }
+  .hud .hud-speed-btn { top: calc(7px + var(--hud-bar-top, 0px)); right: 120px; }
+  .hud .hud-idle-btn { top: calc(7px + var(--hud-bar-top, 0px)); right: 50px; }
 }
 
-.hud .hud-idle-btn:active {
-  transform: translateY(1px) scale(0.95);
+@media (min-width: 960px) {
+  .hud-bar {
+    max-width: 680px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    justify-content: center;
+    gap: 32px;
+    padding: 3px 28px 0 28px;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+  .hud-bar-bg { border-radius: 0 0 12px 12px; }
+  .hud-count { gap: 6px; }
+  .hud-count > img { width: 22px; height: 22px; }
+  .hud-count.people > img { height: 26px; }
 }
 
 @keyframes pulse-idle {
-  0%, 100% {
-    box-shadow: 0 0 6px rgba(255, 179, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.5);
-    border-color: #ffb300;
-  }
-  50% {
-    box-shadow: 0 0 14px rgba(255, 213, 79, 0.7), 0 2px 6px rgba(0, 0, 0, 0.5);
-    border-color: #fff59d;
-  }
+  0%, 100% { box-shadow: 0 0 6px rgba(255, 179, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.5); border-color: #ffb300; }
+  50% { box-shadow: 0 0 14px rgba(255, 213, 79, 0.7), 0 2px 6px rgba(0, 0, 0, 0.5); border-color: #fff59d; }
 }
 

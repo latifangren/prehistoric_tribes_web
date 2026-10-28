@@ -6,6 +6,7 @@ import { T_BUILDING } from "./core/DataTables";
 import { UNIT_OFFSET_X, UNIT_OFFSET_Y } from "./core/DenseLayout";
 import type { WideScreen } from "./WideScreen";
 import { stepGameplayZAe } from "./ui/UiRuntime";
+import type { RadialMenu } from "./hud/RadialMenu";
 
 /**
  * Touch and mouse input -- the temporary first version the user decided on 2026-10-15
@@ -45,6 +46,7 @@ export type TouchControls = {
   focus(tx: number, ty: number): void;
   /** Makes a DOM button hold an original key while it is pressed. */
   bindKey(button: HTMLElement, key: OriginalKeyName): void;
+  setRadialMenu(menu: RadialMenu | null): void;
   /** Presses and releases `key`, held for `ticks` ticks (a tap is one; 7 / 9 held 4 or more with
    *  units selected store them as a group, f.h()'s I:B count). */
   pressKey(key: OriginalKeyName, ticks?: number): void;
@@ -116,6 +118,21 @@ export function attachTouchControls(
   const game = runtime.game;
   const canvas = screen.element;
   let script: Script | null = null;
+  let radialMenu: RadialMenu | null = null;
+  let rightPointerOpenedMenu = false;
+  canvas.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    if (rightPointerOpenedMenu) rightPointerOpenedMenu = false;
+    else if (game.loopMode === 1 && !screen.frozen && radialMenu) radialMenu.open(e.clientX, e.clientY);
+  });
+  canvas.addEventListener("pointerdown", (e) => {
+    if (e.button !== 2) return;
+    e.preventDefault();
+    if ((rightPointerOpenedMenu = game.loopMode === 1 && !screen.frozen && radialMenu !== null)) radialMenu!.open(e.clientX, e.clientY);
+  });
+  window.addEventListener("pointerup", (e) => {
+    if (e.button === 2) { radialMenu?.release(e.clientX, e.clientY); window.setTimeout(() => { rightPointerOpenedMenu = false; }, 0); }
+  });
   // Ticks counted by step(), and the tick of the last touch/mouse input: behaviour that only suits
   // touch (centring the placement footprint) must not touch keyboard play or a replayed key script.
   let tick = 0;
@@ -138,8 +155,11 @@ export function attachTouchControls(
 
   function* tapKey(key: OriginalKeyName): Script {
     keys.press(key);
-    yield;
-    keys.release(key);
+    try {
+      yield;
+    } finally {
+      keys.release(key);
+    }
     yield;
   }
 
@@ -204,7 +224,9 @@ export function attachTouchControls(
 
   const tapMap = (x: number, y: number) => {
     if (game.cameraBFlag || game.columnScrollDelta !== 0 || game.rowScrollDelta !== 0) return;
-    const [tx, ty] = tileAt(x, y);
+    const [rawX, rawY] = tileAt(x, y);
+    const tx = Math.max(0, Math.min(game.mapWidth - 1, rawX));
+    const ty = Math.max(0, Math.min(rowLimit() - 1, rawY));
     if (game.barMode === 3) {
       // Building placement: the footprint is centred on the cursor (f.T:I = y - w/2, f.U:I = A - h/2
       // each frame); a tap anywhere moves it there. It is placed with the tick next to it (Hud.ts,
@@ -236,7 +258,8 @@ export function attachTouchControls(
     // the cursor jumps to them and FIRE follows. Anything else takes two taps: the first shows the
     // action icon there, the second confirms.
     const villager = villagerAt(x, y);
-    if (villager && !(game.barMode === 1 && villager.id === game.selectedId)) {
+    if (villager && game.barMode === 1 && villager.id === game.selectedId) return;
+    if (villager) {
       // From a building's bar, the villager's panel straight away (BUG-018).
       sfx.select();
       haptic.tap();
@@ -385,6 +408,7 @@ export function attachTouchControls(
 
   // ---- screens other than the map: menus, dialogue, story ----
   const tapScreen = (x: number, y: number) => {
+    if (x < 0 || x > 240) return;
     // The soft keys' corner icons are covered (WideScreen.menuFrame); the HUD's ✓ / ✗ replace them.
     // The main menu keeps only PLAY and HELP (user, 2026-10-17).
     const rows = game.screen === 0 ? runtime.touchMenuRows.slice(0, 2) : runtime.touchMenuRows;
@@ -458,7 +482,11 @@ export function attachTouchControls(
     const on = point.on === "bottom" ? "panel" : point.on;
     let grip: [number, number] | null = null;
     const area = on === "map" && game.cSInt !== 100 ? controls.footprint() : null;
-    if (area) {
+    if (area && game.barMode === 3) {
+      const [tx, ty] = tileAt(gx, gy);
+      moveCursorTo(tx, ty);
+      grip = [tx - (game.cameraColumn + game.cursorColumn), ty - (game.cameraRow + game.cursorRow)];
+    } else if (area) {
       const [tx, ty] = tileAt(gx, gy);
       if (tx >= area.column && tx < area.column + area.columns && ty >= area.row && ty < area.row + area.rows) {
         grip = [tx - (game.cameraColumn + game.cursorColumn), ty - (game.cameraRow + game.cursorRow)];
@@ -518,6 +546,18 @@ export function attachTouchControls(
   const finish = (event: PointerEvent) => {
     activePointers.delete(event.pointerId);
     if (activePointers.size < 2) pinchDistance = 0;
+    if (activePointers.size === 1 && !gesture) {
+      const [remainingId, pos] = activePointers.entries().next().value as [number, { x: number; y: number }];
+      const point = toGame({ clientX: pos.x, clientY: pos.y } as PointerEvent);
+      const on = point.on === "bottom" ? "panel" : point.on;
+      gesture = {
+        id: remainingId,
+        sx: pos.x, sy: pos.y, cx: pos.x, cy: pos.y,
+        x0: point.x, y0: point.y, gx: point.x, gy: point.y,
+        drag: true, on, at: performance.now(), grip: null,
+      };
+      return;
+    }
     if (!gesture || event.pointerId !== gesture.id) return;
     const g = gesture;
     gesture = null;
@@ -538,12 +578,12 @@ export function attachTouchControls(
   canvas.addEventListener("pointercancel", (event) => {
     activePointers.delete(event.pointerId);
     if (activePointers.size < 2) pinchDistance = 0;
-    if (!gesture || event.pointerId !== gesture.id) return;
     if (box) cancelBox();
     arc.style.display = "none";
-    gesture = null;
+    if (gesture && event.pointerId === gesture.id) {
+      gesture = null;
+    }
   });
-  canvas.addEventListener("contextmenu", (event) => event.preventDefault());
 
   let lastWheelZoomAt = 0;
   canvas.addEventListener("wheel", (event) => {
@@ -631,17 +671,14 @@ export function attachTouchControls(
   // Named (not returned inline) so the pointer handlers above can call controls.footprint()
   // for the placing grip, as in upstream BOMBWCC 29e035f.
   const controls: TouchControls = {
+    setRadialMenu(menu: RadialMenu | null) { radialMenu = menu; },
     bindKey(button: HTMLElement, key: OriginalKeyName) {
       const up = () => { if (button.dataset.down) { delete button.dataset.down; keys.release(key); } };
       button.addEventListener("pointerdown", (event) => {
-        event.preventDefault();
-        capture(button, event.pointerId);
-        button.dataset.down = "1";
-        keys.press(key);
-        touched();
+        event.preventDefault(); capture(button, event.pointerId);
+        button.dataset.down = "1"; keys.press(key); touched();
       });
-      button.addEventListener("pointerup", up);
-      button.addEventListener("pointercancel", up);
+      button.addEventListener("pointerup", up); button.addEventListener("pointercancel", up);
       button.addEventListener("contextmenu", (event) => event.preventDefault());
     },
     get boxing() { return box !== null; },
@@ -671,9 +708,7 @@ export function attachTouchControls(
     fireAt(tx: number, ty: number) {
       if (game.barMode !== 3) return;
       run((function* () {
-        moveCursorTo(tx, ty);
-        yield; // the cursor's target (f.R:I, f.r:Z) is worked out as the frame is drawn
-        yield* tapKey(OriginalKey.FIRE);
+        moveCursorTo(tx, ty); yield; yield* tapKey(OriginalKey.FIRE);
         if (game.barMode === 3) yield* tapKey(OriginalKey.SOFT_RIGHT);
       })());
     },
@@ -710,16 +745,8 @@ export function attachTouchControls(
     startGame(plan) {
       const ch = plan.chapter ?? 0;
       const rows: Record<number, number> = {
-        0: 0,
-        2: plan.custom ? 1 : 0,
-        3: plan.resume ? 0 : 1,
-        13: plan.difficulty,
-        9: plan.map,
-        4: ch,
-        5: ch,
-        6: ch,
-        7: ch,
-        8: ch,
+        0: 0, 2: plan.custom ? 1 : 0, 3: plan.resume ? 0 : 1,
+        13: plan.difficulty, 9: plan.map, 4: ch, 5: ch, 6: ch, 7: ch, 8: ch,
       };
       run((function* () {
         for (let i = 0; i < 1000 && game.loopMode !== 1 && game.screen !== 18; i += 1) {
@@ -751,15 +778,20 @@ export function attachTouchControls(
     cancelBox,
     footprint() {
       if (game.loopMode !== 1 || game.barMode !== 3) return null;
-      if (game.cSInt <= 3 || game.cSInt === 100) {
+      if (game.cSInt <= 3 || game.cSInt === 100 || (game.cSInt >= 20 && game.cSInt <= 22)) {
         return { column: game.cameraColumn + game.cursorColumn, row: game.cameraRow + game.cursorRow, columns: 1, rows: 1 };
       }
       const table = runtime.packedOffsets[T_BUILDING] ?? 0;
+      const w = Math.max(1, runtime.packedBytes[table + 104 + game.cSInt] ?? 1);
+      const h = Math.max(1, runtime.packedBytes[table + 130 + game.cSInt] ?? 1);
+      game.cTInt = game.cursorColumn - Math.trunc(w / 2);
+      game.cUInt = game.cursorRow - Math.trunc(h / 2);
+      game.cRFlag = runtime.canPlaceFootprint(runtime.gridC, game.cameraColumn + game.cTInt, game.cameraRow + game.cUInt, game.cSInt, true);
       return {
         column: game.cameraColumn + game.cTInt,
         row: game.cameraRow + game.cUInt,
-        columns: Math.max(1, runtime.packedBytes[table + 104 + game.cSInt] ?? 1),
-        rows: Math.max(1, runtime.packedBytes[table + 130 + game.cSInt] ?? 1),
+        columns: w,
+        rows: h,
       };
     },
     pressKey(key: OriginalKeyName, ticks = 1) {

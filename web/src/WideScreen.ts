@@ -1,10 +1,11 @@
-import { writeStorage } from "./platform/Storage";
+import { readStorage, writeStorage } from "./platform/Storage";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { Graphics } from "./platform/Graphics";
 import { oldArt } from "./platform/OldArt";
 import type { LogicalCanvas } from "./platform/Canvas";
-import { renderWideView, TOP_BAR_SLOT, type WideWindow } from "./render/WideView";
+import { renderSceneSprites, renderWideView, TOP_BAR_SLOT, type WideWindow } from "./render/WideView";
 import { stepGameplayPaintHud } from "./render/RenderRuntime";
+import { drawMapMargin, MARGIN_TILES } from "./render/MapMargin";
 import type { LegacyOffscreenImage } from "./render/LegacyOffscreenTargets";
 
 /**
@@ -32,6 +33,8 @@ const HALF = 160; // HUD rows above this stay at the top of the screen, the rest
 /** The resource bar's height in CSS pixels (Hud.ts draws it; round-3 design, 2026-10-20). */
 const BAR_CSS = 44;
 const SPEECH_BOX_ROWS = 84; // the original's dialogue box (Q 17): face, name and words, frame rows 0..83
+/** A dialogue scene's middle (frame point 120, 176) sits this far down the screen, above StoryHud's box. */
+const SCENE_CENTRE = 0.38;
 /** The original's bottom bars (record 4, 22 high, and record 10, 38 high with its message line):
  *  replaced by the HUD buttons and the notice feed. */
 const BOTTOM_BAR_SLOTS = [1, 9];
@@ -61,7 +64,7 @@ export class WideScreen {
   private readonly overlayGraphics: Graphics;
   private cssSize = { width: 240, height: 320 };
   /** Safe-area insets (notch, home indicator) in CSS pixels. */
-  private safe = { top: 0, bottom: 0 };
+  private safe = { top: 0, bottom: 0, left: 0, right: 0 };
   private scale = 1; // device pixels per game pixel
   private width = 240; // screen size in game pixels
   private height = 320;
@@ -70,7 +73,11 @@ export class WideScreen {
   private viewY = 0;
   private camera = { column: -1, row: -1 };
   private wide: { image: LegacyOffscreenImage; window: WideWindow } | null = null;
+  /** A dialogue scene in HD (renderScene): the image, where its point (0, 0) goes on screen, how
+   *  many screen game pixels one of its pixels takes, and whether it is the sub-records on black. */
+  private scene: { image: LegacyOffscreenImage; x: number; y: number; zoom: number; sprites: boolean } | null = null;
   /** Zoom setting: how many device pixels per game pixel below the largest that fits (0 = largest). */
+  private mapFit: "smart" | "free" = (readStorage("pt.mapFit") as "smart" | "free") || "smart";
   zoomOut = 0;
   /** While set, the screen shows what it showed when freeze() was called (the game menu,
    *  Hud.ts: the original's pause menu, its prompts and messages stay out of sight). */
@@ -79,11 +86,13 @@ export class WideScreen {
   splash = false;
   /** Choosing a chief: a candidate has been tapped, so the original's panel shows them. */
   candidatePanel = false;
-  /** A touch key script is running (Hud.ts sets it): the original's bars it passes through, e.g. the
-   *  command bar on the way to the build list, are not drawn (BUG-016). */
-  scripting = false;
+  /** Whether a touch key script is running (main.ts: TouchControls.busy): the original's bars it
+   *  passes through, e.g. the command bar on the way to the build list, are not drawn (BUG-016).
+   *  Asked while drawing -- a flag the HUD set after each frame let the first frame show them (BUG-021). */
+  scriptRunning: () => boolean = () => false;
   /** The HD villager panel is up (Hud.ts sets it): the original's (slot 4) is not drawn (BUG-017). */
   villagerSheet = false;
+  groupSheet = false;
   /** Touch or mouse play (the last input was a pointer): the map's cursor has no hand. */
   touchPlay = true;
   private readonly still = document.createElement("canvas");
@@ -107,7 +116,7 @@ export class WideScreen {
     document.body.append(probe);
     const readSafe = () => {
       const style = getComputedStyle(probe);
-      this.safe = { top: parseFloat(style.paddingTop) || 0, bottom: parseFloat(style.paddingBottom) || 0 };
+      this.safe = { top: parseFloat(style.paddingTop) || 0, bottom: parseFloat(style.paddingBottom) || 0, left: parseFloat(style.paddingLeft) || 0, right: parseFloat(style.paddingRight) || 0 };
     };
     new ResizeObserver(([entry]) => {
       if (!entry) return;
@@ -119,20 +128,23 @@ export class WideScreen {
 
   /** The zoom levels this screen offers: device pixels per game pixel, largest first. */
   zoomLevels(): number[] {
-    const max = this.maxScale();
+    const max = this.maxScale(), g = this.runtime.game;
+    const fitW = Math.ceil(this.element.width / Math.max(1, (g.mapWidth || 32) * TILE_W));
+    const fitH = Math.ceil(this.element.height / Math.max(1, (g.mapHeight || 32) * TILE_H));
+    const minScale = Math.max(1, this.mapFit === "smart" ? Math.min(max, Math.max(fitW, fitH)) : Math.ceil(max / 2));
     const levels: number[] = [];
-    // Down to half the largest: below that the sprites get too small to tap.
-    for (let s = max; s >= Math.max(1, Math.ceil(max / 2)); s -= 1) levels.push(s);
+    for (let s = max; s >= minScale; s -= 1) levels.push(s);
     return levels.length > 0 ? levels : [max];
   }
 
+  setMapFit(mode: "smart" | "free"): void { this.mapFit = mode; this.resize(); }
+  getMapFit(): "smart" | "free" { return this.mapFit; }
+
   /** About how many tiles the map shows at `scale` device pixels per game pixel. */
   viewTiles(scale: number): { columns: number; rows: number } {
-    return {
-      columns: Math.floor(this.element.width / scale / TILE_W),
-      rows: Math.floor((this.element.height / scale - 60) / TILE_H),
-    };
+    return { columns: Math.floor(this.element.width / scale / TILE_W), rows: Math.floor((this.element.height / scale - 60) / TILE_H) };
   }
+  get ratio(): number { return this.element.width / (this.cssSize.width || 1); }
 
   private maxScale(): number {
     const fit = Math.min(this.element.width / 240, this.element.height / 320);
@@ -163,7 +175,7 @@ export class WideScreen {
     const rect = this.element.getBoundingClientRect();
     const cx = clientX !== undefined && rect.width > 0 ? clientX - rect.left : rect.width / 2;
     const cy = clientY !== undefined && rect.height > 0 ? clientY - rect.top : rect.height / 2;
-    const ratio = window.devicePixelRatio || 1;
+    const ratio = this.ratio;
     const oldScale = levels[current]!;
     const newScale = levels[next]!;
     const mapPxX = this.viewX + (cx * ratio) / oldScale;
@@ -220,7 +232,7 @@ export class WideScreen {
    */
   private layout() {
     const g = this.runtime.game;
-    const k = (window.devicePixelRatio || 1) / this.scale;
+    const k = this.ratio / this.scale;
     const barTop = Math.round(this.safe.top * k);
     const safeBottom = Math.round(this.safe.bottom * k);
     const { top, panel } = this.strips();
@@ -241,26 +253,22 @@ export class WideScreen {
 
   private bottomSlotsNotDrawn(): number[] {
     const g = this.runtime.game;
-    if (g.barMode === 3 || this.buildingMenuOpen) return [...BOTTOM_BAR_SLOTS, BAR_STRIP_SLOT];
+    if (g.barMode === 2 || g.barMode === 3 || g.barMode === 4 || this.buildingMenuOpen) {
+      return [...BOTTOM_BAR_SLOTS, BAR_STRIP_SLOT, BUILD_CARD_SLOT, CANDIDATE_ROW_SLOT];
+    }
     if (this.buildCardsOpen) return [...BOTTOM_BAR_SLOTS, BUILD_CARD_SLOT];
     if (this.choosingChief) return [...BOTTOM_BAR_SLOTS, CANDIDATE_ROW_SLOT];
-    return BOTTOM_BAR_SLOTS;
+    return [...BOTTOM_BAR_SLOTS, BAR_STRIP_SLOT];
   }
 
   /** The original's chief succession is waiting for a pick (K:Z with its row open). */
-  get choosingChief(): boolean {
-    const g = this.runtime.game;
-    return g.loopMode === 1 && g.choosingChief && g.barMode === 2;
-  }
-
+  get choosingChief(): boolean { return this.runtime.game.loopMode === 1 && this.runtime.game.choosingChief && this.runtime.game.barMode === 2; }
   /** A building's bar is open (slot 2 on, f.Z() filling it from aa / ab / ac; w 2, or 4 while an
    *  item confirms): the HUD's building menu shows instead. */
   get buildingMenuOpen(): boolean {
     const g = this.runtime.game;
-    // w 4: one of its items confirming (its line shows in the sheet, BUG-019).
     return g.loopMode === 1 && (g.barMode === 2 || g.barMode === 4) && !!g.selectionFlags[BAR_STRIP_SLOT] && !g.choosingChief && !this.buildCardsOpen;
   }
-
   /** The original's build cards are up (the build list shows instead). */
   get buildCardsOpen(): boolean {
     const g = this.runtime.game;
@@ -277,25 +285,24 @@ export class WideScreen {
 
   /** Where the camera's 240-wide window sits on screen, in game pixels. */
   private cameraOnScreen(): { x: number; y: number } {
-    const g = this.runtime.game;
-    return { x: g.cameraColumn * TILE_W - this.viewX, y: g.cameraRow * TILE_H - this.viewY };
+    return { x: this.runtime.game.cameraColumn * TILE_W - this.viewX, y: this.runtime.game.cameraRow * TILE_H - this.viewY };
   }
 
   /** Keeps the view on the map; a map smaller than the screen is centred. */
   private clampView(): void {
     const g = this.runtime.game;
     const { upper } = this.layout();
-    const mapW = g.mapWidth * TILE_W;
-    const mapH = g.mapHeight * TILE_H;
-    // The map may run under the panels and the screen's bottom edge, never under the bar. A map
-    // shorter than the screen (mission 1's 32 rows on a tall phone) starts right under the bar.
-    // When a bottom sheet is open (villager panel, building panel, or build list), give extra scroll
-    // headroom so bottom-most tiles can be panned completely above the panel.
-    const bottomPad = (this.villagerSheet || this.buildCardsOpen)
-      ? Math.round((112 * (window.devicePixelRatio || 1)) / this.scale)
-      : 0;
-    this.viewX = mapW <= this.width ? (mapW - this.width) / 2 : Math.max(0, Math.min(mapW - this.width, this.viewX));
-    this.viewY = Math.max(-upper, Math.min(mapH - this.height + bottomPad, this.viewY));
+    const mapW = Math.max(1, (g.mapWidth || 32) * TILE_W);
+    const mapH = Math.max(1, (g.mapHeight || 32) * TILE_H);
+    if (this.mapFit === "smart") {
+      this.viewX = mapW <= this.width ? (mapW - this.width) / 2 : Math.max(0, Math.min(mapW - this.width, this.viewX));
+      this.viewY = mapH <= this.height ? (mapH - this.height) / 2 : Math.max(0, Math.min(mapH - this.height, this.viewY));
+      return;
+    }
+    const bottomPad = (this.villagerSheet || this.groupSheet || this.buildCardsOpen || this.buildingMenuOpen) ? Math.round((112 * this.ratio) / this.scale) : 0;
+    const mx = MARGIN_TILES * TILE_W, my = MARGIN_TILES * TILE_H;
+    this.viewX = mapW + 2 * mx <= this.width ? (mapW - this.width) / 2 : Math.max(-mx, Math.min(mapW + mx - this.width, this.viewX));
+    this.viewY = Math.max(-upper - my, Math.min(mapH + my - this.height + bottomPad, this.viewY));
   }
 
   /** Moves the view so the camera's window is fully on screen. */
@@ -343,7 +350,8 @@ export class WideScreen {
   /** After each paint: draws the larger map window for the current view. */
   renderWide(): void {
     this.resize();
-    if (!this.onMap) { this.wide = null; return; }
+    if (!this.onMap) { this.wide = null; this.renderScene(); return; }
+    this.scene = null;
     const g = this.runtime.game;
     if (this.dialogue) {
       this.camera = { column: g.cameraColumn, row: g.cameraRow };
@@ -362,6 +370,7 @@ export class WideScreen {
     const before = oldArt.where;
     oldArt.where = "地图";
     const image = renderWideView(this.runtime, window, this.touchPlay || this.dialogue, this.scale);
+    if (image) drawMapMargin(image, window, g.mapWidth, g.mapHeight, image.scale);
     oldArt.where = "HUD";
     this.wide = image ? { image, window } : null;
     // The HUD again, onto a clear layer, without the bars: both draws only read the game state.
@@ -378,6 +387,56 @@ export class WideScreen {
       if (group0 && !this.scripting) this.runtime.geometryRenderer.renderTo(this.overlayGraphics, group0);
     }
     oldArt.where = before;
+  }
+
+  /**
+   * A dialogue scene (Q 17) in HD, filling the screen (round-4 design, 2026-10-22: the scene plays on
+   * in HD art, StoryHud's box over its bottom). What f.P() draws in the original's 128-row band
+   * depends on t155[aS]: 1, two sub-records on black (the opening cave: eyes, the fire); 2, the
+   * map at the camera (f.R(), also when t155[ao] is 2); otherwise the band stays as it was, and so
+   * does this. The band's middle (frame point 120, 176) goes to SCENE_CENTRE. The cave is drawn as
+   * wide as the screen (its eyes are a few pixels); the map at the map view's size.
+   */
+  private renderScene(): void {
+    const rt = this.runtime;
+    const g = rt.game;
+    if (g.screen !== 17) { this.scene = null; return; }
+    const kind = (n: number) => rt.packedBytes[(rt.packedOffsets[155] ?? 0) + n] ?? 0;
+    const dx = Math.round(this.width / 2) - 120;
+    const dy = Math.round(this.height * SCENE_CENTRE) - 176;
+    const before = oldArt.where;
+    oldArt.where = "对话场景";
+    if (kind(g.aS) === 1) {
+      const calls = rt.frameHelperCalls.filter((c) => c.kind === "p-sprite")
+        .map((c) => ({ record: Number(c.record), x: Number(c.x), y: Number(c.y), phase: Number(c.mode) }));
+      if (calls.length > 0 || !this.scene?.sprites) {
+        const zoom = this.width / 240;
+        const height = Math.ceil(this.height / zoom);
+        // The calls draw on the offscreen: frame point + (11, 8).
+        const image = renderSceneSprites(rt, calls, 240, height, -11, Math.round(height * SCENE_CENTRE) - 176 - 8);
+        this.scene = image && { image, x: 0, y: 0, zoom, sprites: true };
+      }
+    } else if (kind(g.aS) >= 2 || kind(g.ao) >= 2) {
+      // Screen point (x, y) shows map pixel (x + left, y + top).
+      const left = g.cameraColumn * TILE_W - dx;
+      const top = g.cameraRow * TILE_H - dy;
+      const window: WideWindow = {
+        column: Math.floor(left / TILE_W) - MARGIN,
+        row: Math.floor(top / TILE_H) - MARGIN,
+        columns: Math.ceil(this.width / TILE_W) + MARGIN * 2 + 1,
+        rows: Math.ceil(this.height / TILE_H) + MARGIN * 2 + 1,
+      };
+      const image = renderWideView(rt, window, false, this.scale, true);
+      if (image) drawMapMargin(image, window, g.mapWidth, g.mapHeight, image.scale);
+      // Scene 24 shakes: f.R() copies the band aQ (0..7) rows lower.
+      const shake = g.aS === 24 ? g.aQ : 0;
+      this.scene = image && { image, x: window.column * TILE_W - left - 11, y: window.row * TILE_H - top - 8 + shake, zoom: 1, sprites: false };
+    }
+    oldArt.where = before;
+  }
+
+  private get scripting(): boolean {
+    return this.scriptRunning() && this.runtime.game.loopMode === 1;
   }
 
   /** Every display frame: puts the pieces on screen (cheap; renderWide did the drawing). */
@@ -401,6 +460,14 @@ export class WideScreen {
     c.imageSmoothingEnabled = false;
     c.fillStyle = "#000";
     c.fillRect(0, 0, this.element.width, this.element.height);
+    if (this.scene && !this.onMap) {
+      const { image, x, y, zoom } = this.scene;
+      c.setTransform(this.scale, 0, 0, this.scale, 0, 0);
+      c.imageSmoothingEnabled = image.scale > this.scale * zoom;
+      c.imageSmoothingQuality = "high";
+      c.drawImage(image.element, x, y, image.width * zoom, image.height * zoom);
+      return;
+    }
     if (!this.onMap || !this.wide) {
       this.drawFrameFilled();
       return;
@@ -423,7 +490,7 @@ export class WideScreen {
 
   /** The resource bar's height in game pixels. */
   private barRows(): number {
-    return Math.max(1, Math.round((BAR_CSS * (window.devicePixelRatio || 1)) / this.scale));
+    return Math.max(1, Math.round((BAR_CSS * this.ratio) / this.scale));
   }
 
   /** A pointer position as a point of the 240 x 320 frame (map points may lie outside it). */
@@ -453,7 +520,7 @@ export class WideScreen {
   hudLayout(): { barTop: number; barBottom: number; panelsBottom: number; bottomPanels: number; safeBottom: number } | null {
     if (((this.runtime.game.loopMode !== 1 || !this.onMap) && !this.frozen) || !this.wide) return null;
     const { barTop, upper, areaTop, lowerRows } = this.layout();
-    const k = this.scale / (window.devicePixelRatio || 1);
+    const k = this.scale / this.ratio;
     return {
       barTop: barTop * k,
       barBottom: upper * k,
@@ -472,11 +539,11 @@ export class WideScreen {
   private frameRect(): { x: number; y: number; s: number } {
     const w = this.element.width;
     const h = this.element.height;
-    const bottom = Math.round(this.safe.bottom * (window.devicePixelRatio || 1));
+    const bottom = Math.round(this.safe.bottom * this.ratio);
     let s = w / 240;
     if (320 * s > h - bottom) s = (h - bottom) / 320;
     // A dialogue (Q 17; round 4): the frame at the top, StoryHud's box at the bottom under it.
-    const top = Math.round(this.safe.top * (window.devicePixelRatio || 1));
+    const top = Math.round(this.safe.top * this.ratio);
     if (this.dialogue) return { x: Math.round((w - 240 * s) / 2), y: Math.min(top, Math.round(h - bottom - 320 * s)), s };
     return { x: Math.round((w - 240 * s) / 2), y: Math.round(h - bottom - 320 * s), s };
   }
@@ -537,18 +604,18 @@ export class WideScreen {
   /** Frame point (x, y) on the screen canvas, in CSS pixels (off the map). */
   frameToCss(x: number, y: number): { x: number; y: number } {
     const rect = this.frameRect();
-    const k = 1 / (window.devicePixelRatio || 1);
+    const k = 1 / this.ratio;
     return { x: (rect.x + x * rect.s) * k, y: (rect.y + y * rect.s) * k };
   }
 
   /** Map tile (column, row)'s top-left corner on the screen canvas, in CSS pixels. */
   tileToCss(column: number, row: number): { x: number; y: number } {
-    const k = this.scale / (window.devicePixelRatio || 1);
+    const k = this.scale / this.ratio;
     return { x: (column * TILE_W - this.viewX) * k, y: (row * TILE_H - this.viewY) * k };
   }
 
   /** Game pixels per CSS pixel, for drags. */
   gamePixelsPerCssPixel(): number {
-    return (window.devicePixelRatio || 1) / this.scale;
+    return this.ratio / this.scale;
   }
 }

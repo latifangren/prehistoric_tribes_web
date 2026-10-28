@@ -49,6 +49,7 @@
 }
 
 .settings-close-x {
+  position: relative;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
@@ -62,13 +63,12 @@
   align-items: center;
   justify-content: center;
   padding: 0;
+  touch-action: manipulation;
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
-.settings-close-x:active {
-  transform: scale(0.9);
-  background: rgba(255, 255, 255, 0.3);
-}
+.settings-close-x::after { content: ""; position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
+.settings-close-x:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.3); }
 
 .settings-tabs {
   display: grid;
@@ -445,39 +445,10 @@
   gap: 3px;
 }
 
-.roster-bars img {
-  width: 12px;
-  height: 12px;
-  object-fit: contain;
-}
-
-.roster-bars i {
-  flex: 1;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(60, 34, 12, 0.2);
-  overflow: hidden;
-  display: block;
-}
-
-.roster-bars i b {
-  display: block;
-  height: 100%;
-  background: #4caf50;
-}
-
-.roster-bars span:nth-child(2) i b {
-  background: #ff9800;
-}
-
-.roster-bars span:nth-child(3) i b {
-  background: #29b6f6;
-}
-
-.roster-weapon {
-  width: 26px;
-  height: 26px;
-  object-fit: contain;
-  flex: none;
-}
+.roster-bars img { width: 12px; height: 12px; object-fit: contain; }
+.roster-bars i { flex: 1; height: 6px; border-radius: 3px; background: rgba(60, 34, 12, 0.2); overflow: hidden; display: block; }
+.roster-bars i b { display: block; height: 100%; background: #4caf50; }
+.roster-bars span:nth-child(2) i b { background: #ff9800; }
+.roster-bars span:nth-child(3) i b { background: #29b6f6; }
+.roster-weapon { width: 26px; height: 26px; object-fit: contain; flex: none; }
 

@@ -26,8 +26,12 @@ import { attachAchievements } from "./AchievementCabinet";
 import { weatherSystem } from "./render/WeatherSystem";
 import { dayNightCycle } from "./render/DayNightCycle";
 import { emotionBubbles } from "./render/EmotionBubbles";
+import { worldParticles } from "./render/WorldParticles";
 import { matchStatsTracker, attachMatchRecap } from "./render/MatchRecap";
 import { tribeTactics } from "./combat/TribeTactics";
+import { animalEcology } from "./combat/AnimalEcology";
+import { smartHarvesting } from "./sim/tribe/SmartHarvesting";
+import { spatialAmbience } from "./audio/SpatialAmbience";
 // The Chinese strings; docs/translation-zh-CN.json is their single source.
 import zhTranslation from "../../docs/translation-zh-CN.json";
 
@@ -85,6 +89,7 @@ window.addEventListener("beforeunload", detachKeyboard, { once: true });
 
 // Touch and mouse: taps and drags on the screen (TouchControls) plus the HUD buttons over it.
 const touch = attachTouchControls(screen, runtime, keys);
+screen.scriptRunning = () => touch.busy;
 const detachBackButton = webBackButtonAdapter.subscribe(() => touch.pressKey(OriginalKey.SOFT_RIGHT));
 window.addEventListener("beforeunload", detachBackButton, { once: true });
 // Keys bring back the original's hand cursor; a tap or click takes it away again.
@@ -103,6 +108,7 @@ const openRecap = attachMatchRecap(app, runtime, openAchievements);
 dayNightCycle.mount(app);
 weatherSystem.mount(app);
 emotionBubbles.mount(app);
+worldParticles.mount(app);
 weatherSystem.setOnWeatherChange((mode) => {
   const lang = readStorage("pt.language") === "id" ? "id" : runtime.language === 1 ? "zh" : "en";
   if (mode === "rain") {
@@ -190,6 +196,9 @@ function tick(): void {
   if (runtime.game.loopMode === 1) {
     atmosphereAudio.updateState(performance.now(), runtime.game.callToArmsActive);
     tribeTactics.tick(runtime, touch);
+    animalEcology.tick(runtime, performance.now());
+    smartHarvesting.tick(runtime, performance.now());
+    spatialAmbience.tick(runtime, performance.now());
   }
   matchStatsTracker.tick(runtime);
   achievementManager.tickGame(runtime);
@@ -240,18 +249,9 @@ function render(): void {
     dayNightCycle.resize(sw, sh);
     dayNightCycle.tick(now, 16, speed, runtime, screen);
 
-    weatherSystem.resize(sw, sh);
-    weatherSystem.tick(now, 16);
     weatherSystem.applyGameplayEffects(runtime, now);
-
-    emotionBubbles.resize(sw, sh);
-    emotionBubbles.tick(now, runtime, screen);
-
-    if (app) tribeTactics.renderRallyMarkers(app, runtime, screen);
   } else {
     dayNightCycle.resize(0, 0);
-    weatherSystem.resize(0, 0);
-    emotionBubbles.resize(0, 0);
   }
   endSystems?.();
   const endHud = perf?.start("hud");
@@ -307,18 +307,33 @@ const loop = new FixedLoop({
   render,
 });
 // Between ticks the screen is only recomposed: a drag moves the view smoothly.
+let lastCompose = performance.now();
 const composeEveryFrame = () => {
   const endFrameCompose = perf?.start("frameCompose");
   screen.compose();
   endFrameCompose?.();
+
+  const now = performance.now();
+  const dt = Math.min(100, now - lastCompose);
+  lastCompose = now;
+
+  if (runtime.game.loopMode === 1 && !screen.frozen) {
+    const sw = screen.element.clientWidth || window.innerWidth, sh = screen.element.clientHeight || window.innerHeight;
+    weatherSystem.resize(sw, sh); weatherSystem.tick(now, dt);
+    emotionBubbles.resize(sw, sh); emotionBubbles.tick(now, runtime, screen);
+    worldParticles.resize(sw, sh); worldParticles.tick(now, runtime, screen);
+    if (app) tribeTactics.renderRallyMarkers(app, runtime, screen);
+  } else {
+    weatherSystem.resize(0, 0); emotionBubbles.resize(0, 0); worldParticles.resize(0, 0);
+  }
+
   hud.track();
   dangerIndicators.track();
   requestAnimationFrame(composeEveryFrame);
 };
 requestAnimationFrame(composeEveryFrame);
 
-let resumeLoopAfterPageVisible = false;
-let resumeAudioAfterPageVisible = false;
+let resumeLoopAfterPageVisible = false, resumeAudioAfterPageVisible = false;
 const suspendForPageLifecycle = () => {
   resumeLoopAfterPageVisible ||= loop.isRunning();
   resumeAudioAfterPageVisible ||= atmosphereAudio.isRunning();
@@ -497,7 +512,7 @@ async function debugBootWithoutSplash(): Promise<void> {
   refreshDebugOverlay();
 }
 
-if (isDevelopmentHost) {
+if (isDevelopmentHost || (typeof window !== "undefined" && window.location.search.includes("perf=1"))) {
   Object.assign(window as unknown as Record<string, unknown>, {
     __prehistoricDebugEnterMap: debugEnterMap,
     __prehistoricDebugEnterMapViaMenu: (maxTicks = 200) => debugEnterMapViaMenu(maxTicks),
