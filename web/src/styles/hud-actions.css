@@ -204,8 +204,6 @@
 .hud-order,
 .hud-order-burst {
   position: absolute;
-  left: 50%;
-  top: 50%;
   width: 60px;
   height: 60px;
   margin: -30px 0 0 -30px;
@@ -240,8 +238,6 @@
 
 .hud .hud-order-tick {
   position: absolute;
-  left: calc(50% + 18px);
-  top: calc(50% - 52px);
   width: 40px;
   height: 40px;
   padding: 0;

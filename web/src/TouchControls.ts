@@ -138,8 +138,11 @@ export function attachTouchControls(
 
   function* tapKey(key: OriginalKeyName): Script {
     keys.press(key);
-    yield;
-    keys.release(key);
+    try {
+      yield;
+    } finally {
+      keys.release(key);
+    }
     yield;
   }
 
@@ -463,13 +466,9 @@ export function attachTouchControls(
     let grip: [number, number] | null = null;
     const area = on === "map" && game.cSInt !== 100 ? controls.footprint() : null;
     if (area && game.barMode === 3) {
-      // Modern Touch Ergonomics: Tapping or dragging anywhere on the map snaps the building
-      // to the target tile, with a 1-tile vertical offset on touch screens so fingers do not
-      // obscure the blueprint or blocking grid.
       const [tx, ty] = tileAt(gx, gy);
-      const touchOffset = event.pointerType === "touch" ? 1 : 0;
-      moveCursorTo(tx, Math.max(0, ty - touchOffset));
-      grip = [0, touchOffset];
+      moveCursorTo(tx, ty);
+      grip = [tx - (game.cameraColumn + game.cursorColumn), ty - (game.cameraRow + game.cursorRow)];
     } else if (area) {
       const [tx, ty] = tileAt(gx, gy);
       if (tx >= area.column && tx < area.column + area.columns && ty >= area.row && ty < area.row + area.rows) {
@@ -538,7 +537,7 @@ export function attachTouchControls(
         id: remainingId,
         sx: pos.x, sy: pos.y, cx: pos.x, cy: pos.y,
         x0: point.x, y0: point.y, gx: point.x, gy: point.y,
-        drag: false, on, at: performance.now(), grip: null,
+        drag: true, on, at: performance.now(), grip: null,
       };
       return;
     }
@@ -780,11 +779,16 @@ export function attachTouchControls(
         return { column: game.cameraColumn + game.cursorColumn, row: game.cameraRow + game.cursorRow, columns: 1, rows: 1 };
       }
       const table = runtime.packedOffsets[T_BUILDING] ?? 0;
+      const w = Math.max(1, runtime.packedBytes[table + 104 + game.cSInt] ?? 1);
+      const h = Math.max(1, runtime.packedBytes[table + 130 + game.cSInt] ?? 1);
+      game.cTInt = game.cursorColumn - Math.trunc(w / 2);
+      game.cUInt = game.cursorRow - Math.trunc(h / 2);
+      game.cRFlag = runtime.canPlaceFootprint(runtime.gridC, game.cameraColumn + game.cTInt, game.cameraRow + game.cUInt, game.cSInt, true);
       return {
         column: game.cameraColumn + game.cTInt,
         row: game.cameraRow + game.cUInt,
-        columns: Math.max(1, runtime.packedBytes[table + 104 + game.cSInt] ?? 1),
-        rows: Math.max(1, runtime.packedBytes[table + 130 + game.cSInt] ?? 1),
+        columns: w,
+        rows: h,
       };
     },
     pressKey(key: OriginalKeyName, ticks = 1) {

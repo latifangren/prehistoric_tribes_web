@@ -141,6 +141,10 @@ export class WideScreen {
     };
   }
 
+  get ratio(): number {
+    return this.element.width / (this.cssSize.width || 1);
+  }
+
   private maxScale(): number {
     const fit = Math.min(this.element.width / 240, this.element.height / 320);
     return fit >= 1 ? Math.floor(fit) : fit;
@@ -170,7 +174,7 @@ export class WideScreen {
     const rect = this.element.getBoundingClientRect();
     const cx = clientX !== undefined && rect.width > 0 ? clientX - rect.left : rect.width / 2;
     const cy = clientY !== undefined && rect.height > 0 ? clientY - rect.top : rect.height / 2;
-    const ratio = window.devicePixelRatio || 1;
+    const ratio = this.ratio;
     const oldScale = levels[current]!;
     const newScale = levels[next]!;
     const mapPxX = this.viewX + (cx * ratio) / oldScale;
@@ -227,7 +231,7 @@ export class WideScreen {
    */
   private layout() {
     const g = this.runtime.game;
-    const k = (window.devicePixelRatio || 1) / this.scale;
+    const k = this.ratio / this.scale;
     const barTop = Math.round(this.safe.top * k);
     const safeBottom = Math.round(this.safe.bottom * k);
     const { top, panel } = this.strips();
@@ -248,10 +252,12 @@ export class WideScreen {
 
   private bottomSlotsNotDrawn(): number[] {
     const g = this.runtime.game;
-    if (g.barMode === 3 || this.buildingMenuOpen) return [...BOTTOM_BAR_SLOTS, BAR_STRIP_SLOT];
+    if (g.barMode === 2 || g.barMode === 3 || g.barMode === 4 || this.buildingMenuOpen) {
+      return [...BOTTOM_BAR_SLOTS, BAR_STRIP_SLOT, BUILD_CARD_SLOT, CANDIDATE_ROW_SLOT];
+    }
     if (this.buildCardsOpen) return [...BOTTOM_BAR_SLOTS, BUILD_CARD_SLOT];
     if (this.choosingChief) return [...BOTTOM_BAR_SLOTS, CANDIDATE_ROW_SLOT];
-    return BOTTOM_BAR_SLOTS;
+    return [...BOTTOM_BAR_SLOTS, BAR_STRIP_SLOT];
   }
 
   /** The original's chief succession is waiting for a pick (K:Z with its row open). */
@@ -299,7 +305,7 @@ export class WideScreen {
     // When a bottom sheet is open (villager panel, building panel, or build list), give extra scroll
     // headroom so bottom-most tiles can be panned completely above the panel.
     const bottomPad = (this.villagerSheet || this.buildCardsOpen)
-      ? Math.round((112 * (window.devicePixelRatio || 1)) / this.scale)
+      ? Math.round((112 * this.ratio) / this.scale)
       : 0;
     const mx = MARGIN_TILES * TILE_W;
     const my = MARGIN_TILES * TILE_H;
@@ -492,7 +498,7 @@ export class WideScreen {
 
   /** The resource bar's height in game pixels. */
   private barRows(): number {
-    return Math.max(1, Math.round((BAR_CSS * (window.devicePixelRatio || 1)) / this.scale));
+    return Math.max(1, Math.round((BAR_CSS * this.ratio) / this.scale));
   }
 
   /** A pointer position as a point of the 240 x 320 frame (map points may lie outside it). */
@@ -522,7 +528,7 @@ export class WideScreen {
   hudLayout(): { barTop: number; barBottom: number; panelsBottom: number; bottomPanels: number; safeBottom: number } | null {
     if (((this.runtime.game.loopMode !== 1 || !this.onMap) && !this.frozen) || !this.wide) return null;
     const { barTop, upper, areaTop, lowerRows } = this.layout();
-    const k = this.scale / (window.devicePixelRatio || 1);
+    const k = this.scale / this.ratio;
     return {
       barTop: barTop * k,
       barBottom: upper * k,
@@ -541,11 +547,11 @@ export class WideScreen {
   private frameRect(): { x: number; y: number; s: number } {
     const w = this.element.width;
     const h = this.element.height;
-    const bottom = Math.round(this.safe.bottom * (window.devicePixelRatio || 1));
+    const bottom = Math.round(this.safe.bottom * this.ratio);
     let s = w / 240;
     if (320 * s > h - bottom) s = (h - bottom) / 320;
     // A dialogue (Q 17; round 4): the frame at the top, StoryHud's box at the bottom under it.
-    const top = Math.round(this.safe.top * (window.devicePixelRatio || 1));
+    const top = Math.round(this.safe.top * this.ratio);
     if (this.dialogue) return { x: Math.round((w - 240 * s) / 2), y: Math.min(top, Math.round(h - bottom - 320 * s)), s };
     return { x: Math.round((w - 240 * s) / 2), y: Math.round(h - bottom - 320 * s), s };
   }
@@ -606,18 +612,18 @@ export class WideScreen {
   /** Frame point (x, y) on the screen canvas, in CSS pixels (off the map). */
   frameToCss(x: number, y: number): { x: number; y: number } {
     const rect = this.frameRect();
-    const k = 1 / (window.devicePixelRatio || 1);
+    const k = 1 / this.ratio;
     return { x: (rect.x + x * rect.s) * k, y: (rect.y + y * rect.s) * k };
   }
 
   /** Map tile (column, row)'s top-left corner on the screen canvas, in CSS pixels. */
   tileToCss(column: number, row: number): { x: number; y: number } {
-    const k = this.scale / (window.devicePixelRatio || 1);
+    const k = this.scale / this.ratio;
     return { x: (column * TILE_W - this.viewX) * k, y: (row * TILE_H - this.viewY) * k };
   }
 
   /** Game pixels per CSS pixel, for drags. */
   gamePixelsPerCssPixel(): number {
-    return (window.devicePixelRatio || 1) / this.scale;
+    return this.ratio / this.scale;
   }
 }

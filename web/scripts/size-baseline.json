@@ -571,8 +571,8 @@
       "physical": 169
     },
     "web/src/hud/Tooltips.ts": {
-      "effective": 68,
-      "physical": 71
+      "effective": 75,
+      "physical": 80
     },
     "web/src/hud/TopBar.ts": {
       "effective": 163,
@@ -1707,8 +1707,8 @@
       "physical": 18
     },
     "web/src/styles/hud-extra-controls.css": {
-      "effective": 250,
-      "physical": 295
+      "effective": 275,
+      "physical": 320
     },
     "web/src/styles/hud-responsive.css": {
       "effective": 320,
@@ -1775,8 +1775,8 @@
       "physical": 50
     },
     "web/src/TouchControls.ts": {
-      "effective": 690,
-      "physical": 875
+      "effective": 700,
+      "physical": 885
     },
     "web/src/TribeModals.ts": {
       "effective": 386,

@@ -189,7 +189,7 @@ export const hdArt = {
     // Drawn before the original's calls, so what they still draw on the map (fire, smoke: the
     // sub-records, which have HD pictures of their own) stays on top.
     if (known) {
-      const liveRenderer = upper && (kind === 6 || kind === 4) ? renderer(runtime, target) : discard(runtime);
+      const liveRenderer = upper ? renderer(runtime, target) : discard(runtime);
       return { packed: liveRenderer, original: !upper, before: () => { if (upper || groundOnly.has(boundsKey)) draw(known); }, after: () => {} };
     }
     // The first time: the original's pieces are measured; end() learns whether an upper call came.
@@ -234,7 +234,7 @@ export const hdArt = {
     const key = `${e[9535 + slot] ?? 0}-${(e[9557 + slot] ?? 0) & 255}-${e[9579 + slot] ?? 0}`;
     const hd = has.animals.has(key) ? picture(`animals/${key}.png`) : null;
     if (!hd) return null;
-    const size = 160, ox = 64, oy = 96;
+    const size = 384, ox = 128, oy = 256;
     const { context } = scratch(size);
     const graphics = new Graphics(context);
     graphics.translate(ox - x, oy - y);
@@ -391,7 +391,7 @@ const effectFrames = new Map<number, { url: string; bounds: Bounds }[]>();
 const effectPhases = new Map<string, { index: number; bounds: Bounds } | null>();
 
 function effectPicture(runtime: LegacyRuntimeState, record: number, phase: number): { url: string; bounds: Bounds } | null {
-  const size = 96, origin = 32;
+  const size = 320, origin = 96;
   const { canvas, context } = scratch(size);
   const data = runtime.packedData!;
   const packed = new LegacyPackedSpriteRenderer({ shortTables: data.shortTables, byteTables: data.byteTables, imageGroups: runtime.imageGroups, graphics: new Graphics(context) });

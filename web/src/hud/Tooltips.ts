@@ -34,6 +34,7 @@ export function createHudTooltips(hud: HTMLElement): HudTooltips {
   };
   const hideTooltip = () => { tip.hidden = true; };
   const attachHoverTip = (entry: HTMLElement, name: () => string, position: "left" | "top" | "bottom" = "left") => {
+    if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(hover: none)").matches) return;
     entry.addEventListener("mouseenter", () => {
       const value = name();
       entry.setAttribute("title", value);

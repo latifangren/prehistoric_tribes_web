@@ -167,7 +167,7 @@ export function attachHud(
   const buildButton = button("hud-build-button", "", "Build");
   buildButton.innerHTML = img("build-a", "up") + img("build-b", "down");
   buildButton.addEventListener("click", () => touch.command([10]));
-  attachHoverTip(buildButton, () => (lang() === "zh" ? "建造列表 [Q]" : lang() === "id" ? "Menu Bangun [Q]" : "Build Menu [Q]"), "left");
+  attachHoverTip(buildButton, () => (lang() === "zh" ? "建造列表" : lang() === "id" ? "Menu Bangun" : "Build Menu"), "left");
 
   // ✓ / ✕ where something waits for confirming or going back: choosing a chief, aiming a weapon or
   // spell, the building menu (select the villager), placing (back to the build list).
@@ -785,7 +785,16 @@ export function attachHud(
         orderMark.hidden = !aiming;
         orderTick.hidden = !aiming;
         if (aiming) orderMark.innerHTML = img("cmd-plate") + img(ordering, "glyph");
-        if (!picking && !choosing) touch.setMapTapHandler(aiming ? () => {} : null);
+        if (!picking && !choosing) {
+          touch.setTileTapHandler(aiming ? (tx, ty) => { touch.aim(tx, ty); return true; } : null);
+        }
+      }
+      if (aiming) {
+        const pos = screen.tileToCss(game.cameraColumn + game.cursorColumn, game.cameraRow + game.cursorRow);
+        orderMark.style.left = `${pos.x}px`;
+        orderMark.style.top = `${pos.y}px`;
+        orderTick.style.left = `${pos.x + 36}px`;
+        orderTick.style.top = `${pos.y - 28}px`;
       }
       // ✓ / ✕: choosing a chief, aiming at a villager (✓); placing (✕, back).
       const tick = choosing || picking;
@@ -800,8 +809,8 @@ export function attachHud(
       show(actions, onMap && !building && !menu && !villager && group.length < 2 && !touch.busy);
       if (!onMap) return;
       if (menu) drawBuildingMenu();
-      show(left, w === 2 && !building && !menu);
-      show(right, w === 2 && !building && !menu);
+      show(left, false);
+      show(right, false);
       show(cancelBox, touch.boxing);
       show(cancel, !touch.boxing && ((w !== 0 && w !== 3) || picking));
       cancel.setAttribute("aria-label", w === 1 ? (isZh() ? "取消选择" : "Deselect") : (isZh() ? "取消" : "Cancel"));

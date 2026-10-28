@@ -105,10 +105,6 @@ export function createHudPlacementOverlay(
         marker.style.left = `${head.x + tile / 2}px`;
         marker.style.top = `${head.y - tile * 0.35}px`;
       }
-      if (!orderMarkHidden) {
-        const [tx, ty] = screen.centreTile();
-        if (tx !== game.cameraColumn + game.cursorColumn || ty !== game.cameraRow + game.cursorRow) touch.aim(tx, ty);
-      }
       if (lastBarMode === 3 && game.barMode !== 3) setActiveBuildKind(-1);
       lastBarMode = game.barMode;
       const activeKind = getActiveBuildKind();
@@ -127,9 +123,10 @@ export function createHudPlacementOverlay(
       const src = isTrap ? `hd/ui/${trapName}.png` : `hd/buildings/${kind}-1.png`;
       if (!ghostPicture.src.endsWith(src)) ghostPicture.src = src;
       const cssPerGame = (screen.tileToCss(1, 0).x - screen.tileToCss(0, 0).x) / 22;
-      const scale = isTrap ? 1 : hdArt.scale(runtime);
-      const width = isTrap ? 26 * cssPerGame : (ghostPicture.naturalWidth / scale) * cssPerGame;
-      const height = isTrap ? 26 * cssPerGame : (ghostPicture.naturalHeight / scale) * cssPerGame;
+      const footprintWidth = to.x - from.x;
+      const width = isTrap ? 26 * cssPerGame : footprintWidth * 1.25;
+      const aspect = ghostPicture.naturalWidth > 0 ? (ghostPicture.naturalHeight / ghostPicture.naturalWidth) : 1;
+      const height = isTrap ? 26 * cssPerGame : width * aspect;
       const left = (from.x + to.x) / 2 - width / 2;
       const top = to.y - height;
       Object.assign(ghostPicture.style, { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` });
