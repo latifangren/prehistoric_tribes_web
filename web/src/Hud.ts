@@ -731,6 +731,7 @@ export function attachHud(
       const showGroupRow = (!choosing && group.length > 1 && !viewing) || (choosing && candidate === 0 && chiefList.length > 0);
       const activeGroup = choosing ? chiefList : group;
       screen.villagerSheet = single || choosing;
+      screen.groupSheet = showGroupRow;
       show(villagerBox, villager);
       show(groupRow, showGroupRow);
       show(pageDots, building || showGroupRow);

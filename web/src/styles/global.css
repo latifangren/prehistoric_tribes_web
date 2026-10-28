@@ -61,7 +61,7 @@ canvas.screen {
    height of the original's bottom bar pinned at the screen's bottom edge. */
 .hud {
   position: absolute;
-  inset: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  inset: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   pointer-events: none;
 }
 
@@ -233,7 +233,8 @@ button.notice {
   top: 0;
   left: 0;
   width: 0;
-  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  height: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   visibility: hidden;
   pointer-events: none;
 }

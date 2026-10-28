@@ -515,3 +515,13 @@
   pointer-events: none;
 }
 
+@media (orientation: landscape) and (max-height: 500px) {
+  .hud .hud-cmd-item {
+    right: calc(88px + var(--i) * 52px);
+    bottom: calc(var(--hud-bottom, 0px) + 88px);
+  }
+  .hud-squads {
+    top: 15%;
+  }
+}
+

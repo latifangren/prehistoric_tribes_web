@@ -26,15 +26,15 @@ interface Footprint {
   isBeast: boolean;
 }
 
-interface SmokePuff {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
+type SmokePuff = {
+  tx: number;
+  ty: number;
+  vx: number; // kecepatan ubin per detik
+  vy: number; // kecepatan ubin per detik (ke atas / negatif)
   size: number;
   bornAt: number;
   lifeMs: number;
-}
+};
 
 interface Critter {
   tx: number;
@@ -51,15 +51,15 @@ interface Bird {
   lifeMs: number;
 }
 
-interface WorkChip {
-  x: number;
-  y: number;
+type WorkChip = {
+  tx: number;
+  ty: number;
   vx: number;
   vy: number;
   color: string;
   bornAt: number;
   lifeMs: number;
-}
+};
 
 export class WorldParticles {
   private canvas: HTMLCanvasElement;
@@ -210,12 +210,11 @@ export class WorldParticles {
         if (k === 3 || k === 4 || k === 5 || k === 7) {
           const bx = dense[BLD_X + b] ?? 0;
           const by = dense[BLD_Y + b] ?? 0;
-          const pos = screen.tileToCss(bx + 1.2, by + 0.4);
           this.smokePuffs.push({
-            x: pos.x + (Math.random() - 0.5) * 8,
-            y: pos.y + (Math.random() - 0.5) * 6,
-            vx: 0.25 + (Math.random() - 0.5) * 0.2,
-            vy: -0.65 - Math.random() * 0.35,
+            tx: bx + 1.2 + (Math.random() - 0.5) * 0.2,
+            ty: by + 0.4 + (Math.random() - 0.5) * 0.1,
+            vx: 0.05 + (Math.random() - 0.5) * 0.04,
+            vy: -0.15 - Math.random() * 0.08,
             size: 4 + Math.random() * 3,
             bornAt: now,
             lifeMs: 2200 + Math.random() * 800,
@@ -236,14 +235,15 @@ export class WorldParticles {
       const progress = age / p.lifeMs;
       const alpha = (1 - progress) * 0.32;
       const rad = p.size + progress * 14;
-      const px = p.x + p.vx * (age * 0.05);
-      const py = p.y + p.vy * (age * 0.05);
+      const currentTx = p.tx + p.vx * (age / 1000);
+      const currentTy = p.ty + p.vy * (age / 1000);
+      const pos = screen.tileToCss(currentTx, currentTy);
 
-      if (px < -rad || px > w + rad || py < -rad || py > h + rad) continue;
+      if (pos.x < -rad || pos.x > w + rad || pos.y < -rad || pos.y > h + rad) continue;
 
       ctx.fillStyle = `rgba(180, 185, 195, ${alpha.toFixed(3)})`;
       ctx.beginPath();
-      ctx.arc(px, py, rad, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, rad, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -319,12 +319,11 @@ export class WorldParticles {
         if (type === 10 || type === 12) {
           const ux = dense[UNIT_X + id] ?? 0;
           const uy = dense[UNIT_Y + id] ?? 0;
-          const pos = screen.tileToCss(ux, uy);
           this.workChips.push({
-            x: pos.x,
-            y: pos.y - 8,
-            vx: (Math.random() - 0.5) * 1.5,
-            vy: -1.2 - Math.random() * 1.2,
+            tx: ux + 0.5 + (Math.random() - 0.5) * 0.3,
+            ty: uy + 0.5 + (Math.random() - 0.5) * 0.3,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: -0.5 - Math.random() * 0.4,
             color: type === 10 ? "#d7a15c" : "#9e9e9e",
             bornAt: now,
             lifeMs: 500 + Math.random() * 250,
@@ -342,11 +341,13 @@ export class WorldParticles {
         this.workChips.splice(i, 1);
         continue;
       }
-      const cx = c.x + c.vx * (age * 0.08);
-      const cy = c.y + c.vy * (age * 0.08) + 0.002 * (age * age * 0.01); // Gravity drop
+      const currentTx = c.tx + c.vx * (age / 1000);
+      const currentTy = c.ty + c.vy * (age / 1000);
+      const pos = screen.tileToCss(currentTx, currentTy);
+      if (pos.x < -10 || pos.x > w + 10 || pos.y < -10 || pos.y > h + 10) continue;
 
       ctx.fillStyle = c.color;
-      ctx.fillRect(cx, cy, 2, 2);
+      ctx.fillRect(pos.x, pos.y, 2, 2);
     }
   }
 }

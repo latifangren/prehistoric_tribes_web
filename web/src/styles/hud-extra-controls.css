@@ -5,7 +5,8 @@
   top: calc(46px + var(--hud-bar-top, 0px));
   right: 8px;
   min-width: 44px;
-  height: 30px;
+  min-height: 38px;
+  height: 38px;
   padding: 0 10px;
   border-radius: 8px;
   border: 2px solid #3c220c;
@@ -16,6 +17,22 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
   pointer-events: auto;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.hud .hud-speed-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  min-width: 44px;
+  height: 100%;
+  min-height: 44px;
+  transform: translate(-50%, -50%);
 }
 
 .hud .hud-speed-btn[hidden] {

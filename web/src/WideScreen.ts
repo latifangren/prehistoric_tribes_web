@@ -64,7 +64,7 @@ export class WideScreen {
   private readonly overlayGraphics: Graphics;
   private cssSize = { width: 240, height: 320 };
   /** Safe-area insets (notch, home indicator) in CSS pixels. */
-  private safe = { top: 0, bottom: 0 };
+  private safe = { top: 0, bottom: 0, left: 0, right: 0 };
   private scale = 1; // device pixels per game pixel
   private width = 240; // screen size in game pixels
   private height = 320;
@@ -91,6 +91,7 @@ export class WideScreen {
   scriptRunning: () => boolean = () => false;
   /** The HD villager panel is up (Hud.ts sets it): the original's (slot 4) is not drawn (BUG-017). */
   villagerSheet = false;
+  groupSheet = false;
   /** Touch or mouse play (the last input was a pointer): the map's cursor has no hand. */
   touchPlay = true;
   private readonly still = document.createElement("canvas");
@@ -114,7 +115,7 @@ export class WideScreen {
     document.body.append(probe);
     const readSafe = () => {
       const style = getComputedStyle(probe);
-      this.safe = { top: parseFloat(style.paddingTop) || 0, bottom: parseFloat(style.paddingBottom) || 0 };
+      this.safe = { top: parseFloat(style.paddingTop) || 0, bottom: parseFloat(style.paddingBottom) || 0, left: parseFloat(style.paddingLeft) || 0, right: parseFloat(style.paddingRight) || 0 };
     };
     new ResizeObserver(([entry]) => {
       if (!entry) return;
@@ -304,7 +305,7 @@ export class WideScreen {
     // shorter than the screen (mission 1's 32 rows on a tall phone) starts right under the bar.
     // When a bottom sheet is open (villager panel, building panel, or build list), give extra scroll
     // headroom so bottom-most tiles can be panned completely above the panel.
-    const bottomPad = (this.villagerSheet || this.buildCardsOpen)
+    const bottomPad = (this.villagerSheet || this.groupSheet || this.buildCardsOpen || this.buildingMenuOpen)
       ? Math.round((112 * this.ratio) / this.scale)
       : 0;
     const mx = MARGIN_TILES * TILE_W;

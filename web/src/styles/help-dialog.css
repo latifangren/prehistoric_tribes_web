@@ -161,3 +161,29 @@
   white-space: nowrap;
 }
 
+/* Accessible touch target for help dialog close button */
+.help-dialog .confirm-buttons button,
+.help-dialog button[type="submit"] {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  touch-action: manipulation;
+}
+
+.help-dialog .confirm-buttons button::after,
+.help-dialog button[type="submit"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  min-width: 44px;
+  height: 100%;
+  min-height: 44px;
+  transform: translate(-50%, -50%);
+}
+

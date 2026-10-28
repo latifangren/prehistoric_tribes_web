@@ -26,6 +26,7 @@
 }
 
 .a-move-cancel-btn {
+  position: relative;
   background: rgba(0, 0, 0, 0.45);
   border: 1.5px solid rgba(255, 255, 255, 0.8);
   color: #fff;
@@ -43,6 +44,15 @@
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
+.a-move-cancel-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
 .a-move-cancel-btn:active {
   transform: scale(0.88);
   background: rgba(255, 255, 255, 0.4);

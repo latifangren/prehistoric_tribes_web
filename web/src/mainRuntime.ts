@@ -249,22 +249,9 @@ function render(): void {
     dayNightCycle.resize(sw, sh);
     dayNightCycle.tick(now, 16, speed, runtime, screen);
 
-    weatherSystem.resize(sw, sh);
-    weatherSystem.tick(now, 16);
     weatherSystem.applyGameplayEffects(runtime, now);
-
-    emotionBubbles.resize(sw, sh);
-    emotionBubbles.tick(now, runtime, screen);
-
-    worldParticles.resize(sw, sh);
-    worldParticles.tick(now, runtime, screen);
-
-    if (app) tribeTactics.renderRallyMarkers(app, runtime, screen);
   } else {
     dayNightCycle.resize(0, 0);
-    weatherSystem.resize(0, 0);
-    emotionBubbles.resize(0, 0);
-    worldParticles.resize(0, 0);
   }
   endSystems?.();
   const endHud = perf?.start("hud");
@@ -320,10 +307,35 @@ const loop = new FixedLoop({
   render,
 });
 // Between ticks the screen is only recomposed: a drag moves the view smoothly.
+let lastCompose = performance.now();
 const composeEveryFrame = () => {
   const endFrameCompose = perf?.start("frameCompose");
   screen.compose();
   endFrameCompose?.();
+
+  const now = performance.now();
+  const dt = Math.min(100, now - lastCompose);
+  lastCompose = now;
+
+  if (runtime.game.loopMode === 1 && !screen.frozen) {
+    const sw = screen.element.clientWidth || window.innerWidth;
+    const sh = screen.element.clientHeight || window.innerHeight;
+    weatherSystem.resize(sw, sh);
+    weatherSystem.tick(now, dt);
+
+    emotionBubbles.resize(sw, sh);
+    emotionBubbles.tick(now, runtime, screen);
+
+    worldParticles.resize(sw, sh);
+    worldParticles.tick(now, runtime, screen);
+
+    if (app) tribeTactics.renderRallyMarkers(app, runtime, screen);
+  } else {
+    weatherSystem.resize(0, 0);
+    emotionBubbles.resize(0, 0);
+    worldParticles.resize(0, 0);
+  }
+
   hud.track();
   dangerIndicators.track();
   requestAnimationFrame(composeEveryFrame);
