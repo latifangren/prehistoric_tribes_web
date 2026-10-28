@@ -10,6 +10,7 @@ export interface RightThumbControls {
   closeCommands(): void;
   closePop(): void;
   drawCommands(): void;
+  radialActions: readonly { glyph: string; label(): string; act(): void }[];
   drawSquads(): void;
 }
 
@@ -79,6 +80,7 @@ export function createRightThumbControls(options: Options): RightThumbControls {
     cmdMenu.append(entry);
     return { entry, command };
   });
+  const radialActions = [commands[2]!.command, commands[0]!.command, commands[1]!.command, commands[3]!.command, commands[4]!.command].map((c) => ({ glyph: c.glyph, label: c.name, act: () => { closeCommands(); c.act(); } }));
   const drawCommands = () => {
     const running = game.callToArmsActive ? "cmd-arms" : game.formUpActive ? "cmd-rally" : "";
     cmdButton.classList.toggle("lit", running !== "");
@@ -165,5 +167,5 @@ export function createRightThumbControls(options: Options): RightThumbControls {
   };
 
   hud.append(cmdShade, squadBox, squadPop, cmdMenu, cmdButton);
-  return { cmdButton, squadBox, closeCommands, closePop, drawCommands, drawSquads };
+  return { cmdButton, squadBox, closeCommands, closePop, drawCommands, radialActions, drawSquads };
 }

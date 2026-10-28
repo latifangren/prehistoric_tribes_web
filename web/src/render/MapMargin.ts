@@ -76,7 +76,58 @@ export function drawMapMargin(image: LegacyOffscreenImage, window: WideWindow, m
       context.drawImage(art, x(column) + TILE_W / 2 - w / 2 + jitter, y(row) + TILE_H - h, w, h);
     }
   }
-  context.fillStyle = VEIL;
-  context.fillRect(x(from.column), y(from.row), (to.column - from.column) * TILE_W, (to.row - from.row) * TILE_H);
+  const visibleLeft = x(from.column);
+  const visibleTop = y(from.row);
+  const visibleRight = x(to.column);
+  const visibleBottom = y(to.row);
+  const fillGradient = (gradient: CanvasGradient, left: number, top: number, right: number, bottom: number) => {
+    if (left >= right || top >= bottom) return;
+    context.fillStyle = gradient;
+    context.fillRect(left, top, right - left, bottom - top);
+  };
+
+  const topGradient = context.createLinearGradient(0, y(top), 0, y(0));
+  topGradient.addColorStop(0, VEIL);
+  topGradient.addColorStop(1, "rgba(70, 70, 70, 0)");
+  fillGradient(topGradient, visibleLeft, Math.max(visibleTop, y(top)), visibleRight, Math.min(visibleBottom, y(0)));
+
+  const bottomGradient = context.createLinearGradient(0, y(mapHeight), 0, y(bottom));
+  bottomGradient.addColorStop(0, "rgba(70, 70, 70, 0)");
+  bottomGradient.addColorStop(1, VEIL);
+  fillGradient(bottomGradient, visibleLeft, Math.max(visibleTop, y(mapHeight)), visibleRight, Math.min(visibleBottom, y(bottom)));
+
+  const leftGradient = context.createLinearGradient(x(left), 0, x(0), 0);
+  leftGradient.addColorStop(0, VEIL);
+  leftGradient.addColorStop(1, "rgba(70, 70, 70, 0)");
+  fillGradient(leftGradient, Math.max(visibleLeft, x(left)), visibleTop, Math.min(visibleRight, x(0)), visibleBottom);
+
+  const rightGradient = context.createLinearGradient(x(mapWidth), 0, x(right), 0);
+  rightGradient.addColorStop(0, "rgba(70, 70, 70, 0)");
+  rightGradient.addColorStop(1, VEIL);
+  context.restore();
+
+  // Fade a soft shadow into the map's edge tiles as well as over the outer border.
+  context.save();
+  const edgeShadow = "rgba(0, 0, 0, 0.18)";
+  const clearShadow = "rgba(0, 0, 0, 0)";
+  const innerTop = context.createLinearGradient(0, y(0), 0, y(1));
+  innerTop.addColorStop(0, edgeShadow);
+  innerTop.addColorStop(1, clearShadow);
+  fillGradient(innerTop, x(0), y(0), x(mapWidth), y(1));
+
+  const innerBottom = context.createLinearGradient(0, y(mapHeight - 1), 0, y(mapHeight));
+  innerBottom.addColorStop(0, clearShadow);
+  innerBottom.addColorStop(1, edgeShadow);
+  fillGradient(innerBottom, x(0), y(mapHeight - 1), x(mapWidth), y(mapHeight));
+
+  const innerLeft = context.createLinearGradient(x(0), 0, x(1), 0);
+  innerLeft.addColorStop(0, edgeShadow);
+  innerLeft.addColorStop(1, clearShadow);
+  fillGradient(innerLeft, x(0), y(0), x(1), y(mapHeight));
+
+  const innerRight = context.createLinearGradient(x(mapWidth - 1), 0, x(mapWidth), 0);
+  innerRight.addColorStop(0, clearShadow);
+  innerRight.addColorStop(1, edgeShadow);
+  fillGradient(innerRight, x(mapWidth - 1), y(0), x(mapWidth), y(mapHeight));
   context.restore();
 }

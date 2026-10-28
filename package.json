@@ -12,7 +12,11 @@
     "preview": "npm run preview --workspace=web",
     "lint": "tsc -p web/tsconfig.json --noEmit",
     "test": "npm test --workspace=web",
-    "check:size": "node web/scripts/check-file-size.mjs"
+    "check:size": "node web/scripts/check-file-size.mjs",
+    "build:all": "node scripts/build-tauri-all.mjs",
+    "build:desktop": "node scripts/build-tauri-all.mjs --desktop",
+    "build:android": "node scripts/build-tauri-all.mjs --android",
+    "collect:builds": "node scripts/build-tauri-all.mjs --collect-only"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

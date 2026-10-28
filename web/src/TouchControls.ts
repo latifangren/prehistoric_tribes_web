@@ -6,6 +6,7 @@ import { T_BUILDING } from "./core/DataTables";
 import { UNIT_OFFSET_X, UNIT_OFFSET_Y } from "./core/DenseLayout";
 import type { WideScreen } from "./WideScreen";
 import { stepGameplayZAe } from "./ui/UiRuntime";
+import type { RadialMenu } from "./hud/RadialMenu";
 
 /**
  * Touch and mouse input -- the temporary first version the user decided on 2026-10-15
@@ -45,6 +46,7 @@ export type TouchControls = {
   focus(tx: number, ty: number): void;
   /** Makes a DOM button hold an original key while it is pressed. */
   bindKey(button: HTMLElement, key: OriginalKeyName): void;
+  setRadialMenu(menu: RadialMenu | null): void;
   /** Presses and releases `key`, held for `ticks` ticks (a tap is one; 7 / 9 held 4 or more with
    *  units selected store them as a group, f.h()'s I:B count). */
   pressKey(key: OriginalKeyName, ticks?: number): void;
@@ -116,6 +118,24 @@ export function attachTouchControls(
   const game = runtime.game;
   const canvas = screen.element;
   let script: Script | null = null;
+  let radialMenu: RadialMenu | null = null;
+  let rightPointerOpenedMenu = false;
+  canvas.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    if (rightPointerOpenedMenu) { rightPointerOpenedMenu = false; return; }
+    if (game.loopMode === 1 && !screen.frozen && radialMenu) radialMenu.open(event.clientX, event.clientY);
+  });
+  canvas.addEventListener("pointerdown", (event) => {
+    if (event.button !== 2) return;
+    event.preventDefault();
+    rightPointerOpenedMenu = game.loopMode === 1 && !screen.frozen && radialMenu !== null;
+    if (rightPointerOpenedMenu) radialMenu!.open(event.clientX, event.clientY);
+  });
+  window.addEventListener("pointerup", (event) => {
+    if (event.button !== 2) return;
+    radialMenu?.release(event.clientX, event.clientY);
+    window.setTimeout(() => { rightPointerOpenedMenu = false; }, 0);
+  });
   // Ticks counted by step(), and the tick of the last touch/mouse input: behaviour that only suits
   // touch (centring the placement footprint) must not touch keyboard play or a replayed key script.
   let tick = 0;
@@ -567,7 +587,6 @@ export function attachTouchControls(
       gesture = null;
     }
   });
-  canvas.addEventListener("contextmenu", (event) => event.preventDefault());
 
   let lastWheelZoomAt = 0;
   canvas.addEventListener("wheel", (event) => {
@@ -655,6 +674,9 @@ export function attachTouchControls(
   // Named (not returned inline) so the pointer handlers above can call controls.footprint()
   // for the placing grip, as in upstream BOMBWCC 29e035f.
   const controls: TouchControls = {
+    setRadialMenu(menu: RadialMenu | null) {
+      radialMenu = menu;
+    },
     bindKey(button: HTMLElement, key: OriginalKeyName) {
       const up = () => { if (button.dataset.down) { delete button.dataset.down; keys.release(key); } };
       button.addEventListener("pointerdown", (event) => {

@@ -1,3 +1,5 @@
+import "./styles/hud-modular.css";
+import "./styles/hud-radial.css";
 import { readStorage } from "./platform/Storage";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { OriginalKey } from "./platform/Input";
@@ -21,6 +23,7 @@ import { createRightThumbControls } from "./hud/RightThumbControls";
 import { createHudTopBar } from "./hud/TopBar";
 import { createHudTooltips } from "./hud/Tooltips";
 import { createHudPauseMenu } from "./hud/PauseMenu";
+import { RadialMenu } from "./hud/RadialMenu";
 
 /** The round-3 UI's pictures (scripts/import-hd.mjs copies them from design/). */
 const UI = "hd/ui/";
@@ -62,12 +65,15 @@ export function attachHud(
   openRecap?: () => void,
 ): { update(): void; track(): void; openHelp(): void } {
   const game = runtime.game;
+  app.setAttribute("data-hud-style", readStorage("pt.hudStyle") ?? "floating");
   const hud = document.createElement("div");
   hud.className = "hud";
   app.append(hud);
   const { attachHoverTip, longPress } = createHudTooltips(hud);
 
   const modals = attachTribeModals(app, runtime, screen, touch);
+  const radialMenu = new RadialMenu();
+  touch.setRadialMenu(radialMenu);
 
   const button = (className: string, text: string, label?: string) => {
     const element = document.createElement("button");
@@ -223,6 +229,7 @@ export function attachHud(
     attachHoverTip,
     longPress,
   });
+  radialMenu.setActions(rightThumb.radialActions.map((action) => ({ glyph: action.glyph, label: action.label(), run: action.act })));
   const { cmdButton, squadBox, closeCommands, closePop, drawCommands, drawSquads } = rightThumb;
 
   hud.append(buildButton, fab);

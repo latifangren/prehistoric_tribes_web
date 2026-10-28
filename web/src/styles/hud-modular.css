@@ -1,0 +1,93 @@
+/* Modular HUD compositions: floating island and classic RTS console. */
+#app[data-hud-style="floating"] .hud-bar {
+  left: 50%;
+  right: auto;
+  width: min(680px, calc(100% - 24px));
+  max-width: 680px;
+  margin: 0 auto;
+  transform: translateX(-50%);
+  padding-right: 100px;
+}
+#app[data-hud-style="floating"] .hud .hud-menu-button {
+  left: calc(50% + min(340px, 50% - 12px) - 38px);
+  right: auto;
+  top: calc(4px + var(--hud-bar-top, 0px));
+}
+#app[data-hud-style="floating"] .hud-speed-btn {
+  left: calc(50% + min(340px, 50% - 12px) - 90px);
+  right: auto;
+  top: calc(7px + var(--hud-bar-top, 0px));
+  min-width: 44px;
+  height: 32px;
+}
+#app[data-hud-style="floating"] .hud .hud-cmd {
+  bottom: calc(var(--hud-bottom, 0px) + 116px);
+}
+#app[data-hud-style="floating"] .hud .hud-build-button img,
+#app[data-hud-style="floating"] .hud .hud-cmd img {
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55));
+}
+#app[data-hud-style="floating"] .hud-sheet {
+  left: 50%;
+  right: auto;
+  width: min(680px, calc(100% - 24px));
+  transform: translateX(-50%);
+  bottom: calc(var(--hud-bottom, 0px) + 16px);
+  border-radius: 18px;
+  box-shadow: 0 18px 42px rgba(20, 12, 4, .45), inset 0 3px 0 #d9cc6e;
+}
+#app[data-hud-style="floating"] .hud-villager {
+  left: 50%;
+  width: min(680px, calc(100% - 24px));
+  transform: translateX(-50%);
+}
+#app[data-hud-style="floating"] .hud .hud-build-button,
+#app[data-hud-style="floating"] .hud .hud-fab { right: 18px; bottom: calc(var(--hud-bottom, 0px) + 16px); }
+#app[data-hud-style="floating"] .hud .hud-build-button {
+  bottom: calc(var(--hud-bottom, 0px) + 14px);
+}
+
+#app[data-hud-style="console"] .hud-sheet {
+  border-radius: 0;
+  background: linear-gradient(180deg, #3c2a1a 0%, #22160b 100%);
+  border-top: 3px solid #8d6e3f;
+  box-shadow: 0 -4px 16px rgba(0,0,0,.6);
+}
+@media (min-width: 768px) {
+  #app[data-hud-style="console"] .hud-sheet {
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: calc(176px + var(--hud-safe-bottom, 0px));
+    bottom: calc(-1 * var(--hud-safe-bottom, 0px));
+    padding-top: 5px;
+  }
+  #app[data-hud-style="console"] .hud-villager {
+    top: auto;
+    bottom: calc(var(--hud-safe-bottom, 0px) + 48px);
+    left: 14px;
+    width: min(34vw, 440px);
+    height: 112px;
+    padding: 8px;
+    border: 2px solid #8d6e3f;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #57422c, #302116);
+    box-shadow: inset 0 1px 5px rgba(0,0,0,.65), 0 3px 8px rgba(0,0,0,.35);
+  }
+  #app[data-hud-style="console"] .hud-sheet-row { max-width: 52%; margin-left: 35%; }
+  #app[data-hud-style="console"] .hud .hud-build-button,
+  #app[data-hud-style="console"] .hud .hud-fab { right: 18px; bottom: calc(var(--hud-safe-bottom, 0px) + 18px); }
+  #app[data-hud-style="console"] .hud-actions { right: 108px; bottom: calc(var(--hud-safe-bottom, 0px) + 22px); }
+}
+@media (max-width: 767px) {
+  #app[data-hud-style="console"] .hud-sheet { border-radius: 16px 16px 0 0; }
+  #app[data-hud-style="console"] .hud .hud-build-button,
+  #app[data-hud-style="console"] .hud .hud-fab { right: 12px; bottom: calc(var(--hud-bottom, 0px) + 10px); }
+}
+@media (min-width: 1920px) {
+  #app[data-hud-style] .hud-bar { font-size: 1.18em; }
+  #app[data-hud-style] .hud .hud-build-button,
+  #app[data-hud-style] .hud .hud-fab { width: 88px; height: 88px; }
+  #app[data-hud-style] .hud .hud-menu-button { width: 44px; height: 44px; }
+  #app[data-hud-style="floating"] .hud-sheet { width: min(820px, calc(100% - 32px)); }
+}

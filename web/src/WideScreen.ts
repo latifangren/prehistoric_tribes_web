@@ -1,4 +1,4 @@
-import { writeStorage } from "./platform/Storage";
+import { readStorage, writeStorage } from "./platform/Storage";
 import type { LegacyRuntimeState } from "./core/LegacyRuntimeState";
 import { Graphics } from "./platform/Graphics";
 import { oldArt } from "./platform/OldArt";
@@ -77,6 +77,7 @@ export class WideScreen {
    *  many screen game pixels one of its pixels takes, and whether it is the sub-records on black. */
   private scene: { image: LegacyOffscreenImage; x: number; y: number; zoom: number; sprites: boolean } | null = null;
   /** Zoom setting: how many device pixels per game pixel below the largest that fits (0 = largest). */
+  private mapFit: "smart" | "free" = (readStorage("pt.mapFit") as "smart" | "free") || "smart";
   zoomOut = 0;
   /** While set, the screen shows what it showed when freeze() was called (the game menu,
    *  Hud.ts: the original's pause menu, its prompts and messages stay out of sight). */
@@ -129,9 +130,28 @@ export class WideScreen {
   zoomLevels(): number[] {
     const max = this.maxScale();
     const levels: number[] = [];
-    // Down to half the largest: below that the sprites get too small to tap.
-    for (let s = max; s >= Math.max(1, Math.ceil(max / 2)); s -= 1) levels.push(s);
+    const g = this.runtime.game;
+    const mapW = Math.max(1, (g.mapWidth || 32) * TILE_W);
+    const mapH = Math.max(1, (g.mapHeight || 32) * TILE_H);
+    const fitW = Math.ceil(this.element.width / mapW);
+    const fitH = Math.ceil(this.element.height / mapH);
+    const fitMapScale = Math.min(max, Math.max(fitW, fitH));
+
+    const minScale = this.mapFit === "smart"
+      ? Math.max(1, fitMapScale)
+      : Math.max(1, Math.ceil(max / 2));
+
+    for (let s = max; s >= minScale; s -= 1) levels.push(s);
     return levels.length > 0 ? levels : [max];
+  }
+
+  setMapFit(mode: "smart" | "free"): void {
+    this.mapFit = mode;
+    this.resize();
+  }
+
+  getMapFit(): "smart" | "free" {
+    return this.mapFit;
   }
 
   /** About how many tiles the map shows at `scale` device pixels per game pixel. */
@@ -299,8 +319,17 @@ export class WideScreen {
   private clampView(): void {
     const g = this.runtime.game;
     const { upper } = this.layout();
-    const mapW = g.mapWidth * TILE_W;
-    const mapH = g.mapHeight * TILE_H;
+    const mapW = Math.max(1, (g.mapWidth || 32) * TILE_W);
+    const mapH = Math.max(1, (g.mapHeight || 32) * TILE_H);
+    if (this.mapFit === "smart") {
+      this.viewX = mapW <= this.width
+        ? (mapW - this.width) / 2
+        : Math.max(0, Math.min(mapW - this.width, this.viewX));
+      this.viewY = mapH <= this.height
+        ? (mapH - this.height) / 2
+        : Math.max(0, Math.min(mapH - this.height, this.viewY));
+      return;
+    }
     // The map may run under the panels and the screen's bottom edge, never under the bar. A map
     // shorter than the screen (mission 1's 32 rows on a tall phone) starts right under the bar.
     // When a bottom sheet is open (villager panel, building panel, or build list), give extra scroll
