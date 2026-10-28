@@ -37,7 +37,7 @@ export class TribeTacticsManager {
   private processedNewborns = new Set<number>();
   private markerOverlay: HTMLElement | null = null;
   private flagElements = new Map<number, HTMLElement>();
-
+  private lastEnemyTacticsTime = 0;
   isAttackMoveActive(): boolean {
     return this.attackMoveActive;
   }
@@ -278,6 +278,60 @@ export class TribeTacticsManager {
           dense[UNIT_TARGET_X + id] = nearestRally.x;
           dense[UNIT_TARGET_Y + id] = nearestRally.y;
         }
+      }
+    }
+
+    // 3. Enemy AI (Team 1) Tactics: coordinates ranged skirmishers every ~1200ms
+    const now = performance.now();
+    if (now - this.lastEnemyTacticsTime >= 1200) {
+      this.lastEnemyTacticsTime = now;
+      this.coordinateEnemyTactics(runtime);
+    }
+  }
+
+  /**
+   * Enemy AI (Team 1) Tactics: Coordinates enemy raiders during skirmishes.
+   * Ranged enemies (spears/rocks) maintain 2-3 tile standoff distance behind melee vanguards,
+   * preventing them from recklessly face-tanking player defenses.
+   */
+  private coordinateEnemyTactics(runtime: LegacyRuntimeState): void {
+    const dense = runtime.denseState;
+
+    for (let e = 51; e <= 100; e += 1) {
+      if ((dense[UNIT_HP + e] ?? 0) <= 0) continue;
+      const order = dense[UNIT_ORDER + e] ?? 0;
+      if (order !== 2 && order !== 3) continue;
+
+      const held = dense[UNIT_HELD_ITEM + e] ?? 0;
+      // Ranged: 1 throwing stone, 2 spear, 5 tomahawk
+      const isRanged = held === 1 || held === 2 || held === 5;
+      if (!isRanged) continue;
+
+      const ex = dense[UNIT_X + e] ?? 0;
+      const ey = dense[UNIT_Y + e] ?? 0;
+
+      let nearestDist = 8;
+      let targetPlayer: [number, number] | null = null;
+      for (let p = 1; p <= 50; p += 1) {
+        if ((dense[UNIT_HP + p] ?? 0) <= 0) continue;
+        const px = dense[UNIT_X + p] ?? 0;
+        const py = dense[UNIT_Y + p] ?? 0;
+        const d = Math.hypot(px - ex, py - ey);
+        if (d < nearestDist) {
+          nearestDist = d;
+          targetPlayer = [px, py];
+        }
+      }
+
+      if (targetPlayer && nearestDist <= 2.5) {
+        const dx = ex - targetPlayer[0];
+        const dy = ey - targetPlayer[1];
+        const len = Math.hypot(dx, dy) || 1;
+        const mapW = runtime.game.mapWidth || 50;
+        const mapH = runtime.game.mapHeight || 50;
+        dense[UNIT_TARGET_X + e] = Math.max(1, Math.min(mapW - 2, Math.round(ex + (dx / len) * 2)));
+        dense[UNIT_TARGET_Y + e] = Math.max(1, Math.min(mapH - 2, Math.round(ey + (dy / len) * 2)));
+        dense[UNIT_ORDER + e] = 2;
       }
     }
   }

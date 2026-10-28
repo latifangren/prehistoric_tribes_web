@@ -3,7 +3,7 @@ import { ZH_LANGUAGE } from "../text/LegacyZhText";
 import { audioManager } from "../platform/AudioManager";
 import { getMasterVolume, isSfxEnabled } from "../platform/SoundEffects";
 import type { LegacyRuntimeState } from "../core/LegacyRuntimeState";
-import { UNIT_ENERGY, UNIT_HP, UNIT_MODE } from "../core/DenseLayout";
+import { BLD_HP, BLD_KIND, BLD_X, BLD_Y, UNIT_ENERGY, UNIT_HP, UNIT_MODE, UNIT_X, UNIT_Y } from "../core/DenseLayout";
 
 const WEATHER_ENABLED_KEY = "pt.weather";
 
@@ -136,9 +136,28 @@ export class WeatherSystem {
     this.lastEffectTime = now;
 
     if (this.currentMode === "snow") {
-      // Freezing cold: outdoor villagers lose energy slightly faster
+      // Freezing cold: outdoor villagers lose energy unless sheltered within warmth aura (<= 4 tiles)
+      // Heat sources match confirmed DayNightCycle lighting: 3 (Chief Hut), 4 (Kitchen), 7 (Disco), 8 (Sanctuary), 11 (Tower)
       for (let id = 1; id <= 50; id += 1) {
-        if ((dense[UNIT_HP + id] ?? 0) > 0) {
+        if ((dense[UNIT_HP + id] ?? 0) <= 0) continue;
+        const ux = dense[UNIT_X + id] ?? 0;
+        const uy = dense[UNIT_Y + id] ?? 0;
+        let sheltered = false;
+
+        for (let b = 1; b <= 30; b += 1) {
+          if ((dense[BLD_HP + b] ?? 0) <= 0) continue;
+          const kind = dense[BLD_KIND + b] ?? -1;
+          if (kind === 3 || kind === 4 || kind === 7 || kind === 8 || kind === 11) {
+            const bx = dense[BLD_X + b] ?? 0;
+            const by = dense[BLD_Y + b] ?? 0;
+            if (Math.hypot(bx - ux, by - uy) <= 4) {
+              sheltered = true;
+              break;
+            }
+          }
+        }
+
+        if (!sheltered) {
           const energy = dense[UNIT_ENERGY + id] ?? 50;
           if (energy > 5) dense[UNIT_ENERGY + id] = energy - 1;
         }

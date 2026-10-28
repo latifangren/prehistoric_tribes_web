@@ -226,8 +226,9 @@ Untuk menjaga momentum pengembangan vibe-coding tanpa menimbulkan technical debt
 
 ## 9. Laporan Audit & Riwayat Diagnostik
 
-Untuk penelusuran mendalam temuan runtime, postmortem rollback sistem inisiasi pemuda (commit `4ee7c96`), profil memori render, dan analisis ergonomi kontrol sentuh HP, rujuk dokumen:
+Untuk penelusuran mendalam temuan runtime, postmortem rollback sistem inisiasi pemuda (commit `4ee7c96`), profil memori render, analisis ergonomi kontrol sentuh HP, serta panduan formula keseimbangan gameplay dan survival, rujuk dokumen:
 * **`docs/audit/2026-10-deep-audit-and-architecture-report.md`**
+* **`docs/gameplay_balance_and_survival_guide.md`**
 
 ---
 

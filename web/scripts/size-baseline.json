@@ -491,8 +491,8 @@
       "physical": 145
     },
     "web/src/combat/TribeTactics.ts": {
-      "effective": 275,
-      "physical": 345
+      "effective": 315,
+      "physical": 400
     },
     "web/src/core/DataTables.ts": {
       "effective": 36,
@@ -907,8 +907,8 @@
       "physical": 1841
     },
     "web/src/render/WeatherSystem.ts": {
-      "effective": 375,
-      "physical": 450
+      "effective": 390,
+      "physical": 465
     },
     "web/src/render/WorldParticles.ts": {
       "effective": 315,
